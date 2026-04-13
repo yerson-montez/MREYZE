@@ -1,0 +1,513 @@
+/* =====================================================
+   navbar.css — TechSys Navbar
+   Importar en: resources/css/navbar.css
+   ===================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Exo+2:wght@300;400;600;700&family=Inter:wght@300;400;500&display=swap');
+
+/* ── Variables de color ── */
+/* ── Paleta verde TechSys ── */
+:root {
+  --nav-bg:               #0F6E56;   /* fondo principal del navbar     */
+  --nav-bg-hover:         #1D9E75;   /* hover de fondo en items        */
+  --nav-accent:           #5DCAA5;   /* acento principal (logo, activo)*/
+  --nav-accent-line:      #9FE1CB;   /* línea top del navbar           */
+  --nav-text:             #E1F5EE;   /* texto principal                */
+  --nav-text-muted:       #9FE1CB;   /* texto apagado en links         */
+  --nav-active:           #5DCAA5;   /* link activo                    */
+  --nav-dropdown-bg:      #085041;   /* fondo del dropdown             */
+  --nav-btn-google-bg:    #E1F5EE;   /* botón Google                   */
+  --nav-btn-google-text:  #085041;
+  --nav-btn-login-border: #5DCAA5;   /* botón iniciar sesión           */
+  --nav-btn-login-text:   #9FE1CB;
+  --nav-btn-cta-bg:       #5DCAA5;   /* botón Registrarse              */
+  --nav-btn-cta-text:     #04342C;
+  --nav-dot:              #9FE1CB;   /* puntito en Tienda              */
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+    background: var(--ice-900);
+    color: #e2ecff;
+}
+
+/* ─────────────────────────────────────────
+   LÍNEA DECORATIVA SUPERIOR
+───────────────────────────────────────── */
+.nav-accent-line {
+    height: 2px;
+    background: linear-gradient(
+        90deg,
+        transparent 0%,
+        var(--ice-500) 20%,
+        var(--accent) 50%,
+        var(--ice-500) 80%,
+        transparent 100%
+    );
+}
+
+/* ─────────────────────────────────────────
+   CONTENEDOR PRINCIPAL
+───────────────────────────────────────── */
+.nav-wrapper {
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    padding: 0 2rem;
+    background: rgba(10, 22, 40, 0.85);
+    backdrop-filter: blur(18px) saturate(180%);
+    -webkit-backdrop-filter: blur(18px) saturate(180%);
+    border-bottom: 1px solid rgba(74, 144, 217, 0.18);
+    box-shadow: 0 4px 32px rgba(0, 90, 200, 0.12);
+}
+
+.navbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    max-width: 1280px;
+    margin: 0 auto;
+    height: 68px;
+}
+
+/* ─────────────────────────────────────────
+   LOGO
+───────────────────────────────────────── */
+.nav-logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    text-decoration: none;
+}
+
+.nav-logo-icon {
+    width: 38px;
+    height: 38px;
+    background: linear-gradient(135deg, var(--ice-500), var(--accent));
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 0 16px rgba(0, 212, 255, 0.35);
+    flex-shrink: 0;
+}
+
+.nav-logo-icon svg {
+    width: 22px;
+    height: 22px;
+    fill: white;
+}
+
+.nav-logo-text {
+    font-family: 'Exo 2', sans-serif;
+    font-weight: 700;
+    font-size: 1.2rem;
+    letter-spacing: 0.03em;
+    color: #fff;
+    line-height: 1;
+}
+
+.nav-logo-text span {
+    color: var(--accent);
+}
+
+.nav-logo-sub {
+    font-size: 0.58rem;
+    font-weight: 300;
+    color: var(--ice-200);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    display: block;
+    margin-top: 2px;
+}
+
+/* ─────────────────────────────────────────
+   LINKS DE NAVEGACIÓN
+───────────────────────────────────────── */
+.nav-links {
+    display: flex;
+    align-items: center;
+    gap: 0.2rem;
+    list-style: none;
+}
+
+.nav-links a {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 0.45rem 0.9rem;
+    border-radius: 8px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--ice-100);
+    text-decoration: none;
+    letter-spacing: 0.02em;
+    transition: all 0.22s ease;
+    position: relative;
+    white-space: nowrap;
+}
+
+.nav-links a svg {
+    width: 15px;
+    height: 15px;
+    opacity: 0.7;
+    transition: opacity 0.2s;
+}
+
+.nav-chevron {
+    width: 12px !important;
+    height: 12px !important;
+    margin-left: 2px;
+    opacity: 0.5 !important;
+}
+
+.nav-links a:hover {
+    color: #fff;
+    background: rgba(37, 99, 199, 0.25);
+}
+
+.nav-links a:hover svg {
+    opacity: 1;
+}
+
+/* Subrayado animado */
+.nav-links a::after {
+    content: '';
+    position: absolute;
+    bottom: 4px;
+    left: 50%;
+    transform: translateX(-50%) scaleX(0);
+    width: 60%;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--accent), transparent);
+    border-radius: 2px;
+    transition: transform 0.25s ease;
+}
+
+.nav-links a:hover::after,
+.nav-links a.active::after {
+    transform: translateX(-50%) scaleX(1);
+}
+
+.nav-links a.active {
+    color: #fff;
+    background: rgba(37, 99, 199, 0.2);
+}
+
+/* ─────────────────────────────────────────
+   DROPDOWN DE SERVICIOS
+───────────────────────────────────────── */
+.nav-item {
+    position: relative;
+}
+
+.nav-item:hover .dropdown {
+    opacity: 1;
+    pointer-events: all;
+    transform: translateY(0);
+}
+
+.dropdown {
+    position: absolute;
+    top: calc(100% + 10px);
+    left: 0;
+    min-width: 230px;
+    background: rgba(13, 31, 60, 0.97);
+    border: 1px solid rgba(74, 144, 217, 0.22);
+    border-radius: 14px;
+    padding: 0.6rem;
+    box-shadow:
+        0 16px 48px rgba(0, 30, 90, 0.5),
+        0 0 0 1px rgba(0, 212, 255, 0.06);
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(-8px);
+    transition: all 0.22s ease;
+    backdrop-filter: blur(16px);
+}
+
+.dropdown a {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 0.55rem 0.85rem;
+    border-radius: 8px;
+    font-size: 0.835rem;
+    color: var(--ice-100);
+    text-decoration: none;
+    transition: all 0.18s;
+}
+
+.dropdown a svg {
+    width: 16px;
+    height: 16px;
+    color: var(--ice-300);
+    flex-shrink: 0;
+}
+
+.dropdown a:hover {
+    background: rgba(37, 99, 199, 0.3);
+    color: #fff;
+    padding-left: 1.1rem;
+}
+
+.dropdown-label {
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--ice-300);
+    padding: 0.5rem 0.85rem 0.25rem;
+}
+
+.dropdown-divider {
+    height: 1px;
+    background: rgba(74, 144, 217, 0.15);
+    margin: 0.4rem 0;
+}
+
+/* ─────────────────────────────────────────
+   SECCIÓN DERECHA (botones auth)
+───────────────────────────────────────── */
+.nav-right {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+/* Botón Iniciar sesión */
+.btn-login {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    padding: 0.45rem 1.1rem;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: var(--ice-100);
+    background: rgba(37, 99, 199, 0.18);
+    border: 1px solid rgba(74, 144, 217, 0.3);
+    text-decoration: none;
+    transition: all 0.22s;
+    cursor: pointer;
+}
+
+.btn-login svg {
+    width: 15px;
+    height: 15px;
+}
+
+.btn-login:hover {
+    background: rgba(37, 99, 199, 0.35);
+    border-color: rgba(74, 144, 217, 0.6);
+    color: #fff;
+}
+
+/* Botón Registrarse (CTA) */
+.btn-cta {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    padding: 0.5rem 1.25rem;
+    border-radius: 8px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #fff;
+    background: linear-gradient(135deg, var(--ice-500), var(--ice-400));
+    border: 1px solid rgba(74, 144, 217, 0.4);
+    text-decoration: none;
+    letter-spacing: 0.02em;
+    transition: all 0.25s;
+    box-shadow: 0 4px 16px rgba(30, 77, 153, 0.45);
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.btn-cta svg {
+    width: 15px;
+    height: 15px;
+}
+
+.btn-cta:hover {
+    background: linear-gradient(135deg, var(--ice-400), var(--glow));
+    box-shadow: 0 6px 24px rgba(59, 130, 246, 0.55), 0 0 0 1px rgba(0, 212, 255, 0.2);
+    transform: translateY(-1px);
+}
+
+/* Botón Google */
+.btn-google {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0.45rem 1rem;
+    border-radius: 8px;
+    font-size: 0.835rem;
+    font-weight: 500;
+    color: var(--ice-100);
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    text-decoration: none;
+    transition: all 0.22s;
+    cursor: pointer;
+}
+
+.btn-google img {
+    width: 16px;
+    height: 16px;
+}
+
+.btn-google:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.25);
+    color: #fff;
+}
+
+/* Usuario autenticado */
+.nav-user {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0.35rem 0.75rem 0.35rem 0.4rem;
+    border-radius: 30px;
+    background: rgba(37, 99, 199, 0.18);
+    border: 1px solid rgba(74, 144, 217, 0.28);
+    cursor: pointer;
+    transition: all 0.22s;
+    text-decoration: none;
+    color: var(--ice-100);
+    font-size: 0.85rem;
+    font-weight: 500;
+}
+
+.nav-user:hover {
+    background: rgba(37, 99, 199, 0.32);
+    color: #fff;
+}
+
+.nav-user-avatar {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--ice-500), var(--accent));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: #fff;
+    letter-spacing: 0.02em;
+    flex-shrink: 0;
+}
+
+/* ─────────────────────────────────────────
+   PUNTO INDICADOR (Tienda)
+───────────────────────────────────────── */
+.nav-dot {
+    width: 6px;
+    height: 6px;
+    background: var(--accent);
+    border-radius: 50%;
+    margin-left: auto;
+    flex-shrink: 0;
+    box-shadow: 0 0 6px var(--accent);
+}
+
+/* ─────────────────────────────────────────
+   BOTÓN HAMBURGUESA
+───────────────────────────────────────── */
+.nav-toggle {
+    display: none;
+    flex-direction: column;
+    gap: 5px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 8px;
+    transition: background 0.2s;
+}
+
+.nav-toggle:hover {
+    background: rgba(37, 99, 199, 0.2);
+}
+
+.nav-toggle span {
+    display: block;
+    width: 22px;
+    height: 2px;
+    background: var(--ice-200);
+    border-radius: 2px;
+    transition: all 0.3s;
+}
+
+/* Animación hamburguesa → X */
+.nav-toggle.open span:nth-child(1) { transform: rotate(45deg) translate(5px, 5px); }
+.nav-toggle.open span:nth-child(2) { opacity: 0; transform: scaleX(0); }
+.nav-toggle.open span:nth-child(3) { transform: rotate(-45deg) translate(5px, -5px); }
+
+/* ─────────────────────────────────────────
+   MENÚ MÓVIL
+───────────────────────────────────────── */
+@media (max-width: 900px) {
+
+    .nav-links,
+    .nav-right {
+        display: none;
+    }
+
+    .nav-toggle {
+        display: flex;
+    }
+
+    .nav-mobile {
+        display: none;
+        flex-direction: column;
+        gap: 0.25rem;
+        padding: 1rem 0 1.2rem;
+        border-top: 1px solid rgba(74, 144, 217, 0.15);
+        animation: slideDown 0.28s ease;
+    }
+
+    @keyframes slideDown {
+        from { opacity: 0; transform: translateY(-10px); }
+        to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .nav-mobile.open {
+        display: flex;
+    }
+
+    .nav-mobile a {
+        padding: 0.65rem 1rem;
+        border-radius: 8px;
+        font-size: 0.9rem;
+        color: var(--ice-100);
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        transition: all 0.18s;
+    }
+
+    .nav-mobile a:hover {
+        background: rgba(37, 99, 199, 0.25);
+        color: #fff;
+    }
+
+    .nav-mobile-divider {
+        height: 1px;
+        background: rgba(74, 144, 217, 0.12);
+        margin: 0.4rem 0;
+    }
+
+    .nav-mobile .btn-cta {
+        margin-top: 0.5rem;
+        justify-content: center;
+    }
+}
