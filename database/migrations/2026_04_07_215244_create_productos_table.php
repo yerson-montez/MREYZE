@@ -11,16 +11,16 @@ return new class extends Migration
         Schema::create('productos', function (Blueprint $table) {
             $table->id();
             $table->string('nombre');
-            $table->string('slug')->unique();
-            $table->text('descripcion')->nullable();
-            $table->string('categoria'); // iot, software, kits
+            $table->text('descripcion');
             $table->decimal('precio', 10, 2);
             $table->decimal('precio_anterior', 10, 2)->nullable();
-            $table->string('estado')->default('disponible'); // disponible, agotado, nuevo
-            $table->string('emoji')->default('📦');
-            $table->string('imagen')->nullable(); // path de imagen subida
+            $table->integer('stock')->default(0);
+            $table->enum('categoria', ['iot', 'software', 'kits'])->default('iot');
+            $table->enum('estado', ['nuevo', 'disponible', 'agotado'])->default('disponible');
+            $table->string('icono_emoji')->default('📦');
+            $table->string('icono_color')->default('rgba(0,212,255,0.12)');
+            $table->string('slug')->unique();
             $table->boolean('activo')->default(true);
-            $table->integer('orden')->default(0);
             $table->timestamps();
         });
     }

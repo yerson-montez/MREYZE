@@ -215,7 +215,7 @@
         <nav class="navbar">
             <a href="/" class="nav-logo">
                 <div class="nav-logo-icon">
-                    <img src="{{ asset('img/LOGOMREYZE.png') }}">
+                    <img src="{{ asset('img/LOGOMREYZE1.png') }}">
                 </div>
                 <div>
                     <!--<span class="nav-logo-text">M<span>REYZE</span></span>-->

@@ -314,6 +314,11 @@
     @media (max-width: 480px)  { .tienda-grid { grid-template-columns: 1fr; } }
 </style>
 
+{{--
+    tiendaCliente.blade.php  ·  sección pública
+    Los productos ahora vienen del controlador: compact('productos')
+--}}
+
 <section class="tienda" id="tienda">
     <div class="tienda-bg"></div>
     <div class="tienda-container">
@@ -324,10 +329,32 @@
                 <div class="section-label">Productos</div>
                 <h2 class="section-title">Nuestra <span>Tienda</span></h2>
             </div>
-            <a href="{{ url('/tienda') }}" class="tienda-ver-mas">
-                Ver catálogo completo
-                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6z"/></svg>
-            </a>
+            <div style="display:flex;align-items:center;gap:1rem">
+
+                {{-- Botón admin (solo para admins autenticados) --}}
+                @auth
+                    @if(auth()->user()->esAdmin())
+                    <a href="{{ route('admin.productos.index') }}"
+                       style="display:inline-flex;align-items:center;gap:.4rem;
+                              padding:.45rem 1rem;border-radius:8px;font-size:.8rem;font-weight:600;
+                              background:rgba(0,212,255,.1);color:#00d4ff;
+                              border:1px solid rgba(0,212,255,.3);text-decoration:none;
+                              transition:all .18s"
+                       onmouseover="this.style.background='rgba(0,212,255,.2)'"
+                       onmouseout="this.style.background='rgba(0,212,255,.1)'">
+                        <svg viewBox="0 0 24 24" fill="currentColor" style="width:14px;height:14px">
+                            <path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/>
+                        </svg>
+                        Panel admin
+                    </a>
+                    @endif
+                @endauth
+
+                <a href="{{ url('/tienda') }}" class="tienda-ver-mas">
+                    Ver catálogo completo
+                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6z"/></svg>
+                </a>
+            </div>
         </div>
 
         {{-- Categorías --}}
@@ -338,105 +365,63 @@
             <button class="cat-btn" onclick="filtrarCat('kits', this)">Kits</button>
         </div>
 
-        {{-- Productos --}}
+        {{-- Productos dinámicos desde DB --}}
         <div class="tienda-grid">
 
-            <div class="producto-card reveal" data-cat="iot">
+            @forelse($productos as $p)
+            <div class="producto-card reveal" data-cat="{{ $p->categoria }}">
                 <div class="producto-img">
-                    <div class="producto-img-bg">📡</div>
-                    <div class="producto-img-icon" style="background:rgba(0,212,255,0.12);border:1px solid rgba(0,212,255,0.3)">
-                        <svg viewBox="0 0 24 24" fill="rgba(0,212,255,0.9)"><path d="M1 9l2 2c4.97-4.97 13.03-4.97 18 0l2-2C16.93 2.93 7.08 2.93 1 9zm8 8l3 3 3-3c-1.65-1.66-4.34-1.66-6 0zm-4-4l2 2c2.76-2.76 7.24-2.76 10 0l2-2C15.14 9.14 8.87 9.14 5 13z"/></svg>
+                    <div class="producto-img-bg">{{ $p->icono_emoji }}</div>
+                    <div class="producto-img-icon" style="background:{{ $p->icono_color }};border:1px solid {{ str_replace('0.12','0.3',$p->icono_color) }}">
+                        {{-- Ícono SVG genérico según categoría --}}
+                        @if($p->categoria === 'iot')
+                            <svg viewBox="0 0 24 24" fill="rgba(0,212,255,0.9)"><path d="M1 9l2 2c4.97-4.97 13.03-4.97 18 0l2-2C16.93 2.93 7.08 2.93 1 9zm8 8l3 3 3-3c-1.65-1.66-4.34-1.66-6 0zm-4-4l2 2c2.76-2.76 7.24-2.76 10 0l2-2C15.14 9.14 8.87 9.14 5 13z"/></svg>
+                        @elseif($p->categoria === 'software')
+                            <svg viewBox="0 0 24 24" fill="rgba(45,212,191,0.9)"><path d="M9.4 16.6L4.8 12l4.6-4.6L8 6l-6 6 6 6 1.4-1.4zm5.2 0l4.6-4.6-4.6-4.6L16 6l6 6-6 6-1.4-1.4z"/></svg>
+                        @else
+                            <svg viewBox="0 0 24 24" fill="rgba(122,184,245,0.9)"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58z"/></svg>
+                        @endif
                     </div>
-                    <span class="producto-stock nuevo">Nuevo</span>
+
+                    {{-- Badge estado --}}
+                    <span class="producto-stock {{ $p->estado }}">{{ ucfirst($p->estado) }}</span>
+
+                    {{-- Badge descuento --}}
+                    @if($p->tieneDescuento())
+                    <span class="producto-descuento">-{{ $p->porcentaje_descuento }}%</span>
+                    @endif
                 </div>
+
                 <div class="producto-body">
-                    <div class="producto-cat">IoT</div>
-                    <div class="producto-nombre">Kit ESP32 + Sensores IoT</div>
-                    <p class="producto-desc">Kit completo con ESP32, sensores de temperatura, humedad y presión. Ideal para proyectos de monitoreo.</p>
+                    <div class="producto-cat">{{ strtoupper($p->categoria) }}</div>
+                    <div class="producto-nombre">{{ $p->nombre }}</div>
+                    <p class="producto-desc">{{ $p->descripcion }}</p>
                     <div class="producto-footer">
                         <div class="producto-precio">
-                            <div class="producto-precio-actual">S/ 85<span>.00</span></div>
+                            <div class="producto-precio-actual">
+                                S/ {{ number_format($p->precio, 0) }}<span>.{{ substr(number_format($p->precio, 2), -2) }}</span>
+                            </div>
+                            @if($p->precio_anterior)
+                            <div class="producto-precio-anterior">S/ {{ number_format($p->precio_anterior, 2) }}</div>
+                            @endif
                         </div>
-                        <a href="{{ url('/tienda/esp32-kit') }}" class="producto-btn">
+
+                        @if($p->estado !== 'agotado')
+                        <a href="{{ url('/tienda/' . $p->slug) }}" class="producto-btn">
                             <svg viewBox="0 0 24 24" fill="currentColor"><path d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zM1 2v2h2l3.6 7.59-1.35 2.45c-.16.28-.25.61-.25.96C5 16.1 6.9 18 9 18h12v-2H9.42c-.14 0-.25-.11-.25-.25l.03-.12.9-1.63H19c.75 0 1.41-.41 1.75-1.03l3.58-6.49c.08-.14.12-.31.12-.48 0-.55-.45-1-1-1H5.21l-.94-2H1zm16 16c-1.1 0-1.99.9-1.99 2s.89 2 1.99 2 2-.9 2-2-.9-2-2-2z"/></svg>
                             Comprar
                         </a>
+                        @else
+                        <button class="producto-btn agotado-btn" disabled>Agotado</button>
+                        @endif
                     </div>
                 </div>
             </div>
-
-            <div class="producto-card reveal reveal-delay-1" data-cat="software">
-                <div class="producto-img">
-                    <div class="producto-img-bg">💻</div>
-                    <div class="producto-img-icon" style="background:rgba(20,184,166,0.12);border:1px solid rgba(20,184,166,0.3)">
-                        <svg viewBox="0 0 24 24" fill="rgba(45,212,191,0.9)"><path d="M9.4 16.6L4.8 12l4.6-4.6L8 6l-6 6 6 6 1.4-1.4zm5.2 0l4.6-4.6-4.6-4.6L16 6l6 6-6 6-1.4-1.4z"/></svg>
-                    </div>
-                    <span class="producto-stock disponible">Disponible</span>
-                    <span class="producto-descuento">-20%</span>
-                </div>
-                <div class="producto-body">
-                    <div class="producto-cat">Software</div>
-                    <div class="producto-nombre">Dashboard IoT Web (Licencia)</div>
-                    <p class="producto-desc">Plataforma web lista para desplegar. Visualización de sensores, alertas y reportes en tiempo real.</p>
-                    <div class="producto-footer">
-                        <div class="producto-precio">
-                            <div class="producto-precio-actual">S/ 299<span>.00</span></div>
-                            <div class="producto-precio-anterior">S/ 380.00</div>
-                        </div>
-                        <a href="{{ url('/tienda/dashboard-iot') }}" class="producto-btn">
-                            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zM1 2v2h2l3.6 7.59-1.35 2.45c-.16.28-.25.61-.25.96C5 16.1 6.9 18 9 18h12v-2H9.42c-.14 0-.25-.11-.25-.25l.03-.12.9-1.63H19c.75 0 1.41-.41 1.75-1.03l3.58-6.49c.08-.14.12-.31.12-.48 0-.55-.45-1-1-1H5.21l-.94-2H1zm16 16c-1.1 0-1.99.9-1.99 2s.89 2 1.99 2 2-.9 2-2-.9-2-2-2z"/></svg>
-                            Comprar
-                        </a>
-                    </div>
-                </div>
+            @empty
+            <div style="grid-column:1/-1;text-align:center;padding:3rem;color:#7a9ab8">
+                No hay productos disponibles en este momento.
             </div>
-
-            <div class="producto-card reveal reveal-delay-2" data-cat="kits">
-                <div class="producto-img">
-                    <div class="producto-img-bg">⚙️</div>
-                    <div class="producto-img-icon" style="background:rgba(30,77,153,0.25);border:1px solid rgba(37,99,199,0.4)">
-                        <svg viewBox="0 0 24 24" fill="rgba(122,184,245,0.9)"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58z"/></svg>
-                    </div>
-                    <span class="producto-stock disponible">Disponible</span>
-                </div>
-                <div class="producto-body">
-                    <div class="producto-cat">Kit Industrial</div>
-                    <div class="producto-nombre">Kit Automatización Básica</div>
-                    <p class="producto-desc">Relés, contactores, botones y cableado para armar tu primer tablero de control industrial.</p>
-                    <div class="producto-footer">
-                        <div class="producto-precio">
-                            <div class="producto-precio-actual">S/ 150<span>.00</span></div>
-                        </div>
-                        <a href="{{ url('/tienda/kit-automatizacion') }}" class="producto-btn">
-                            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zM1 2v2h2l3.6 7.59-1.35 2.45c-.16.28-.25.61-.25.96C5 16.1 6.9 18 9 18h12v-2H9.42c-.14 0-.25-.11-.25-.25l.03-.12.9-1.63H19c.75 0 1.41-.41 1.75-1.03l3.58-6.49c.08-.14.12-.31.12-.48 0-.55-.45-1-1-1H5.21l-.94-2H1zm16 16c-1.1 0-1.99.9-1.99 2s.89 2 1.99 2 2-.9 2-2-.9-2-2-2z"/></svg>
-                            Comprar
-                        </a>
-                    </div>
-                </div>
-            </div>
-
-            <div class="producto-card reveal reveal-delay-3" data-cat="iot">
-                <div class="producto-img">
-                    <div class="producto-img-bg">🔌</div>
-                    <div class="producto-img-icon" style="background:rgba(99,102,241,0.12);border:1px solid rgba(99,102,241,0.3)">
-                        <svg viewBox="0 0 24 24" fill="rgba(165,180,252,0.9)"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4z"/></svg>
-                    </div>
-                    <span class="producto-stock agotado">Agotado</span>
-                </div>
-                <div class="producto-body">
-                    <div class="producto-cat">IoT</div>
-                    <div class="producto-nombre">Módulo Raspberry Pi 4 + Case</div>
-                    <p class="producto-desc">Raspberry Pi 4 Model B (4GB RAM) con case de aluminio y disipadores. Perfecto para servidores IoT.</p>
-                    <div class="producto-footer">
-                        <div class="producto-precio">
-                            <div class="producto-precio-actual">S/ 320<span>.00</span></div>
-                        </div>
-                        <button class="producto-btn agotado-btn" disabled>
-                            Agotado
-                        </button>
-                    </div>
-                </div>
-            </div>
+            @endforelse
 
         </div>
 
@@ -456,13 +441,14 @@
 </section>
 
 <script>
-    function filtrarCat(cat, btn) {
-        document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        document.querySelectorAll('.producto-card').forEach(card => {
-            card.style.display = (cat === 'todos' || card.dataset.cat === cat) ? '' : 'none';
-        });
-    }
+function filtrarCat(cat, btn) {
+    document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    document.querySelectorAll('.producto-card').forEach(card => {
+        card.style.display = (cat === 'todos' || card.dataset.cat === cat) ? '' : 'none';
+    });
+}
 </script>
+
 
 @endsection

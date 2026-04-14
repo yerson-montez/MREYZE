@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Auth\SocialController;
 use App\Http\Controllers\TiendaController;
-use App\Http\Controllers\Admin\ProductoController;
+use App\Http\Controllers\Admin\AdminProductoController;
 use App\Http\Controllers\Admin\MetodoPagoController;
 
 // ─── HOME ────────────────────────────────────────────────────────
@@ -26,9 +26,9 @@ Route::get('/proyectos', function () {
     return view('sections.proyectos');
 })->name('proyectos');
 
-Route::get('/tienda', function () {
-    return view('sections.tiendacliente');
-})->name('tiendacliente');
+//Route::get('/tienda', function () {
+    //return view('sections.tiendacliente');
+//})->name('tiendacliente');
 
 Route::get('/blog', function () {
     return view('sections.blog');
@@ -56,8 +56,8 @@ Route::get('/servicios/consultoria', function () {
 })->name('servicios.consultoria');
 
 // ─── TIENDA PÚBLICA ──────────────────────────────────────────────
-//Route::get('/tienda', [TiendaController::class, 'index'])->name('tienda.index');
-//Route::get('/tienda/{producto:slug}', [TiendaController::class, 'show'])->name('tienda.show');
+Route::get('/tienda', [TiendaController::class, 'index'])->name('tienda.index');
+Route::get('/tienda/{producto:slug}', [TiendaController::class, 'show'])->name('tienda.show');
 
 // ─── GOOGLE AUTH ─────────────────────────────────────────────────
 Route::get('/auth/google', [SocialController::class, 'redirect'])->name('auth.google');
@@ -71,20 +71,41 @@ Route::middleware('auth')->group(function () {
 });
 
 // ─── PANEL ADMIN ─────────────────────────────────────────────────
-Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
+Route::prefix('admin')
+    ->name('admin.')
+    ->middleware(['auth', 'es_admin'])   // <-- requiere login + rol admin
+    ->group(function () {
 
-    Route::post('productos/reordenar', [ProductoController::class, 'reordenar'])
-        ->name('productos.reordenar');
+        // Panel principal de productos
+        Route::get('/productos', [AdminProductoController::class, 'index'])
+            ->name('productos.index');
 
-    Route::resource('productos', ProductoController::class);
+        // Crear
+        Route::get('/productos/crear', [AdminProductoController::class, 'create'])
+            ->name('productos.create');
+        Route::post('/productos', [AdminProductoController::class, 'store'])
+            ->name('productos.store');
 
-    Route::get('metodos-pago', [MetodoPagoController::class, 'index'])
-        ->name('metodos-pago.index');
-    Route::put('metodos-pago/{metodoPago}', [MetodoPagoController::class, 'update'])
-        ->name('metodos-pago.update');
-    Route::post('metodos-pago/{metodoPago}/toggle', [MetodoPagoController::class, 'toggle'])
-        ->name('metodos-pago.toggle');
-});
+        // Editar
+        Route::get('/productos/{producto}/editar', [AdminProductoController::class, 'edit'])
+            ->name('productos.edit');
+        Route::put('/productos/{producto}', [AdminProductoController::class, 'update'])
+            ->name('productos.update');
+
+        // Eliminar
+        Route::delete('/productos/{producto}', [AdminProductoController::class, 'destroy'])
+            ->name('productos.destroy');
+
+        // Acciones rápidas
+        Route::patch('/productos/{producto}/toggle', [AdminProductoController::class, 'toggleActivo'])
+            ->name('productos.toggle');
+        Route::patch('/productos/{producto}/stock', [AdminProductoController::class, 'actualizarStock'])
+            ->name('productos.stock');
+    });
+
+    Route::get('/dashboard', function () {
+        return view('dashboard');
+    })->middleware(['auth'])->name('dashboard');
 
 // ─── AUTH ─────────────────────────────────────────────────────────
 require __DIR__.'/auth.php';

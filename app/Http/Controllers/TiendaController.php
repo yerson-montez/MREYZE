@@ -21,7 +21,7 @@ class TiendaController extends Controller
         $productos = $query->paginate(12);
         $metodosPago = MetodoPago::activos()->get();
 
-        return view('welcome', compact('productos', 'metodosPago', 'cat'));
+        return view('sections.tiendacliente', compact('productos', 'metodosPago', 'cat'));
     }
 
     // Detalle de un producto

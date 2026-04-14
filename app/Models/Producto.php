@@ -11,66 +11,65 @@ class Producto extends Model
     use HasFactory;
 
     protected $fillable = [
-        'nombre',
-        'slug',
-        'descripcion',
-        'categoria',
-        'precio',
-        'precio_anterior',
-        'estado',
-        'emoji',
-        'imagen',
-        'activo',
-        'orden',
+        'nombre', 'descripcion', 'precio', 'precio_anterior',
+        'stock', 'categoria', 'estado', 'icono_emoji',
+        'icono_color', 'slug', 'activo',
     ];
 
     protected $casts = [
-        'precio' => 'decimal:2',
+        'precio'          => 'decimal:2',
         'precio_anterior' => 'decimal:2',
-        'activo' => 'boolean',
+        'activo'          => 'boolean',
     ];
 
-    // Auto-generar slug desde nombre
+    // Auto-genera slug desde el nombre si no se provee
     protected static function booted(): void
     {
-        static::creating(function ($producto) {
+        static::creating(function (Producto $producto) {
             if (empty($producto->slug)) {
                 $producto->slug = Str::slug($producto->nombre);
             }
         });
-
-        static::updating(function ($producto) {
-            if ($producto->isDirty('nombre') && !$producto->isDirty('slug')) {
-                $producto->slug = Str::slug($producto->nombre);
-            }
-        });
     }
 
-    // Scopes
+    // Scope: solo activos
     public function scopeActivos($query)
     {
-        return $query->where('activo', true)->orderBy('orden');
+        return $query->where('activo', true);
     }
 
+    // Scope: por categoría
     public function scopeCategoria($query, string $cat)
     {
         return $query->where('categoria', $cat);
     }
 
-    // Accessors
-    public function getDescuentoPorcentajeAttribute(): ?int
+    // Determina el estado automáticamente según el stock
+    public function actualizarEstado(): void
     {
-        if ($this->precio_anterior && $this->precio_anterior > $this->precio) {
-            return (int) round((1 - $this->precio / $this->precio_anterior) * 100);
+        if ($this->stock === 0) {
+            $this->estado = 'agotado';
+        } elseif ($this->wasRecentlyCreated) {
+            $this->estado = 'nuevo';
+        } else {
+            $this->estado = 'disponible';
         }
-        return null;
     }
 
-    public function getImagenUrlAttribute(): string
+    // Helpers de presentación
+    public function getPrecioFormateadoAttribute(): string
     {
-        if ($this->imagen) {
-            return asset('storage/' . $this->imagen);
-        }
-        return '';
+        return 'S/ ' . number_format($this->precio, 2);
+    }
+
+    public function tieneDescuento(): bool
+    {
+        return !is_null($this->precio_anterior) && $this->precio_anterior > $this->precio;
+    }
+
+    public function getPorcentajeDescuentoAttribute(): ?int
+    {
+        if (!$this->tieneDescuento()) return null;
+        return (int) round((1 - $this->precio / $this->precio_anterior) * 100);
     }
 }
