@@ -1,3 +1,11 @@
+@extends('welcome')
+
+@section('title', 'Inicio')
+
+@section('content')
+
+
+
 {{-- resources/views/sections/nosotros.blade.php --}}
 {{-- Uso: @include('sections.nosotros') --}}
 
@@ -438,3 +446,4 @@
         btn.classList.add('active');
     }
 </script>
+@endsection

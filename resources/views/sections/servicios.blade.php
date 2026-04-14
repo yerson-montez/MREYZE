@@ -1,3 +1,10 @@
+@extends('welcome')
+
+@section('title', 'Inicio')
+
+@section('content')
+
+
 {{-- resources/views/sections/servicios.blade.php --}}
 {{-- Uso: @include('sections.servicios') --}}
 
@@ -370,3 +377,5 @@
 
     </div>
 </section>
+
+@endsection

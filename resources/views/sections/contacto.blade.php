@@ -1,3 +1,8 @@
+@extends('welcome')
+
+@section('title', 'Inicio')
+
+@section('content')
 {{-- resources/views/sections/contacto.blade.php --}}
 {{-- Uso: @include('sections.contacto') --}}
 
@@ -663,3 +668,4 @@
         document.getElementById('formSuccess').style.display = 'block';
     }
 </script>
+@endsection

@@ -1,3 +1,9 @@
+@extends('welcome')
+
+@section('title', 'Inicio')
+
+@section('content')
+
 {{-- resources/views/sections/tienda.blade.php --}}
 {{-- Uso: @include('sections.tienda') --}}
 
@@ -458,3 +464,5 @@
         });
     }
 </script>
+
+@endsection

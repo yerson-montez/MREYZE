@@ -1,3 +1,9 @@
+@extends('welcome')
+
+@section('title', 'Inicio')
+
+@section('content')
+
 {{-- resources/views/sections/proyectos.blade.php --}}
 {{-- Uso: @include('sections.proyectos') --}}
 
@@ -528,3 +534,4 @@
         });
     }
 </script>
+@endsection

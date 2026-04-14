@@ -1,3 +1,9 @@
+@extends('welcome')
+
+@section('title', 'Inicio')
+
+@section('content')
+
 {{-- resources/views/sections/blog.blade.php --}}
 {{-- Uso: @include('sections.blog') --}}
 
@@ -433,3 +439,4 @@
 
     </div>
 </section>
+@endsection
