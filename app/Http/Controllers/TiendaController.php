@@ -18,7 +18,7 @@ class TiendaController extends Controller
             $query->categoria($cat);
         }
 
-        $productos = $query->paginate(12);
+        $productos = $query->paginate(999999);
         $metodosPago = MetodoPago::activos()->get();
 
         return view('sections.tiendacliente', compact('productos', 'metodosPago', 'cat'));

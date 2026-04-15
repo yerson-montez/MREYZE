@@ -449,6 +449,4 @@ function filtrarCat(cat, btn) {
     });
 }
 </script>
-
-
 @endsection

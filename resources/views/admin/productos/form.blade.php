@@ -25,8 +25,11 @@
     position: sticky; top: 0; z-index: 50;
 }
 .adm-topbar-brand { display:flex;align-items:center;gap:.75rem;font-size:1.05rem;font-weight:700;color:var(--adm-accent); }
-.adm-back { display:inline-flex;align-items:center;gap:.4rem;color:var(--adm-muted);font-size:.85rem;text-decoration:none;
-    padding:.4rem .9rem;border:1px solid var(--adm-border);border-radius:8px;transition:all .18s; }
+.adm-back {
+    display:inline-flex;align-items:center;gap:.4rem;color:var(--adm-muted);
+    font-size:.85rem;text-decoration:none;
+    padding:.4rem .9rem;border:1px solid var(--adm-border);border-radius:8px;transition:all .18s;
+}
 .adm-back:hover { color:var(--adm-accent); border-color:var(--adm-accent); }
 
 .adm-main { max-width:780px; margin:0 auto; padding:2.5rem 1.5rem; }
@@ -66,41 +69,34 @@
 .adm-textarea { resize: vertical; min-height: 90px; }
 .adm-select-field { cursor: pointer; }
 .adm-input-hint { font-size:.75rem; color:var(--adm-muted); margin-top:.3rem; }
-
 .adm-error { color: var(--adm-danger); font-size:.78rem; margin-top:.3rem; }
-
-.adm-divider {
-    border: none; border-top: 1px solid var(--adm-border);
-    margin: 1.8rem 0;
-}
-
+.adm-divider { border: none; border-top: 1px solid var(--adm-border); margin: 1.8rem 0; }
 .adm-section-label {
     font-size:.72rem; font-weight:700; letter-spacing:.1em;
     text-transform:uppercase; color:var(--adm-accent);
     margin-bottom:1rem; margin-top:1.6rem;
 }
-
 .adm-form-actions {
     display: flex; justify-content: flex-end; gap: .8rem; margin-top: 1.8rem;
 }
-.adm-btn { display:inline-flex;align-items:center;gap:.4rem;padding:.6rem 1.4rem;border-radius:10px;
+.adm-btn {
+    display:inline-flex;align-items:center;gap:.4rem;padding:.6rem 1.4rem;border-radius:10px;
     font-family:var(--adm-font);font-size:.9rem;font-weight:600;cursor:pointer;border:none;
-    text-decoration:none;transition:all .18s; }
+    text-decoration:none;transition:all .18s;
+}
 .adm-btn-primary { background:var(--adm-accent); color:#07111e; }
 .adm-btn-primary:hover { background:#00bce0; transform:translateY(-1px); }
 .adm-btn-ghost { background:transparent;color:var(--adm-muted);border:1px solid var(--adm-border); }
 .adm-btn-ghost:hover { border-color:var(--adm-accent); color:var(--adm-accent); }
 
-/* Preview emoji */
-.adm-emoji-preview {
-    display:inline-flex; align-items:center; justify-content:center;
-    width:52px; height:52px;
-    border-radius:14px;
-    font-size:1.8rem;
-    border:1px solid var(--adm-border);
-    background:rgba(0,212,255,.06);
-    margin-bottom:.5rem;
-    transition:background .2s;
+.adm-img-preview {
+    display: block;
+    margin-top: 10px;
+    width: 80px;
+    height: 80px;
+    object-fit: cover;
+    border-radius: 10px;
+    border: 1px solid var(--adm-border);
 }
 
 @media(max-width:600px) {
@@ -122,7 +118,9 @@
             Panel Admin
         </div>
         <a href="{{ route('admin.productos.index') }}" class="adm-back">
-            <svg viewBox="0 0 24 24" fill="currentColor" style="width:14px;height:14px"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
+            <svg viewBox="0 0 24 24" fill="currentColor" style="width:14px;height:14px">
+                <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/>
+            </svg>
             Volver
         </a>
     </div>
@@ -136,15 +134,18 @@
             @endisset
         </h1>
 
-        <div class="adm-form-card">
-            <form
-                method="POST"
-                action="{{ isset($producto)
-                    ? route('admin.productos.update', $producto)
-                    : route('admin.productos.store') }}"
-            >
-                @csrf
-                @isset($producto) @method('PUT') @endisset
+        {{-- ✅ UN SOLO FORM --}}
+        <form
+            method="POST"
+            action="{{ isset($producto)
+                ? route('admin.productos.update', $producto)
+                : route('admin.productos.store') }}"
+            enctype="multipart/form-data"
+        >
+            @csrf
+            @isset($producto) @method('PUT') @endisset
+
+            <div class="adm-form-card">
 
                 {{-- INFORMACIÓN BÁSICA --}}
                 <div class="adm-section-label">Información básica</div>
@@ -158,10 +159,9 @@
                 </div>
 
                 <div class="adm-form-group">
-                    <label class="adm-label" for="descripcion">Descripción *</label>
+                    <label class="adm-label" for="descripcion">Descripción</label>
                     <textarea id="descripcion" name="descripcion" class="adm-textarea"
-                              placeholder="Describe brevemente el producto..."
-                              required>{{ old('descripcion', $producto->descripcion ?? '') }}</textarea>
+                              placeholder="Describe brevemente el producto...">{{ old('descripcion', $producto->descripcion ?? '') }}</textarea>
                     @error('descripcion')<div class="adm-error">{{ $message }}</div>@enderror
                 </div>
 
@@ -179,7 +179,9 @@
                         @error('precio')<div class="adm-error">{{ $message }}</div>@enderror
                     </div>
                     <div class="adm-form-group">
-                        <label class="adm-label" for="precio_anterior">Precio anterior (S/) <span style="opacity:.5">(opcional)</span></label>
+                        <label class="adm-label" for="precio_anterior">
+                            Precio anterior (S/) <span style="opacity:.5">(opcional)</span>
+                        </label>
                         <input id="precio_anterior" name="precio_anterior" type="number" step="0.01" min="0"
                                class="adm-input"
                                value="{{ old('precio_anterior', $producto->precio_anterior ?? '') }}"
@@ -189,7 +191,7 @@
                     </div>
                 </div>
 
-                {{-- CATEGORÍA, ESTADO, STOCK --}}
+                {{-- CLASIFICACIÓN Y STOCK --}}
                 <hr class="adm-divider">
                 <div class="adm-section-label">Clasificación y stock</div>
 
@@ -199,7 +201,8 @@
                         <select id="categoria" name="categoria" class="adm-select-field" required>
                             <option value="">Seleccionar...</option>
                             @foreach(['iot' => 'IoT / Electrónica', 'software' => 'Software', 'kits' => 'Kits'] as $val => $label)
-                            <option value="{{ $val }}" {{ old('categoria', $producto->categoria ?? '') === $val ? 'selected' : '' }}>
+                            <option value="{{ $val }}"
+                                {{ old('categoria', $producto->categoria ?? '') === $val ? 'selected' : '' }}>
                                 {{ $label }}
                             </option>
                             @endforeach
@@ -211,7 +214,8 @@
                         <select id="estado" name="estado" class="adm-select-field" required>
                             <option value="">Seleccionar...</option>
                             @foreach(['nuevo' => 'Nuevo', 'disponible' => 'Disponible', 'agotado' => 'Agotado'] as $val => $label)
-                            <option value="{{ $val }}" {{ old('estado', $producto->estado ?? '') === $val ? 'selected' : '' }}>
+                            <option value="{{ $val }}"
+                                {{ old('estado', $producto->estado ?? '') === $val ? 'selected' : '' }}>
                                 {{ $label }}
                             </option>
                             @endforeach
@@ -227,29 +231,35 @@
                     @error('stock')<div class="adm-error">{{ $message }}</div>@enderror
                 </div>
 
-                {{-- ÍCONO --}}
+                {{-- IMAGEN --}}
                 <hr class="adm-divider">
-                <div class="adm-section-label">Ícono / Apariencia</div>
+                <div class="adm-section-label">Imagen / Apariencia</div>
 
                 <div class="adm-form-row">
                     <div class="adm-form-group">
-                        <label class="adm-label" for="icono_emoji">Emoji del producto</label>
-                        <div class="adm-emoji-preview" id="emojiPreview">
-                            {{ old('icono_emoji', $producto->icono_emoji ?? '📦') }}
-                        </div>
-                        <input id="icono_emoji" name="icono_emoji" type="text" class="adm-input"
-                               value="{{ old('icono_emoji', $producto->icono_emoji ?? '📦') }}"
-                               placeholder="📡"
-                               oninput="document.getElementById('emojiPreview').textContent=this.value||'📦'"
-                               maxlength="4">
-                        <div class="adm-input-hint">Pega un emoji (📡 💻 ⚙️ 🔌 ...)</div>
+                        <label class="adm-label">Imagen del producto (opcional)</label>
+                        <input type="file" name="icono_imagen" class="adm-input"
+                               accept="image/jpeg,image/png,image/webp"
+                               onchange="previewImagen(event)">
+
+                        {{-- Preview: muestra la existente o la recién seleccionada --}}
+                        @if(isset($producto) && $producto->icono_imagen)
+                            <img id="previewImg"
+                                 src="{{ asset('storage/' . $producto->icono_imagen) }}"
+                                 class="adm-img-preview">
+                        @else
+                            <img id="previewImg" class="adm-img-preview" style="display:none;">
+                        @endif
+
+                        <div class="adm-input-hint">Formatos: JPG, PNG, WEBP · Máx 2 MB</div>
+                        @error('icono_imagen')<div class="adm-error">{{ $message }}</div>@enderror
                     </div>
+
                     <div class="adm-form-group">
-                        <label class="adm-label" for="icono_color">Color de fondo del ícono</label>
+                        <label class="adm-label">Color de fondo del ícono</label>
                         <input id="icono_color" name="icono_color" type="text" class="adm-input"
-                               value="{{ old('icono_color', $producto->icono_color ?? 'rgba(0,212,255,0.12)') }}"
-                               placeholder="rgba(0,212,255,0.12)">
-                        <div class="adm-input-hint">Formato CSS rgba()</div>
+                               value="{{ old('icono_color', $producto->icono_color ?? 'rgba(0,212,255,0.12)') }}">
+                        @error('icono_color')<div class="adm-error">{{ $message }}</div>@enderror
                     </div>
                 </div>
 
@@ -278,8 +288,29 @@
                     </button>
                 </div>
 
-            </form>
-        </div>
+            </div>{{-- /adm-form-card --}}
+        </form>{{-- ✅ Cierre del único form --}}
+
     </div>
 </div>
+
+<script>
+function previewImagen(event) {
+    const file  = event.target.files[0];
+    const preview = document.getElementById('previewImg');
+    if (!preview) return;
+
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = e => {
+            preview.src = e.target.result;
+            preview.style.display = 'block';
+        };
+        reader.readAsDataURL(file);
+    } else {
+        preview.src = '';
+        preview.style.display = 'none';
+    }
+}
+</script>
 @endsection

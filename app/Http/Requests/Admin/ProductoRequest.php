@@ -20,8 +20,7 @@ class ProductoRequest extends FormRequest
             'precio'          => ['required', 'numeric', 'min:0'],
             'precio_anterior' => ['nullable', 'numeric', 'min:0'],
             'estado'          => ['required', 'in:nuevo,disponible,agotado'],
-            'emoji'           => ['nullable', 'string', 'max:10'],
-            'imagen'          => ['nullable', 'image', 'max:2048'],
+            'icono_imagen'    => ['nullable', 'image', 'max:2048'],
             'activo'          => ['nullable', 'boolean'],
             'orden'           => ['nullable', 'integer', 'min:0'],
         ];

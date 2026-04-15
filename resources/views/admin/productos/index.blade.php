@@ -1,6 +1,5 @@
 @extends('layouts.admin')
 
-
 @section('title', 'Admin · Productos')
 
 @push('styles')
@@ -14,17 +13,15 @@
 }
 
 .adm-wrapper {
-    all: initial;
-    font-family: 'Exo 2', sans-serif;
-}
-.adm-wrapper {
     all: unset;
     display: flex;
     flex-direction: column;
     min-height: 100vh;
     background: #07111e;
     color: #e2f0fb;
+    font-family: 'Exo 2', sans-serif;
 }
+
 /* ── Variables ── */
 :root {
     --adm-bg:      #07111e;
@@ -42,10 +39,9 @@
     --adm-radius:  14px;
 }
 
-/* ── Wrapper ocupa toda la pantalla ── */
 .adm-wrapper {
     width: 100%;
-    min-height: calc(100vh - 60px); /* ajusta según navbar */
+    min-height: calc(100vh - 60px);
     background: var(--adm-bg);
     font-family: var(--adm-font);
     color: var(--adm-text);
@@ -101,7 +97,7 @@
 /* ── Main ── */
 .adm-main {
     flex: 1;
-    max-width: 1300px;
+    max-width: 1400px;
     width: 100%;
     margin: 0 auto;
     padding: 2rem 1.5rem 4rem;
@@ -184,7 +180,7 @@
 .adm-stat-val { font-size: 1.55rem; font-weight: 800; line-height: 1; }
 .adm-stat-label { font-size: .75rem; color: var(--adm-muted); margin-top: .25rem; }
 
-/* ── Toolbar ── */
+/* ── Toolbar / Buscador ── */
 .adm-toolbar {
     display: flex;
     align-items: center;
@@ -192,20 +188,34 @@
     margin-bottom: 1.25rem;
     flex-wrap: wrap;
 }
-.adm-search {
+.adm-search-wrap {
     flex: 1;
-    min-width: 200px;
+    min-width: 220px;
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+.adm-search-wrap svg {
+    position: absolute;
+    left: .85rem;
+    width: 15px; height: 15px;
+    color: var(--adm-muted);
+    pointer-events: none;
+}
+.adm-search {
+    width: 100%;
     background: var(--adm-card);
     border: 1px solid var(--adm-border);
     border-radius: 10px;
     color: var(--adm-text);
-    padding: .55rem 1rem;
+    padding: .55rem 1rem .55rem 2.4rem;
     font-family: var(--adm-font);
     font-size: .86rem;
     outline: none;
     transition: border-color .2s;
 }
 .adm-search:focus { border-color: rgba(0,212,255,.5); }
+.adm-search::placeholder { color: var(--adm-muted); }
 .adm-select {
     background: var(--adm-card);
     border: 1px solid var(--adm-border);
@@ -217,6 +227,34 @@
     outline: none;
     cursor: pointer;
     appearance: auto;
+}
+
+/* Tags de filtros activos */
+.adm-filter-tags {
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+    flex-wrap: wrap;
+    margin-bottom: 1rem;
+}
+.adm-filter-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: .35rem;
+    background: rgba(0,212,255,.1);
+    border: 1px solid rgba(0,212,255,.25);
+    color: var(--adm-accent);
+    border-radius: 20px;
+    padding: .2rem .7rem;
+    font-size: .72rem;
+    font-weight: 600;
+    text-decoration: none;
+}
+.adm-filter-tag:hover { background: rgba(0,212,255,.18); }
+.adm-results-count {
+    font-size: .78rem;
+    color: var(--adm-muted);
+    margin-left: auto;
 }
 
 /* ── Alert ── */
@@ -246,14 +284,16 @@
     border-collapse: collapse;
     table-layout: fixed;
 }
-.adm-table colgroup col:nth-child(1) { width: 54px; }   /* emoji */
-.adm-table colgroup col:nth-child(2) { width: auto; }    /* nombre */
-.adm-table colgroup col:nth-child(3) { width: 110px; }  /* cat */
-.adm-table colgroup col:nth-child(4) { width: 100px; }  /* precio */
-.adm-table colgroup col:nth-child(5) { width: 130px; }  /* stock */
-.adm-table colgroup col:nth-child(6) { width: 100px; }  /* estado */
-.adm-table colgroup col:nth-child(7) { width: 70px; }   /* visible */
-.adm-table colgroup col:nth-child(8) { width: 160px; }  /* acciones */
+
+/* 9 columnas: imagen | nombre | cat | precio | stock | estado | visible | acciones */
+.adm-table colgroup col:nth-child(1) { width: 70px;  } /* imagen */
+.adm-table colgroup col:nth-child(2) { width: auto;  } /* nombre */
+.adm-table colgroup col:nth-child(3) { width: 110px; } /* cat */
+.adm-table colgroup col:nth-child(4) { width: 100px; } /* precio */
+.adm-table colgroup col:nth-child(5) { width: 130px; } /* stock */
+.adm-table colgroup col:nth-child(6) { width: 100px; } /* estado */
+.adm-table colgroup col:nth-child(7) { width: 72px;  } /* visible */
+.adm-table colgroup col:nth-child(8) { width: 160px; } /* acciones */
 
 .adm-table thead { background: rgba(0,212,255,.06); }
 .adm-table th {
@@ -277,19 +317,32 @@
 .adm-table tr:last-child td { border-bottom: none; }
 .adm-table tbody tr:hover td { background: rgba(0,212,255,.03); }
 
-/* Celda producto */
-.adm-prod-emoji {
-    font-size: 20px;
-    width: 30px;
-    height: 30px;
+/* Celda imagen producto */
+.adm-prod-img {
+    width: 46px;
+    height: 46px;
+    object-fit: cover;
+    border-radius: 10px;
+    border: 1px solid var(--adm-border);
+    display: block;
+    background: rgba(0,212,255,.05);
+}
+.adm-prod-emoji-fallback {
+    width: 46px;
+    height: 46px;
+    border-radius: 10px;
+    border: 1px solid var(--adm-border);
+    background: rgba(0,212,255,.05);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
 }
 .adm-prod-name { font-weight: 700; color: var(--adm-text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .adm-prod-slug { font-size: .7rem; color: var(--adm-muted); margin-top: .1rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
-.adm-wrapper svg {
-    width: 18px;
-    height: 18px;
-}
+.adm-wrapper svg { width: 18px; height: 18px; }
+
 /* Badges */
 .adm-badge {
     display: inline-flex;
@@ -303,12 +356,12 @@
     text-transform: uppercase;
     white-space: nowrap;
 }
-.adm-badge-iot      { background: rgba(0,212,255,.12); color:#00d4ff; border:1px solid rgba(0,212,255,.25); }
-.adm-badge-software { background: rgba(20,184,166,.12); color:#2dd4bf; border:1px solid rgba(20,184,166,.25); }
+.adm-badge-iot      { background: rgba(0,212,255,.12);   color:#00d4ff; border:1px solid rgba(0,212,255,.25); }
+.adm-badge-software { background: rgba(20,184,166,.12);  color:#2dd4bf; border:1px solid rgba(20,184,166,.25); }
 .adm-badge-kits     { background: rgba(122,184,245,.12); color:#7ab8f5; border:1px solid rgba(122,184,245,.25); }
 .adm-estado-nuevo       { background: rgba(245,158,11,.12); color:#f59e0b; border:1px solid rgba(245,158,11,.3); }
-.adm-estado-disponible  { background: rgba(0,212,255,.12); color:#00d4ff; border:1px solid rgba(0,212,255,.3); }
-.adm-estado-agotado     { background: rgba(244,63,94,.12); color:#f43f5e; border:1px solid rgba(244,63,94,.3); }
+.adm-estado-disponible  { background: rgba(0,212,255,.12);  color:#00d4ff; border:1px solid rgba(0,212,255,.3); }
+.adm-estado-agotado     { background: rgba(244,63,94,.12);  color:#f43f5e; border:1px solid rgba(244,63,94,.3); }
 
 /* Toggle */
 .adm-toggle { position: relative; display: inline-block; width: 40px; height: 22px; cursor: pointer; }
@@ -359,12 +412,17 @@
 /* Pagination */
 .adm-pagination {
     display: flex;
-    justify-content: flex-end;
+    justify-content: space-between;
     align-items: center;
     padding: 1rem 1.5rem;
     border-top: 1px solid var(--adm-border);
+    flex-wrap: wrap;
+    gap: .5rem;
 }
-/* Fuerza estilos de paginación de Laravel */
+.adm-pagination-info {
+    font-size: .78rem;
+    color: var(--adm-muted);
+}
 .adm-pagination nav span,
 .adm-pagination nav a {
     display: inline-flex;
@@ -395,16 +453,15 @@
 /* ── Responsive ── */
 @media (max-width: 1024px) {
     .adm-stats { grid-template-columns: repeat(2, 1fr); }
-    .adm-table colgroup col:nth-child(n+5) { width: auto; }
 }
 @media (max-width: 768px) {
     .adm-topbar { padding: 0 1rem; }
     .adm-main { padding: 1rem 1rem 3rem; }
     .adm-stats { grid-template-columns: 1fr 1fr; }
+    .adm-table th:nth-child(5),
+    .adm-table td:nth-child(5),
     .adm-table th:nth-child(6),
-    .adm-table td:nth-child(6),
-    .adm-table th:nth-child(7),
-    .adm-table td:nth-child(7) { display: none; }
+    .adm-table td:nth-child(6) { display: none; }
 }
 @media (max-width: 540px) {
     .adm-stats { grid-template-columns: 1fr; }
@@ -495,21 +552,57 @@
             </div>
         </div>
 
-        {{-- Toolbar --}}
-        <form method="GET" action="{{ route('admin.productos.index') }}" class="adm-toolbar">
-            <input type="text" name="buscar" value="{{ request('buscar') }}"
-                   placeholder="🔍  Buscar producto..." class="adm-search">
+        {{-- Toolbar / Buscador --}}
+        <form method="GET" action="{{ route('admin.productos.index') }}" class="adm-toolbar" id="searchForm">
+            <div class="adm-search-wrap">
+                <svg viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
+                </svg>
+                <input type="text" name="buscar" id="buscarInput"
+                       value="{{ request('buscar') }}"
+                       placeholder="Buscar por nombre o slug..."
+                       class="adm-search"
+                       autocomplete="off">
+            </div>
             <select name="cat" class="adm-select" onchange="this.form.submit()">
                 <option value="">Todas las categorías</option>
                 <option value="iot"      {{ request('cat')==='iot'      ? 'selected' : '' }}>IoT / Electrónica</option>
                 <option value="software" {{ request('cat')==='software' ? 'selected' : '' }}>Software</option>
                 <option value="kits"     {{ request('cat')==='kits'     ? 'selected' : '' }}>Kits</option>
             </select>
-            <button type="submit" class="adm-btn adm-btn-ghost">Filtrar</button>
-            @if(request()->hasAny(['buscar','cat']))
+            <select name="estado" class="adm-select" onchange="this.form.submit()">
+                <option value="">Todos los estados</option>
+                <option value="disponible" {{ request('estado')==='disponible' ? 'selected' : '' }}>Disponible</option>
+                <option value="nuevo"      {{ request('estado')==='nuevo'      ? 'selected' : '' }}>Nuevo</option>
+                <option value="agotado"    {{ request('estado')==='agotado'    ? 'selected' : '' }}>Agotado</option>
+            </select>
+            <button type="submit" class="adm-btn adm-btn-ghost">
+                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+                Buscar
+            </button>
+            @if(request()->hasAny(['buscar','cat','estado']))
             <a href="{{ route('admin.productos.index') }}" class="adm-btn adm-btn-ghost">✕ Limpiar</a>
             @endif
         </form>
+
+        {{-- Tags de filtros activos + contador --}}
+        @if(request()->hasAny(['buscar','cat','estado']))
+        <div class="adm-filter-tags">
+            @if(request('buscar'))
+            <a href="{{ route('admin.productos.index', array_merge(request()->except('buscar','page'))) }}"
+               class="adm-filter-tag">🔍 "{{ request('buscar') }}" ✕</a>
+            @endif
+            @if(request('cat'))
+            <a href="{{ route('admin.productos.index', array_merge(request()->except('cat','page'))) }}"
+               class="adm-filter-tag">📂 {{ ucfirst(request('cat')) }} ✕</a>
+            @endif
+            @if(request('estado'))
+            <a href="{{ route('admin.productos.index', array_merge(request()->except('estado','page'))) }}"
+               class="adm-filter-tag">🏷 {{ ucfirst(request('estado')) }} ✕</a>
+            @endif
+            <span class="adm-results-count">{{ $productos->total() }} resultado(s)</span>
+        </div>
+        @endif
 
         {{-- Tabla --}}
         <div class="adm-table-wrap">
@@ -520,7 +613,7 @@
                 </colgroup>
                 <thead>
                     <tr>
-                        <th style="text-align:center">#</th>
+                        <th style="text-align:center">Imagen</th>
                         <th>Producto</th>
                         <th>Categoría</th>
                         <th>Precio</th>
@@ -533,18 +626,37 @@
                 <tbody>
                 @foreach($productos as $p)
                 <tr>
+                    {{-- 1. Imagen (con fallback a emoji) --}}
                     <td style="text-align:center">
-                        <span class="adm-prod-emoji">{{ $p->icono_emoji }}</span>
+                        @if($p->icono_imagen)
+                            <img src="{{ asset('storage/' . $p->icono_imagen) }}"
+                                 class="adm-prod-img"
+                                 alt="{{ $p->nombre }}"
+                                 onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+                            <div class="adm-prod-emoji-fallback" style="display:none">
+                                {{ $p->icono_emoji }}
+                            </div>
+                        @else
+                            <div class="adm-prod-emoji-fallback">
+                                {{ $p->icono_emoji }}
+                            </div>
+                        @endif
                     </td>
+
+                    {{-- 2. Nombre + slug --}}
                     <td>
                         <div class="adm-prod-name">{{ $p->nombre }}</div>
                         <div class="adm-prod-slug">{{ $p->slug }}</div>
                     </td>
+
+                    {{-- 3. Categoría --}}
                     <td>
                         <span class="adm-badge adm-badge-{{ $p->categoria }}">
                             {{ ucfirst($p->categoria) }}
                         </span>
                     </td>
+
+                    {{-- 4. Precio --}}
                     <td>
                         <div style="font-weight:700">S/ {{ number_format($p->precio,2) }}</div>
                         @if($p->precio_anterior)
@@ -553,6 +665,8 @@
                         </div>
                         @endif
                     </td>
+
+                    {{-- 5. Stock --}}
                     <td>
                         <form method="POST" action="{{ route('admin.productos.stock', $p) }}"
                               class="adm-stock-form">
@@ -563,11 +677,15 @@
                                     title="Guardar">✓</button>
                         </form>
                     </td>
+
+                    {{-- 6. Estado --}}
                     <td>
                         <span class="adm-badge adm-estado-{{ $p->estado }}">
                             {{ ucfirst($p->estado) }}
                         </span>
                     </td>
+
+                    {{-- 7. Toggle visible --}}
                     <td style="text-align:center">
                         <form method="POST" action="{{ route('admin.productos.toggle', $p) }}">
                             @csrf @method('PATCH')
@@ -578,6 +696,8 @@
                             </label>
                         </form>
                     </td>
+
+                    {{-- 8. Acciones --}}
                     <td>
                         <div class="adm-actions">
                             <a href="{{ route('admin.productos.edit', $p) }}"
@@ -604,18 +724,29 @@
                 </tbody>
             </table>
 
+            {{-- Paginación --}}
+            @if($productos->hasPages())
             <div class="adm-pagination">
-                {{ $productos->links() }}
+                <span class="adm-pagination-info">
+                    Mostrando {{ $productos->firstItem() }}–{{ $productos->lastItem() }}
+                    de {{ $productos->total() }} productos
+                </span>
+                {{ $productos->appends(request()->query())->links() }}
             </div>
+            @endif
 
             @else
             <div class="adm-empty">
                 <div class="adm-empty-icon">📦</div>
-                <p>No se encontraron productos.</p>
-                <a href="{{ route('admin.productos.create') }}" class="adm-btn adm-btn-primary"
-                   style="margin-top:1.25rem">
-                    + Agregar el primero
-                </a>
+                @if(request()->hasAny(['buscar','cat','estado']))
+                    <p>Sin resultados para los filtros aplicados.</p>
+                    <a href="{{ route('admin.productos.index') }}" class="adm-btn adm-btn-ghost"
+                       style="margin-top:1.25rem">Limpiar filtros</a>
+                @else
+                    <p>Aún no hay productos registrados.</p>
+                    <a href="{{ route('admin.productos.create') }}" class="adm-btn adm-btn-primary"
+                       style="margin-top:1.25rem">+ Agregar el primero</a>
+                @endif
             </div>
             @endif
         </div>
@@ -623,3 +754,15 @@
     </main>
 </div>
 @endsection
+
+@push('scripts')
+<script>
+    // Enviar búsqueda al presionar Enter
+    document.getElementById('buscarInput').addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            document.getElementById('searchForm').submit();
+        }
+    });
+</script>
+@endpush

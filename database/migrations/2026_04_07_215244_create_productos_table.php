@@ -17,7 +17,7 @@ return new class extends Migration
             $table->integer('stock')->default(0);
             $table->enum('categoria', ['iot', 'software', 'kits'])->default('iot');
             $table->enum('estado', ['nuevo', 'disponible', 'agotado'])->default('disponible');
-            $table->string('icono_emoji')->default('📦');
+            $table->string('icono_imagen')->nullable();
             $table->string('icono_color')->default('rgba(0,212,255,0.12)');
             $table->string('slug')->unique();
             $table->boolean('activo')->default(true);
