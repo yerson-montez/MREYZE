@@ -18,10 +18,10 @@ class TiendaController extends Controller
             $query->categoria($cat);
         }
 
-        $productos = $query->paginate(999999);
+        $productos = $query->paginate(99999999999);
         $metodosPago = MetodoPago::activos()->get();
 
-        return view('sections.tiendacliente', compact('productos', 'metodosPago', 'cat'));
+        return view('tienda.index', compact('productos'));
     }
 
     // Detalle de un producto
@@ -30,5 +30,13 @@ class TiendaController extends Controller
         abort_if(!$producto->activo, 404);
         $metodosPago = MetodoPago::activos()->get();
         return view('tienda.show', compact('producto', 'metodosPago'));
+    }
+
+
+    public function create($slug)
+    {
+        $producto = Producto::where('slug', $slug)->firstOrFail();
+
+        return view('pedidos.create', compact('producto'));
     }
 }

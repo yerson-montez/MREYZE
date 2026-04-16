@@ -8,7 +8,12 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @stack('styles')
 </head>
+
 <body style="margin:0; padding:0;">
+
+    {{-- Sin nav aquí — cada vista admin tiene su propio topbar --}}
     @yield('content')
+
+    @stack('scripts')
 </body>
 </html>

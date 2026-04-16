@@ -481,6 +481,12 @@
             Panel Admin · Tienda
         </div>
         <div class="adm-topbar-right">
+            <a href="{{ route('admin.pedidos.index') }}" class="adm-btn adm-btn-ghost adm-btn-sm">
+            📦 Pedidos
+            </a>
+            <a href="{{ route('admin.colaboradores.index') }}" class="adm-btn adm-btn-ghost adm-btn-sm">
+            🤝 Colaboradores
+            </a>
             <span class="adm-badge-admin">Admin</span>
             <strong>{{ auth()->user()->name }}</strong>
             <a href="{{ url('/tienda') }}" class="adm-btn adm-btn-ghost adm-btn-sm">

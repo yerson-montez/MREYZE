@@ -19,4 +19,12 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withExceptions(function (Exceptions $exceptions): void {
         //
     })
+
+    ->withMiddleware(function (Middleware $middleware) {
+        // ... tu middleware existente ...
+        $middleware->web(append: [
+            \App\Http\Middleware\CapturarReferido::class,
+        ]);
+    })
+    
     ->create();

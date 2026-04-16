@@ -4,13 +4,21 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Auth\SocialController;
 use App\Http\Controllers\TiendaController;
+use App\Http\Controllers\PedidoController;
 use App\Http\Controllers\Admin\AdminProductoController;
 use App\Http\Controllers\Admin\MetodoPagoController;
+use App\Http\Controllers\Admin\PedidoAdminController;
+use App\Http\Controllers\Admin\ColaboradorAdminController;
 
 // ─── HOME ────────────────────────────────────────────────────────
 Route::get('/', function () {
     return view('sections.inicio');
 })->name('inicio');
+
+
+Route::get('/test-pedidos', function () {
+    return view('pedidos.test');
+});
 
 
 // ─── PÁGINAS ESTÁTICAS (todas usan welcome como layout base) ─────
@@ -54,6 +62,16 @@ Route::get('/servicios/desarrollo', function () {
 Route::get('/servicios/consultoria', function () {
     return view('sections.servicios.consultoria');
 })->name('servicios.consultoria');
+
+ // ─── CREAR PEDIDO (desde botón "Comprar" en tienda) ─────────────────────────────
+Route::get('/pedidos/crear/{producto:slug}', [PedidoController::class, 'create'])
+            ->name('pedidos.create');
+
+Route::post('/pedidos/crear/{producto:slug}', [PedidoController::class, 'store'])
+            ->name('pedidos.store');
+
+Route::get('/pedidos/{pedido}/confirmacion', [PedidoController::class, 'confirmacion'])
+    ->name('pedidos.confirmacion');
 
 // ─── TIENDA PÚBLICA ──────────────────────────────────────────────
 Route::get('/tienda', [TiendaController::class, 'index'])->name('tienda.index');
@@ -101,6 +119,36 @@ Route::prefix('admin')
             ->name('productos.toggle');
         Route::patch('/productos/{producto}/stock', [AdminProductoController::class, 'actualizarStock'])
             ->name('productos.stock');
+        
+        // ─── PEDIDOS ADMIN ─────────────────────────────
+        Route::get('pedidos', [PedidoAdminController::class, 'index'])
+            ->name('pedidos.index');
+
+        Route::get('pedidos/{pedido}', [PedidoAdminController::class, 'show'])
+            ->name('pedidos.show');
+
+        Route::patch('pedidos/{pedido}/estado', [PedidoAdminController::class, 'actualizarEstado'])
+            ->name('pedidos.estado');
+
+
+        // ─── COLABORADORES ADMIN ───────────────────────
+        Route::get('colaboradores', [ColaboradorAdminController::class, 'index'])
+            ->name('colaboradores.index');
+
+        Route::get('colaboradores/crear', [ColaboradorAdminController::class, 'create'])
+            ->name('colaboradores.create');
+
+        Route::post('colaboradores', [ColaboradorAdminController::class, 'store'])
+            ->name('colaboradores.store');
+
+        Route::get('colaboradores/{colaborador}', [ColaboradorAdminController::class, 'show'])
+            ->name('colaboradores.show');
+
+        Route::get('colaboradores/{colaborador}/editar', [ColaboradorAdminController::class, 'edit'])
+            ->name('colaboradores.edit');
+
+        Route::put('colaboradores/{colaborador}', [ColaboradorAdminController::class, 'update'])
+            ->name('colaboradores.update');
     });
 
     Route::get('/dashboard', function () {
