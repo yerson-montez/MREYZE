@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Colaborador extends Model
 {
-    protected $table = 'colaboradores'; // ← ESTA ERA LA LÍNEA QUE FALTABA
+    protected $table = 'colaboradores';
 
     protected $fillable = [
         'nombre',
@@ -17,16 +17,19 @@ class Colaborador extends Model
         'comision_porcentaje',
         'comision_total_acumulada',
         'activo',
+        'estado',
+        'mensaje_solicitud',
+        'aprobado_at',
     ];
 
     protected $casts = [
         'activo'                   => 'boolean',
         'comision_porcentaje'      => 'decimal:2',
         'comision_total_acumulada' => 'decimal:2',
+        'aprobado_at'              => 'datetime',
     ];
 
     // ── Relaciones ─────────────────────────────────────────────────────
-
     public function pedidos(): HasMany
     {
         return $this->hasMany(Pedido::class, 'colaborador_id');
@@ -38,8 +41,18 @@ class Colaborador extends Model
                     ->where('estado', 'entregado');
     }
 
-    // ── Accessors ──────────────────────────────────────────────────────
+    // ── Scopes ─────────────────────────────────────────────────────────
+    public function scopeActivos($query)
+    {
+        return $query->where('estado', 'activo');
+    }
 
+    public function scopePendientes($query)
+    {
+        return $query->where('estado', 'pendiente');
+    }
+
+    // ── Accessors ──────────────────────────────────────────────────────
     public function getLinkRefAttribute(): string
     {
         return url('/') . '?ref=' . $this->codigo_ref;
@@ -58,8 +71,14 @@ class Colaborador extends Model
             ->sum('comision_generada');
     }
 
-    public function getTotalPedidosAttribute(): int
+    public function getEstadoBadgeAttribute(): array
     {
-        return $this->pedidos()->count();
+        return match($this->estado) {
+            'activo'    => ['color' => '#10b981', 'bg' => 'rgba(16,185,129,.12)', 'label' => 'Activo'],
+            'pendiente' => ['color' => '#f59e0b', 'bg' => 'rgba(245,158,11,.12)', 'label' => 'Pendiente'],
+            'rechazado' => ['color' => '#f43f5e', 'bg' => 'rgba(244,63,94,.12)',  'label' => 'Rechazado'],
+            'inactivo'  => ['color' => '#7a9ab8', 'bg' => 'rgba(122,154,184,.12)','label' => 'Inactivo'],
+            default     => ['color' => '#7a9ab8', 'bg' => 'rgba(122,154,184,.12)','label' => 'Desconocido'],
+        };
     }
 }

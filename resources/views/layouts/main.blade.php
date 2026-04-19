@@ -3,20 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MTech — @yield('title', 'Automatización & Software')</title>
+    <title>@yield('title', 'MTech')</title>
+
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @stack('styles')
 </head>
-<body>
-
-    @include('navbar')   {{-- o como se llame tu archivo de nav --}}
-
-    <main>
-        @yield('content')
-    </main>
-
-    {{-- @include('layouts.footer')    o como se llame tu footer --}}
-
+<body style="margin:0; padding:0;">
+    @yield('content')
     @stack('scripts')
 </body>
 </html>

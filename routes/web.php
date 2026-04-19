@@ -5,10 +5,12 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Auth\SocialController;
 use App\Http\Controllers\TiendaController;
 use App\Http\Controllers\PedidoController;
+use App\Http\Controllers\Admin\AdminController;
 use App\Http\Controllers\Admin\AdminProductoController;
 use App\Http\Controllers\Admin\MetodoPagoController;
 use App\Http\Controllers\Admin\PedidoAdminController;
 use App\Http\Controllers\Admin\ColaboradorAdminController;
+use App\Http\Controllers\SolicitudColaboradorController;
 
 // ─── HOME ────────────────────────────────────────────────────────
 Route::get('/', function () {
@@ -77,6 +79,14 @@ Route::get('/pedidos/{pedido}/confirmacion', [PedidoController::class, 'confirma
 Route::get('/tienda', [TiendaController::class, 'index'])->name('tienda.index');
 Route::get('/tienda/{producto:slug}', [TiendaController::class, 'show'])->name('tienda.show');
 
+// ── Públicas ───────────────────────────────────────────────────────────
+Route::get('/unete', [SolicitudColaboradorController::class, 'show'])
+     ->name('colaboradores.solicitud');
+Route::post('/unete', [SolicitudColaboradorController::class, 'store'])
+     ->name('colaboradores.solicitud.store');
+Route::get('/unete/gracias', [SolicitudColaboradorController::class, 'gracias'])
+     ->name('colaboradores.solicitud.gracias');
+
 // ─── GOOGLE AUTH ─────────────────────────────────────────────────
 Route::get('/auth/google', [SocialController::class, 'redirect'])->name('auth.google');
 Route::get('/auth/google/callback', [SocialController::class, 'callback'])->name('auth.google.callback');
@@ -94,6 +104,14 @@ Route::prefix('admin')
     ->middleware(['auth', 'es_admin'])   // <-- requiere login + rol admin
     ->group(function () {
 
+
+        // Dashboard
+        Route::get('/', [AdminController::class, 'dashboard'])
+            ->name('dashboard');
+
+        Route::get('/colaboradores/solicitudes', [SolicitudColaboradorController::class, 'index'])
+            ->name('colaboradores.solicitudes.index');
+            
         // Panel principal de productos
         Route::get('/productos', [AdminProductoController::class, 'index'])
             ->name('productos.index');
@@ -129,6 +147,14 @@ Route::prefix('admin')
 
         Route::patch('pedidos/{pedido}/estado', [PedidoAdminController::class, 'actualizarEstado'])
             ->name('pedidos.estado');
+
+        // ── Admin  ───────────────────────
+
+
+        Route::patch('colaboradores/{colaborador}/aprobar', [ColaboradorAdminController::class, 'aprobar'])
+        ->name('colaboradores.aprobar');
+        Route::patch('colaboradores/{colaborador}/rechazar', [ColaboradorAdminController::class, 'rechazar'])
+        ->name('colaboradores.rechazar');
 
 
         // ─── COLABORADORES ADMIN ───────────────────────

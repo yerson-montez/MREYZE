@@ -18,7 +18,9 @@ class ColaboradorAdminController extends Controller
             ->latest()
             ->paginate(20);
 
-        return view('admin.colaboradores.index', compact('colaboradores'));
+        $pendientes = Colaborador::pendientes()->count();
+
+        return view('admin.colaboradores.index', compact('colaboradores', 'pendientes'));
     }
 
     public function create(): View
@@ -35,8 +37,10 @@ class ColaboradorAdminController extends Controller
             'comision_porcentaje' => 'required|numeric|min:0|max:100',
         ]);
 
-        // Genera código único: slug del nombre + 6 chars random
         $validated['codigo_ref'] = Str::slug($validated['nombre']) . '-' . Str::lower(Str::random(6));
+        $validated['estado']     = 'activo';
+        $validated['activo']     = true;
+        $validated['aprobado_at'] = now();
 
         Colaborador::create($validated);
 
@@ -47,10 +51,7 @@ class ColaboradorAdminController extends Controller
 
     public function show(Colaborador $colaborador): View
     {
-        $pedidos = $colaborador->pedidos()
-            ->with('producto')
-            ->latest()
-            ->paginate(15);
+        $pedidos = $colaborador->pedidos()->with('producto')->latest()->paginate(15);
 
         $stats = [
             'total_ventas'       => $colaborador->pedidosEntregados()->sum('total'),
@@ -84,5 +85,41 @@ class ColaboradorAdminController extends Controller
         return redirect()
             ->route('admin.colaboradores.show', $colaborador)
             ->with('success', 'Colaborador actualizado correctamente.');
+    }
+
+    // ── Aprobar solicitud ───────────────────────────────────────────────
+    public function aprobar(Colaborador $colaborador): RedirectResponse
+    {
+        $colaborador->update([
+            'estado'      => 'activo',
+            'activo'      => true,
+            'aprobado_at' => now(),
+        ]);
+
+        return redirect()
+            ->route('admin.colaboradores.solicitudes')
+            ->with('success', "Colaborador «{$colaborador->nombre}» aprobado. Su enlace ya está activo.");
+    }
+
+    // ── Rechazar solicitud ──────────────────────────────────────────────
+    public function rechazar(Request $request, Colaborador $colaborador): RedirectResponse
+    {
+        $colaborador->update([
+            'estado' => 'rechazado',
+            'activo' => false,
+        ]);
+
+        return redirect()
+            ->route('admin.colaboradores.solicitudes')
+            ->with('success', "Solicitud de «{$colaborador->nombre}» rechazada.");
+    }
+
+    // ── Lista de solicitudes pendientes ────────────────────────────────
+    public function solicitudes(): View
+    {
+        $solicitudes = Colaborador::pendientes()->latest()->paginate(20);
+        $total       = Colaborador::pendientes()->count();
+
+        return view('admin.colaboradores.solicitudes', compact('solicitudes', 'total'));
     }
 }
