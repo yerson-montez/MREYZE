@@ -98,6 +98,11 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
+
+Route::get('/mi-link', [SolicitudColaboradorController::class, 'miLink'])
+    ->middleware('auth')
+    ->name('colaborador.link');
+
 // ─── PANEL ADMIN ─────────────────────────────────────────────────
 Route::prefix('admin')
     ->name('admin.')
@@ -111,6 +116,12 @@ Route::prefix('admin')
 
         Route::get('/colaboradores/solicitudes', [SolicitudColaboradorController::class, 'index'])
             ->name('colaboradores.solicitudes.index');
+
+        Route::patch('/colaboradores/solicitudes/{solicitud}/aprobar', [SolicitudColaboradorController::class, 'aprobar'])
+            ->name('colaboradores.solicitudes.aprobar');
+
+        Route::patch('/colaboradores/solicitudes/{solicitud}/rechazar', [SolicitudColaboradorController::class, 'rechazar'])
+            ->name('colaboradores.solicitudes.rechazar');
             
         // Panel principal de productos
         Route::get('/productos', [AdminProductoController::class, 'index'])
@@ -175,6 +186,8 @@ Route::prefix('admin')
 
         Route::put('colaboradores/{colaborador}', [ColaboradorAdminController::class, 'update'])
             ->name('colaboradores.update');
+
+    
     });
 
     Route::get('/dashboard', function () {

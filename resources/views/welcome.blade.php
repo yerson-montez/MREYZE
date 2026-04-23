@@ -288,6 +288,19 @@
                         Contacto
                     </a>
                 </li>
+                <li>
+                    @auth
+                        @php
+                            $colaborador = \App\Models\Colaborador::where('email', auth()->user()->email)->first();
+                        @endphp
+
+                        @if($colaborador)
+                            <a href="{{ route('colaborador.link') }}">🔗 Mi link</a>
+                        @else
+                            <a href="{{ route('colaboradores.solicitud') }}">Quiero ser colaborador</a>
+                        @endif
+                    @endauth
+               </li> 
             </ul>
 
             <div class="nav-right">

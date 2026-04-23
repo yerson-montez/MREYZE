@@ -486,6 +486,10 @@
             <span class="adm-nav-icon">📦</span> Productos
         </a>
 
+        <a href="{{ route('admin.pedidos.index') }}" class="adm-nav-link {{ request()->routeIs('admin.pedidos*') ? 'active' : '' }}">
+            <span class="adm-nav-icon">📦</span> Pedidos
+        </a>
+
        
     </nav>
 
