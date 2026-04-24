@@ -49,6 +49,7 @@ class PedidoController extends Controller
         $pedido = new Pedido(array_merge($validated, [
             'producto_id'    => $producto->id,
             'colaborador_id' => $colaboradorId,
+            'user_id'        => auth()->id(), // 👈 CLAVE
             'total'          => $producto->precio,
         ]));
 
@@ -66,5 +67,37 @@ class PedidoController extends Controller
     public function confirmacion(Pedido $pedido): View
     {
         return view('pedidos.confirmacion', compact('pedido'));
+    }
+
+    /**
+ * Lista de pedidos del cliente logueado
+ */
+    public function misPedidos(): View
+    {
+        $pedidos = Pedido::with('producto')
+            ->where('user_id', auth()->id())
+            ->latest()
+            ->get();
+
+        return view('pedidos.mis', compact('pedidos'));
+    }
+
+/**
+ * Simulación de pago (adelanto)
+ */
+    public function pagar(Pedido $pedido): RedirectResponse
+    {
+    // Seguridad: solo el dueño puede pagar
+        if ($pedido->user_id !== auth()->id()) {
+            abort(403);
+        }
+
+        $pedido->pagado = true;
+        $pedido->estado = 'pagado';
+        $pedido->save();
+
+        return redirect()
+           ->route('pedidos.mis')
+           ->with('success', 'Pago realizado correctamente');
     }
 }

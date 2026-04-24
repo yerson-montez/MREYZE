@@ -65,16 +65,16 @@ Route::get('/servicios/consultoria', function () {
     return view('sections.servicios.consultoria');
 })->name('servicios.consultoria');
 
- // ─── CREAR PEDIDO (desde botón "Comprar" en tienda) ─────────────────────────────
-Route::get('/pedidos/crear/{producto:slug}', [PedidoController::class, 'create'])
-            ->name('pedidos.create');
+ // ─── CREAR PEDIDO (desde botón "Comprar" en tienda) ───────────────────────────
+ // ──
+Route::middleware(['auth'])->group(function () {
 
-Route::post('/pedidos/crear/{producto:slug}', [PedidoController::class, 'store'])
+    Route::get('/pedidos/crear/{producto:slug}', [PedidoController::class, 'create'])->name('pedidos.create');
+    Route::post('/pedidos/crear/{producto:slug}', [PedidoController::class, 'store'])
             ->name('pedidos.store');
 
-Route::get('/pedidos/{pedido}/confirmacion', [PedidoController::class, 'confirmacion'])
-    ->name('pedidos.confirmacion');
-
+    Route::get('/pedidos/{pedido}/confirmacion', [PedidoController::class, 'confirmacion'])->name('pedidos.confirmacion');
+});
 // ─── TIENDA PÚBLICA ──────────────────────────────────────────────
 Route::get('/tienda', [TiendaController::class, 'index'])->name('tienda.index');
 Route::get('/tienda/{producto:slug}', [TiendaController::class, 'show'])->name('tienda.show');
@@ -96,6 +96,13 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+    
+    Route::get('/mis-pedidos', [PedidoController::class, 'misPedidos'])->name('pedidos.mis');
+    
+    Route::post('/pedidos/{pedido}/pagar', [PedidoController::class, 'pagar'])
+        ->name('pedidos.pagar');
+
+
 });
 
 

@@ -10,6 +10,7 @@ class Pedido extends Model
     protected $fillable = [
         'producto_id',
         'colaborador_id',
+        'user_id',
         'cliente_nombre',
         'cliente_telefono',
         'cliente_direccion',
@@ -40,6 +41,11 @@ class Pedido extends Model
     public function colaborador(): BelongsTo
     {
         return $this->belongsTo(Colaborador::class);
+    }
+
+    public function user()
+    {
+       return $this->belongsTo(User::class);
     }
 
     // ── Negocio ────────────────────────────────────────────────────────

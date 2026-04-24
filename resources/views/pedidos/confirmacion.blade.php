@@ -45,7 +45,7 @@
                 </div>
             </div>
 
-            <a href="{{ route('tienda.index') }}"
+            <a href="{{ route('pedidos.mis') }}"
                class="inline-block bg-blue-600 hover:bg-blue-700 text-white font-medium px-6 py-2.5 rounded-xl text-sm transition">
                 Volver a la tienda
             </a>
