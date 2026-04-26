@@ -17,189 +17,106 @@ Route::get('/', function () {
     return view('sections.inicio');
 })->name('inicio');
 
-
 Route::get('/test-pedidos', function () {
     return view('pedidos.test');
 });
 
-
-// ─── PÁGINAS ESTÁTICAS (todas usan welcome como layout base) ─────
-Route::get('/nosotros', function () {
-    return view('sections.nosotros');
-})->name('nosotros');
-
-Route::get('/servicios', function () {
-    return view('sections.servicios');
-})->name('servicios');
-
-Route::get('/proyectos', function () {
-    return view('sections.proyectos');
-})->name('proyectos');
-
-//Route::get('/tienda', function () {
-    //return view('sections.tiendacliente');
-//})->name('tiendacliente');
-
-Route::get('/blog', function () {
-    return view('sections.blog');
-})->name('blog');
-
-Route::get('/contacto', function () {
-    return view('sections.contacto');
-})->name('contacto');
+// ─── PÁGINAS ESTÁTICAS ───────────────────────────────────────────
+Route::get('/nosotros',  fn() => view('sections.nosotros'))->name('nosotros');
+Route::get('/servicios', fn() => view('sections.servicios'))->name('servicios');
+Route::get('/proyectos', fn() => view('sections.proyectos'))->name('proyectos');
+Route::get('/blog',      fn() => view('sections.blog'))->name('blog');
+Route::get('/contacto',  fn() => view('sections.contacto'))->name('contacto');
 
 // ─── SUBSERVICIOS ────────────────────────────────────────────────
-Route::get('/servicios/automatizacion', function () {
-    return view('sections.servicios.automatizacion');
-})->name('servicios.automatizacion');
+Route::get('/servicios/automatizacion', fn() => view('sections.servicios.automatizacion'))->name('servicios.automatizacion');
+Route::get('/servicios/iot',            fn() => view('sections.servicios.iot'))->name('servicios.iot');
+Route::get('/servicios/desarrollo',     fn() => view('sections.servicios.desarrollo'))->name('servicios.desarrollo');
+Route::get('/servicios/consultoria',    fn() => view('sections.servicios.consultoria'))->name('servicios.consultoria');
 
-Route::get('/servicios/iot', function () {
-    return view('sections.servicios.iot');
-})->name('servicios.iot');
-
-Route::get('/servicios/desarrollo', function () {
-    return view('sections.servicios.desarrollo');
-})->name('servicios.desarrollo');
-
-Route::get('/servicios/consultoria', function () {
-    return view('sections.servicios.consultoria');
-})->name('servicios.consultoria');
-
- // ─── CREAR PEDIDO (desde botón "Comprar" en tienda) ───────────────────────────
- // ──
-Route::middleware(['auth'])->group(function () {
-
-    Route::get('/pedidos/crear/{producto:slug}', [PedidoController::class, 'create'])->name('pedidos.create');
-    Route::post('/pedidos/crear/{producto:slug}', [PedidoController::class, 'store'])
-            ->name('pedidos.store');
-
-    Route::get('/pedidos/{pedido}/confirmacion', [PedidoController::class, 'confirmacion'])->name('pedidos.confirmacion');
-});
 // ─── TIENDA PÚBLICA ──────────────────────────────────────────────
-Route::get('/tienda', [TiendaController::class, 'index'])->name('tienda.index');
+Route::get('/tienda',               [TiendaController::class, 'index'])->name('tienda.index');
 Route::get('/tienda/{producto:slug}', [TiendaController::class, 'show'])->name('tienda.show');
 
-// ── Públicas ───────────────────────────────────────────────────────────
-Route::get('/unete', [SolicitudColaboradorController::class, 'show'])
-     ->name('colaboradores.solicitud');
-Route::post('/unete', [SolicitudColaboradorController::class, 'store'])
-     ->name('colaboradores.solicitud.store');
-Route::get('/unete/gracias', [SolicitudColaboradorController::class, 'gracias'])
-     ->name('colaboradores.solicitud.gracias');
+// ─── COLABORADORES PÚBLICAS ──────────────────────────────────────
+Route::get('/unete',        [SolicitudColaboradorController::class, 'show'])->name('colaboradores.solicitud');
+Route::post('/unete',       [SolicitudColaboradorController::class, 'store'])->name('colaboradores.solicitud.store');
+Route::get('/unete/gracias',[SolicitudColaboradorController::class, 'gracias'])->name('colaboradores.solicitud.gracias');
 
 // ─── GOOGLE AUTH ─────────────────────────────────────────────────
-Route::get('/auth/google', [SocialController::class, 'redirect'])->name('auth.google');
+Route::get('/auth/google',          [SocialController::class, 'redirect'])->name('auth.google');
 Route::get('/auth/google/callback', [SocialController::class, 'callback'])->name('auth.google.callback');
 
-// ─── PERFIL (requiere auth) ──────────────────────────────────────
+// ─── RUTAS AUTENTICADAS (usuarios normales) ───────────────────────
 Route::middleware('auth')->group(function () {
-    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+
+    // Perfil
+    Route::get('/profile',    [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::patch('/profile',  [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
-    
+
+    // Pedidos — crear
+    Route::get('/pedidos/crear/{producto:slug}',  [PedidoController::class, 'create'])->name('pedidos.create');
+    Route::post('/pedidos/crear/{producto:slug}', [PedidoController::class, 'store'])->name('pedidos.store');
+    Route::get('/pedidos/{pedido}/confirmacion',  [PedidoController::class, 'confirmacion'])->name('pedidos.confirmacion');
+
+    // Pedidos — mis pedidos
     Route::get('/mis-pedidos', [PedidoController::class, 'misPedidos'])->name('pedidos.mis');
-    
-    Route::post('/pedidos/{pedido}/pagar', [PedidoController::class, 'pagar'])
-        ->name('pedidos.pagar');
 
+    // Pedidos — pagos  ← ESTAS SON LAS QUE FALTABAN AQUÍ
+    Route::post('/pedidos/{pedido}/pagar',   [PedidoController::class, 'pagar'])->name('pedidos.pagar');
+    Route::post('/pedidos/confirmar-yape',   [PedidoController::class, 'confirmarYape'])->name('pedidos.confirmar-yape');
+    Route::post('/pedidos/pagar-culqi',      [PedidoController::class, 'pagarCulqi'])->name('pedidos.pagar-culqi');
 
+    // Colaborador link
+    Route::get('/mi-link', [SolicitudColaboradorController::class, 'miLink'])->name('colaborador.link');
 });
-
-
-Route::get('/mi-link', [SolicitudColaboradorController::class, 'miLink'])
-    ->middleware('auth')
-    ->name('colaborador.link');
 
 // ─── PANEL ADMIN ─────────────────────────────────────────────────
 Route::prefix('admin')
     ->name('admin.')
-    ->middleware(['auth', 'es_admin'])   // <-- requiere login + rol admin
+    ->middleware(['auth', 'es_admin'])
     ->group(function () {
 
-
         // Dashboard
-        Route::get('/', [AdminController::class, 'dashboard'])
-            ->name('dashboard');
+        Route::get('/', [AdminController::class, 'dashboard'])->name('dashboard');
 
-        Route::get('/colaboradores/solicitudes', [SolicitudColaboradorController::class, 'index'])
-            ->name('colaboradores.solicitudes.index');
+        // Métodos de pago
+        Route::get('/metodos-pago',                       [MetodoPagoController::class, 'index'])->name('metodos-pago.index');
+        Route::put('/metodos-pago/{metodoPago}',          [MetodoPagoController::class, 'update'])->name('metodos-pago.update');
+        Route::patch('/metodos-pago/{metodoPago}/toggle', [MetodoPagoController::class, 'toggle'])->name('metodos-pago.toggle');
 
-        Route::patch('/colaboradores/solicitudes/{solicitud}/aprobar', [SolicitudColaboradorController::class, 'aprobar'])
-            ->name('colaboradores.solicitudes.aprobar');
+        // Solicitudes colaboradores
+        Route::get('/colaboradores/solicitudes',                          [SolicitudColaboradorController::class, 'index'])->name('colaboradores.solicitudes.index');
+        Route::patch('/colaboradores/solicitudes/{solicitud}/aprobar',    [SolicitudColaboradorController::class, 'aprobar'])->name('colaboradores.solicitudes.aprobar');
+        Route::patch('/colaboradores/solicitudes/{solicitud}/rechazar',   [SolicitudColaboradorController::class, 'rechazar'])->name('colaboradores.solicitudes.rechazar');
 
-        Route::patch('/colaboradores/solicitudes/{solicitud}/rechazar', [SolicitudColaboradorController::class, 'rechazar'])
-            ->name('colaboradores.solicitudes.rechazar');
-            
-        // Panel principal de productos
-        Route::get('/productos', [AdminProductoController::class, 'index'])
-            ->name('productos.index');
+        // Productos
+        Route::get('/productos',                      [AdminProductoController::class, 'index'])->name('productos.index');
+        Route::get('/productos/crear',                [AdminProductoController::class, 'create'])->name('productos.create');
+        Route::post('/productos',                     [AdminProductoController::class, 'store'])->name('productos.store');
+        Route::get('/productos/{producto}/editar',    [AdminProductoController::class, 'edit'])->name('productos.edit');
+        Route::put('/productos/{producto}',           [AdminProductoController::class, 'update'])->name('productos.update');
+        Route::delete('/productos/{producto}',        [AdminProductoController::class, 'destroy'])->name('productos.destroy');
+        Route::patch('/productos/{producto}/toggle',  [AdminProductoController::class, 'toggleActivo'])->name('productos.toggle');
+        Route::patch('/productos/{producto}/stock',   [AdminProductoController::class, 'actualizarStock'])->name('productos.stock');
 
-        // Crear
-        Route::get('/productos/crear', [AdminProductoController::class, 'create'])
-            ->name('productos.create');
-        Route::post('/productos', [AdminProductoController::class, 'store'])
-            ->name('productos.store');
+        // Pedidos admin
+        Route::get('pedidos',                         [PedidoAdminController::class, 'index'])->name('pedidos.index');
+        Route::get('pedidos/{pedido}',                [PedidoAdminController::class, 'show'])->name('pedidos.show');
+        Route::patch('pedidos/{pedido}/estado',       [PedidoAdminController::class, 'actualizarEstado'])->name('pedidos.estado');
 
-        // Editar
-        Route::get('/productos/{producto}/editar', [AdminProductoController::class, 'edit'])
-            ->name('productos.edit');
-        Route::put('/productos/{producto}', [AdminProductoController::class, 'update'])
-            ->name('productos.update');
-
-        // Eliminar
-        Route::delete('/productos/{producto}', [AdminProductoController::class, 'destroy'])
-            ->name('productos.destroy');
-
-        // Acciones rápidas
-        Route::patch('/productos/{producto}/toggle', [AdminProductoController::class, 'toggleActivo'])
-            ->name('productos.toggle');
-        Route::patch('/productos/{producto}/stock', [AdminProductoController::class, 'actualizarStock'])
-            ->name('productos.stock');
-        
-        // ─── PEDIDOS ADMIN ─────────────────────────────
-        Route::get('pedidos', [PedidoAdminController::class, 'index'])
-            ->name('pedidos.index');
-
-        Route::get('pedidos/{pedido}', [PedidoAdminController::class, 'show'])
-            ->name('pedidos.show');
-
-        Route::patch('pedidos/{pedido}/estado', [PedidoAdminController::class, 'actualizarEstado'])
-            ->name('pedidos.estado');
-
-        // ── Admin  ───────────────────────
-
-
-        Route::patch('colaboradores/{colaborador}/aprobar', [ColaboradorAdminController::class, 'aprobar'])
-        ->name('colaboradores.aprobar');
-        Route::patch('colaboradores/{colaborador}/rechazar', [ColaboradorAdminController::class, 'rechazar'])
-        ->name('colaboradores.rechazar');
-
-
-        // ─── COLABORADORES ADMIN ───────────────────────
-        Route::get('colaboradores', [ColaboradorAdminController::class, 'index'])
-            ->name('colaboradores.index');
-
-        Route::get('colaboradores/crear', [ColaboradorAdminController::class, 'create'])
-            ->name('colaboradores.create');
-
-        Route::post('colaboradores', [ColaboradorAdminController::class, 'store'])
-            ->name('colaboradores.store');
-
-        Route::get('colaboradores/{colaborador}', [ColaboradorAdminController::class, 'show'])
-            ->name('colaboradores.show');
-
-        Route::get('colaboradores/{colaborador}/editar', [ColaboradorAdminController::class, 'edit'])
-            ->name('colaboradores.edit');
-
-        Route::put('colaboradores/{colaborador}', [ColaboradorAdminController::class, 'update'])
-            ->name('colaboradores.update');
-
-    
+        // Colaboradores admin
+        Route::get('colaboradores',                          [ColaboradorAdminController::class, 'index'])->name('colaboradores.index');
+        Route::get('colaboradores/crear',                    [ColaboradorAdminController::class, 'create'])->name('colaboradores.create');
+        Route::post('colaboradores',                         [ColaboradorAdminController::class, 'store'])->name('colaboradores.store');
+        Route::get('colaboradores/{colaborador}',            [ColaboradorAdminController::class, 'show'])->name('colaboradores.show');
+        Route::get('colaboradores/{colaborador}/editar',     [ColaboradorAdminController::class, 'edit'])->name('colaboradores.edit');
+        Route::put('colaboradores/{colaborador}',            [ColaboradorAdminController::class, 'update'])->name('colaboradores.update');
+        Route::patch('colaboradores/{colaborador}/aprobar',  [ColaboradorAdminController::class, 'aprobar'])->name('colaboradores.aprobar');
+        Route::patch('colaboradores/{colaborador}/rechazar', [ColaboradorAdminController::class, 'rechazar'])->name('colaboradores.rechazar');
     });
 
-    Route::get('/dashboard', function () {
-        return view('dashboard');
-    })->middleware(['auth'])->name('dashboard');
+Route::get('/dashboard', fn() => view('dashboard'))->middleware('auth')->name('dashboard');
 
-// ─── AUTH ─────────────────────────────────────────────────────────
 require __DIR__.'/auth.php';

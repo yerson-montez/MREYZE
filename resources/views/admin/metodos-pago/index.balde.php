@@ -1,102 +1,151 @@
-{{-- resources/views/admin/metodos-pago/index.blade.php --}}
-@extends('admin.layout')
-@section('title', 'Métodos de Pago — Admin')
+@extends('layouts.admin')
 
 @section('content')
-<div class="admin-page">
-    <div class="admin-page-header">
-        <h1 class="admin-title">💳 Métodos de Pago</h1>
-    </div>
+<div class="max-w-4xl mx-auto mt-10 px-4">
+
+    <h1 class="text-2xl font-semibold mb-6">Métodos de pago</h1>
 
     @if(session('success'))
-        <div class="alert-success">{{ session('success') }}</div>
+        <div class="bg-green-100 text-green-700 rounded-lg px-4 py-3 mb-4">
+            {{ session('success') }}
+        </div>
     @endif
 
-    <div class="metodos-grid">
-        @foreach($metodos as $m)
-        <div class="metodo-card {{ $m->activo ? 'activo' : 'inactivo' }}" id="metodo-{{ $m->id }}">
+    @foreach($metodos as $metodo)
+    <div class="bg-white border rounded-xl p-5 mb-4 {{ $metodo->activo ? '' : 'opacity-60' }}">
 
-            {{-- Toggle activo/inactivo --}}
-            <div class="metodo-header">
-                <span class="metodo-emoji">{{ $m->emoji }}</span>
-                <strong class="metodo-nombre">{{ $m->nombre }}</strong>
-                <button class="toggle-btn {{ $m->activo ? 'on' : 'off' }}"
-                        onclick="toggleMetodo({{ $m->id }}, this)"
-                        title="{{ $m->activo ? 'Desactivar' : 'Activar' }}">
-                    {{ $m->activo ? '✅ Activo' : '⬜ Inactivo' }}
-                </button>
+        {{-- Cabecera con toggle --}}
+        <div class="flex justify-between items-center mb-4">
+            <h2 class="text-lg font-medium">
+                {{ $metodo->emoji }} {{ $metodo->nombre }}
+            </h2>
+
+            <label class="inline-flex items-center gap-2 cursor-pointer">
+                <span class="text-sm text-gray-500">
+                    {{ $metodo->activo ? 'Activo' : 'Inactivo' }}
+                </span>
+                <div class="relative">
+                    <input type="checkbox"
+                           class="sr-only toggle-activo"
+                           data-id="{{ $metodo->id }}"
+                           {{ $metodo->activo ? 'checked' : '' }}>
+                    <div class="toggle-bg w-10 h-6 rounded-full border-2
+                        {{ $metodo->activo ? 'bg-green-500 border-green-500' : 'bg-gray-200 border-gray-300' }}">
+                        <div class="toggle-dot absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full transition
+                            {{ $metodo->activo ? 'translate-x-4' : '' }}">
+                        </div>
+                    </div>
+                </div>
+            </label>
+        </div>
+
+        {{-- Formulario de edición --}}
+        <form action="{{ route('admin.metodos-pago.update', $metodo) }}" method="POST">
+            @csrf
+            @method('PUT')
+
+            <div class="grid grid-cols-2 gap-4 mb-4">
+                <div>
+                    <label class="text-xs text-gray-500 block mb-1">Nombre visible</label>
+                    <input type="text" name="nombre" value="{{ $metodo->nombre }}"
+                           class="w-full border rounded-lg p-2 text-sm">
+                </div>
+                <div>
+                    <label class="text-xs text-gray-500 block mb-1">Emoji</label>
+                    <input type="text" name="emoji" value="{{ $metodo->emoji }}"
+                           class="w-full border rounded-lg p-2 text-sm">
+                </div>
             </div>
 
-            {{-- Formulario de datos --}}
-            <form method="POST" action="{{ route('admin.metodos-pago.update', $m) }}" class="metodo-form">
-                @csrf @method('PUT')
-                <input type="hidden" name="activo" value="{{ $m->activo ? 1 : 0 }}" class="input-activo">
+            {{-- Campos según tipo --}}
+            @if(in_array($metodo->clave, ['yape','plin']))
+                <div class="grid grid-cols-2 gap-4 mb-4">
+                    <div>
+                        <label class="text-xs text-gray-500 block mb-1">Número</label>
+                        <input type="text" name="datos[numero]"
+                               value="{{ $metodo->datos['numero'] ?? '' }}"
+                               class="w-full border rounded-lg p-2 text-sm">
+                    </div>
+                    <div>
+                        <label class="text-xs text-gray-500 block mb-1">Titular</label>
+                        <input type="text" name="datos[titular]"
+                               value="{{ $metodo->datos['titular'] ?? '' }}"
+                               class="w-full border rounded-lg p-2 text-sm">
+                    </div>
+                </div>
+                <div>
+                    <label class="text-xs text-gray-500 block mb-1">URL imagen QR (opcional)</label>
+                    <input type="text" name="datos[qr]"
+                           value="{{ $metodo->datos['qr'] ?? '' }}"
+                           placeholder="https://... o ruta storage"
+                           class="w-full border rounded-lg p-2 text-sm">
+                </div>
 
-                @if(in_array($m->clave, ['yape','plin','efectivo','tarjeta']))
-                    @if($m->clave !== 'efectivo' && $m->clave !== 'tarjeta')
-                    <label>Número de celular</label>
-                    <input type="text" name="datos[numero]"
-                           value="{{ $m->datos['numero'] ?? '' }}"
-                           class="form-input" placeholder="999 000 111">
-                    <label>Alias / Nombre en app</label>
-                    <input type="text" name="datos[alias]"
-                           value="{{ $m->datos['alias'] ?? '' }}"
-                           class="form-input" placeholder="MiEmpresa">
-                    <label>Titular</label>
-                    <input type="text" name="datos[titular]"
-                           value="{{ $m->datos['titular'] ?? '' }}"
-                           class="form-input" placeholder="Juan Pérez">
-                    @endif
-                @elseif($m->clave === 'paypal')
-                    <label>Email / Alias PayPal</label>
-                    <input type="text" name="datos[alias]"
-                           value="{{ $m->datos['alias'] ?? '' }}"
-                           class="form-input" placeholder="pagos@empresa.com">
-                @else
-                    {{-- BCP, Interbank, BBVA --}}
-                    <label>Número de cuenta</label>
-                    <input type="text" name="datos[numero]"
-                           value="{{ $m->datos['numero'] ?? '' }}"
-                           class="form-input" placeholder="191-12345678-0-12">
-                    <label>CCI (código interbancario)</label>
-                    <input type="text" name="datos[cci]"
-                           value="{{ $m->datos['cci'] ?? '' }}"
-                           class="form-input" placeholder="002-191-001234567890-12">
-                    <label>Titular</label>
-                    <input type="text" name="datos[titular]"
-                           value="{{ $m->datos['titular'] ?? '' }}"
-                           class="form-input" placeholder="Juan Pérez">
-                @endif
+            @elseif(in_array($metodo->clave, ['bcp','interbank','bbva','scotiabank']))
+                <div class="grid grid-cols-2 gap-4 mb-4">
+                    <div>
+                        <label class="text-xs text-gray-500 block mb-1">N° de cuenta</label>
+                        <input type="text" name="datos[numero]"
+                               value="{{ $metodo->datos['numero'] ?? '' }}"
+                               class="w-full border rounded-lg p-2 text-sm">
+                    </div>
+                    <div>
+                        <label class="text-xs text-gray-500 block mb-1">CCI</label>
+                        <input type="text" name="datos[cci]"
+                               value="{{ $metodo->datos['cci'] ?? '' }}"
+                               class="w-full border rounded-lg p-2 text-sm">
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-4 mb-4">
+                    <div>
+                        <label class="text-xs text-gray-500 block mb-1">Titular</label>
+                        <input type="text" name="datos[titular]"
+                               value="{{ $metodo->datos['titular'] ?? '' }}"
+                               class="w-full border rounded-lg p-2 text-sm">
+                    </div>
+                    <div>
+                        <label class="text-xs text-gray-500 block mb-1">Alias (opcional)</label>
+                        <input type="text" name="datos[alias]"
+                               value="{{ $metodo->datos['alias'] ?? '' }}"
+                               class="w-full border rounded-lg p-2 text-sm">
+                    </div>
+                </div>
 
-                <button type="submit" class="btn-sm-primary" style="margin-top:.5rem">Guardar</button>
-            </form>
-        </div>
-        @endforeach
+            @elseif($metodo->clave === 'culqi')
+                <p class="text-sm text-gray-400 mb-4">
+                    Culqi se configura en el archivo <code>.env</code> con
+                    <code>CULQI_PUBLIC_KEY</code> y <code>CULQI_SECRET_KEY</code>.
+                </p>
+            @endif
+
+            <input type="hidden" name="activo" value="{{ $metodo->activo ? 1 : 0 }}">
+
+            <button type="submit"
+                    class="mt-2 bg-blue-600 text-white px-5 py-2 rounded-lg text-sm hover:bg-blue-700 transition">
+                Guardar cambios
+            </button>
+        </form>
     </div>
+    @endforeach
 </div>
 
 <script>
-function toggleMetodo(id, btn) {
-    fetch(`/admin/metodos-pago/${id}/toggle`, {
-        method: 'POST',
-        headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' }
-    })
-    .then(r => r.json())
-    .then(data => {
-        const card = document.getElementById('metodo-' + id);
-        const inputActivo = card.querySelector('.input-activo');
-        if (data.activo) {
-            btn.textContent = '✅ Activo';
-            btn.className = 'toggle-btn on';
-            card.className = 'metodo-card activo';
-            inputActivo.value = 1;
-        } else {
-            btn.textContent = '⬜ Inactivo';
-            btn.className = 'toggle-btn off';
-            card.className = 'metodo-card inactivo';
-            inputActivo.value = 0;
-        }
+document.querySelectorAll('.toggle-activo').forEach(function(checkbox) {
+    checkbox.addEventListener('change', function() {
+        const id = this.dataset.id;
+        fetch(`/admin/metodos-pago/${id}/toggle`, {
+            method: 'PATCH',
+            headers: {
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                'Accept': 'application/json',
+            }
+        })
+        .then(r => r.json())
+        .then(data => {
+            // Recarga para reflejar el estado visual
+            location.reload();
+        });
     });
-}
+});
 </script>
 @endsection
