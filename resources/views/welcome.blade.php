@@ -314,7 +314,6 @@
                         </div>
                         <div class="nav-user-dropdown" id="userDropdown">
                             <a href="{{ route('profile.edit') }}">Mi perfil</a>
-                            <a href="{{ url('/welcome') }}">Dashboard</a>
                             <form method="POST" action="{{ route('logout') }}">
                                 @csrf
                                 <button type="submit">Cerrar sesión</button>

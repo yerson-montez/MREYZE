@@ -11,6 +11,7 @@ use App\Http\Controllers\Admin\MetodoPagoController;
 use App\Http\Controllers\Admin\PedidoAdminController;
 use App\Http\Controllers\Admin\ColaboradorAdminController;
 use App\Http\Controllers\SolicitudColaboradorController;
+use App\Http\Controllers\PaymentController;
 
 // ─── HOME ────────────────────────────────────────────────────────
 Route::get('/', function () {
@@ -37,6 +38,25 @@ Route::get('/servicios/consultoria',    fn() => view('sections.servicios.consult
 // ─── TIENDA PÚBLICA ──────────────────────────────────────────────
 Route::get('/tienda',               [TiendaController::class, 'index'])->name('tienda.index');
 Route::get('/tienda/{producto:slug}', [TiendaController::class, 'show'])->name('tienda.show');
+
+// Página principal → redirige al checkout
+//Route::get('/', function () {
+    //return redirect()->route('checkout');
+//});
+
+// ── Checkout ──────────────────────────────────────────────────────────────
+// GET /checkout  → muestra la vista del checkout
+//Route::get('/checkout', [PaymentController::class, 'showCheckout'])
+    //->name('checkout');
+
+// POST /pagar → procesa el pago (recibe token desde JS)
+//Route::post('/pagar', [PaymentController::class, 'procesarPago'])
+    //->name('pago.procesar');
+
+// ── Webhook de Culqi ──────────────────────────────────────────────────────
+// IMPORTANTE: excluir del CSRF middleware (ver app/Http/Middleware/VerifyCsrfToken.php)
+//Route::post('/webhook/culqi', [PaymentController::class, 'webhook'])
+    //->name('webhook.culqi');
 
 // ─── COLABORADORES PÚBLICAS ──────────────────────────────────────
 Route::get('/unete',        [SolicitudColaboradorController::class, 'show'])->name('colaboradores.solicitud');
