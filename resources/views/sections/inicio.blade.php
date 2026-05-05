@@ -1,6 +1,6 @@
 @extends('welcome')
 
-@section('title', 'Inicio')
+@section('title', 'Inicio — MREYZE')
 
 @section('content')
 {{-- resources/views/sections/inicio.blade.php --}}

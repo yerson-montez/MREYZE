@@ -1,18 +1,30 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>@yield('title', 'MREYZE — Automatización & SIstemas S.A.C')</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+
+    <title>@yield('title', 'MREYZE — Automatización & Sistemas S.A.C')</title>
     <meta name="description" content="@yield('meta_description', 'Soluciones de automatización industrial, IoT y desarrollo de software a medida en Trujillo, Perú.')">
 
+    <!-- FAVICON -->
+    <link rel="icon" href="/favicon.ico?v=2" type="image/x-icon">
+    <link rel="shortcut icon" href="/favicon.ico?v=2">
+    <link rel="apple-touch-icon" href="/img/LOGOMREYZE1.png">
+    <meta name="theme-color" content="#0a2826">
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@300;400;600;700&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+
+    <!-- Scripts -->
     @if (file_exists(public_path('build/manifest.json')) || file_exists(public_path('hot')))
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     @endif
 
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Exo+2:wght@300;400;600;700&family=Inter:wght@300;400;500&display=swap');
-
         :root {
             --ice-900: #0a2826;
             --ice-800: #0d1f3c;
@@ -49,8 +61,8 @@
         }
         .navbar { display: flex; align-items: center; justify-content: space-between; max-width: 1280px; margin: 0 auto; height: 68px; }
         .nav-logo { display: flex; align-items: center; gap: 10px; text-decoration: none; }
-        .nav-logo-icon { width: 38px; height: 38px; background: linear-gradient(135deg, var(--ice-500), var(--accent)); border-radius: 10px; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 16px rgba(0, 212, 255, 0.35); flex-shrink: 0; }
-        .nav-logo-icon svg { width: 22px; height: 22px; fill: white; }
+        .nav-logo-icon { width: 78px; height: 70px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+        .nav-logo-icon img { width: 100%; height: 100%; object-fit: contain; }
         .nav-logo-text { font-family: 'Exo 2', sans-serif; font-weight: 700; font-size: 1.2rem; letter-spacing: 0.03em; color: #fff; line-height: 1; }
         .nav-logo-text span { color: var(--accent); }
         .nav-logo-sub { font-size: 0.58rem; font-weight: 300; color: var(--ice-200); letter-spacing: 0.15em; text-transform: uppercase; display: block; margin-top: 2px; }
@@ -89,7 +101,6 @@
         .nav-toggle.open span:nth-child(1) { transform: rotate(45deg) translate(5px, 5px); }
         .nav-toggle.open span:nth-child(2) { opacity: 0; transform: scaleX(0); }
         .nav-toggle.open span:nth-child(3) { transform: rotate(-45deg) translate(5px, -5px); }
-        .nav-dot { width: 6px; height: 6px; background: var(--accent); border-radius: 50%; margin-left: auto; flex-shrink: 0; box-shadow: 0 0 6px var(--accent); }
         .nav-accent-line { height: 2px; background: linear-gradient(90deg, transparent 0%, var(--ice-500) 20%, var(--accent) 50%, var(--ice-500) 80%, transparent 100%); }
 
         /* Mobile nav */
@@ -101,25 +112,24 @@
         .nav-mobile-divider { height: 1px; background: rgba(74, 144, 217, 0.12); margin: 0.4rem 0; }
         .nav-mobile .btn-cta { margin-top: 0.5rem; justify-content: center; }
 
-        @media (max-width: 900px) {
-            .nav-links, .nav-right { display: none !important; }
-            .nav-toggle { display: flex !important; }
-        }
-        @media (min-width: 901px) {
-            .nav-toggle { display: none !important; }
-            .nav-mobile { display: none !important; }
-        }
+        /* Nav user dropdown */
+        .nav-user-wrapper { position: relative; }
+        .nav-user-dropdown { position: absolute; top: calc(100% + 10px); right: 0; min-width: 190px; background: rgba(13, 31, 60, 0.98); border: 1px solid rgba(74, 144, 217, 0.25); border-radius: 12px; padding: 0.5rem; box-shadow: 0 16px 40px rgba(0, 30, 90, 0.55); backdrop-filter: blur(16px); opacity: 0; transform: translateY(-8px); pointer-events: none; transition: all 0.22s ease; z-index: 999; }
+        .nav-user-dropdown.show { opacity: 1; transform: translateY(0); pointer-events: auto; }
+        .nav-user-dropdown a { display: block; padding: 0.55rem 0.75rem; border-radius: 8px; font-size: 0.85rem; color: var(--ice-100); text-decoration: none; transition: all 0.18s; }
+        .nav-user-dropdown a:hover { background: rgba(37, 99, 199, 0.3); color: #fff; }
+        .nav-user-dropdown form { margin: 0; }
+        .nav-user-dropdown button { width: 100%; padding: 0.55rem 0.75rem; border-radius: 8px; font-size: 0.85rem; background: none; border: none; text-align: left; color: #ff6b6b; cursor: pointer; transition: background 0.18s; }
+        .nav-user-dropdown button:hover { background: rgba(255, 107, 107, 0.1); }
 
-        
-
-        /* ── Scroll Reveal ── */
+        /* Scroll Reveal */
         .reveal { opacity: 0; transform: translateY(32px); transition: opacity 0.75s ease, transform 0.75s ease; }
         .reveal.visible { opacity: 1; transform: translateY(0); }
         .reveal-delay-1 { transition-delay: 0.12s; }
         .reveal-delay-2 { transition-delay: 0.24s; }
         .reveal-delay-3 { transition-delay: 0.36s; }
 
-        /* ── Shared hero button ── */
+        /* Shared hero button */
         .hero-btn-primary {
             display: inline-flex; align-items: center; gap: 10px;
             padding: 0.85rem 2rem; border-radius: 10px;
@@ -136,36 +146,17 @@
             transform: translateY(-2px); color: #fff;
         }
 
-        /* ── Section shared styles ── */
+        /* Section shared styles */
         .section-label { display: inline-flex; align-items: center; gap: 8px; font-size: 0.75rem; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase; color: var(--accent); margin-bottom: 1rem; }
         .section-label::before { content: ''; width: 24px; height: 2px; background: var(--accent); border-radius: 2px; }
         .section-title { font-family: 'Exo 2', sans-serif; font-size: clamp(1.8rem, 3.5vw, 2.8rem); font-weight: 700; color: #fff; line-height: 1.15; letter-spacing: -0.02em; margin-bottom: 1rem; }
         .section-title span { background: linear-gradient(135deg, var(--ice-200), var(--accent)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
         .section-desc { font-size: 1rem; color: var(--ice-200); line-height: 1.7; max-width: 520px; }
 
-        /* ── Nav user dropdown ── */
-        .nav-user-wrapper { position: relative; }
-        .nav-user-dropdown { position: absolute; top: calc(100% + 10px); right: 0; min-width: 190px; background: rgba(13, 31, 60, 0.98); border: 1px solid rgba(74, 144, 217, 0.25); border-radius: 12px; padding: 0.5rem; box-shadow: 0 16px 40px rgba(0, 30, 90, 0.55); backdrop-filter: blur(16px); opacity: 0; transform: translateY(-8px); pointer-events: none; transition: all 0.22s ease; z-index: 999; }
-        .nav-user-dropdown.show { opacity: 1; transform: translateY(0); pointer-events: auto; }
-        .nav-user-dropdown a { display: block; padding: 0.55rem 0.75rem; border-radius: 8px; font-size: 0.85rem; color: var(--ice-100); text-decoration: none; transition: all 0.18s; }
-        .nav-user-dropdown a:hover { background: rgba(37, 99, 199, 0.3); color: #fff; }
-        .nav-user-dropdown form { margin: 0; }
-        .nav-user-dropdown button { width: 100%; padding: 0.55rem 0.75rem; border-radius: 8px; font-size: 0.85rem; background: none; border: none; text-align: left; color: #ff6b6b; cursor: pointer; transition: background 0.18s; }
-        .nav-user-dropdown button:hover { background: rgba(255, 107, 107, 0.1); }
-
-        /* ── Footer ── */
-        .site-footer {
-            background: var(--ice-800);
-            border-top: 1px solid rgba(74, 144, 217, 0.2);
-            padding: 56px 2rem 0;
-        }
+        /* Footer */
+        .site-footer { background: var(--ice-800); border-top: 1px solid rgba(74, 144, 217, 0.2); padding: 56px 2rem 0; }
         .footer-inner { max-width: 1280px; margin: 0 auto; }
-        .footer-grid {
-            display: grid;
-            grid-template-columns: 2fr 1fr 1fr 1fr;
-            gap: 40px;
-            padding-bottom: 40px;
-        }
+        .footer-grid { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 40px; padding-bottom: 40px; }
         .footer-brand-logo { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; text-decoration: none; }
         .footer-brand p { font-size: 0.875rem; color: var(--ice-300); line-height: 1.65; max-width: 280px; margin: 0; }
         .footer-col h4 { font-size: 0.7rem; font-weight: 700; letter-spacing: 0.15em; text-transform: uppercase; color: var(--ice-300); margin: 0 0 14px; }
@@ -175,6 +166,17 @@
         .footer-bottom a { color: var(--accent); text-decoration: none; }
         .footer-bottom a:hover { color: #fff; }
 
+        /* Page main */
+        .page-main { min-height: calc(100vh - 70px); }
+
+        @media (max-width: 900px) {
+            .nav-links, .nav-right { display: none !important; }
+            .nav-toggle { display: flex !important; }
+        }
+        @media (min-width: 901px) {
+            .nav-toggle { display: none !important; }
+            .nav-mobile { display: none !important; }
+        }
         @media (max-width: 768px) {
             .footer-grid { grid-template-columns: 1fr 1fr; }
             .footer-brand { grid-column: 1 / -1; }
@@ -183,29 +185,13 @@
         @media (max-width: 480px) {
             .footer-grid { grid-template-columns: 1fr; }
         }
-
-        /* ── Contenido principal ── */
-        .page-main { min-height: calc(100vh - 70px); }
-
-
-        .nav-logo-icon img {
-            width: 100%;
-            height: 100%;
-            object-fit: contain;
-        }
-
-        .nav-logo-icon {
-            width: 78px;
-            height: 70px;
-        }
     </style>
 
-    {{-- Estilos adicionales por página --}}
     @stack('styles')
 </head>
 <body>
 
-    {{-- ── Línea decorativa ── --}}
+    {{-- Línea decorativa --}}
     <div class="nav-accent-line"></div>
 
     {{-- ══════════════════════════════════════
@@ -213,15 +199,14 @@
     ══════════════════════════════════════ --}}
     <header class="nav-wrapper">
         <nav class="navbar">
-            <a href="/" class="nav-logo">
+            <a href="{{ url('/') }}" class="nav-logo">
                 <div class="nav-logo-icon">
-                    <img src="{{ asset('img/LOGOMREYZE1.png') }}">
+                    <img src="{{ asset('img/LOGOMREYZE1.png') }}" alt="MREYZE Logo">
                 </div>
                 <div>
-                    <!--<span class="nav-logo-text">M<span>REYZE</span></span>-->
                     <span class="nav-logo-sub">Automatización y Sistemas S.A.C</span>
                 </div>
-</a>
+            </a>
 
             <ul class="nav-links">
                 <li>
@@ -273,7 +258,7 @@
                 <li>
                     <a href="{{ url('/tienda') }}" @class(['active' => request()->is('tienda*')])>
                         <svg viewBox="0 0 24 24" fill="currentColor"><path d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zM1 2v2h2l3.6 7.59-1.35 2.45c-.16.28-.25.61-.25.96C5 16.1 6.9 18 9 18h12v-2H9.42c-.14 0-.25-.11-.25-.25l.03-.12.9-1.63H19c.75 0 1.41-.41 1.75-1.03l3.58-6.49c.08-.14.12-.31.12-.48 0-.55-.45-1-1-1H5.21l-.94-2H1zm16 16c-1.1 0-1.99.9-1.99 2s.89 2 1.99 2 2-.9 2-2-.9-2-2-2z"/></svg>
-                        Tienda 
+                        Tienda
                     </a>
                 </li>
                 <li>
@@ -293,14 +278,13 @@
                         @php
                             $colaborador = \App\Models\Colaborador::where('email', auth()->user()->email)->first();
                         @endphp
-
                         @if($colaborador)
                             <a href="{{ route('colaborador.link') }}">🔗 Mi link</a>
                         @else
                             <a href="{{ route('colaboradores.solicitud') }}">Quiero ser colaborador</a>
                         @endif
                     @endauth
-               </li> 
+                </li>
             </ul>
 
             <div class="nav-right">
@@ -345,7 +329,7 @@
         </nav>
 
         <div class="nav-mobile" id="navMobile">
-            <a href="{{ url('/inicio') }}">Inicio</a>
+            <a href="{{ url('/') }}">Inicio</a>
             <a href="{{ url('/nosotros') }}">Nosotros</a>
             <a href="{{ url('/servicios') }}">Servicios</a>
             <a href="{{ url('/proyectos') }}">Proyectos</a>
@@ -383,11 +367,10 @@
                 <div class="footer-brand">
                     <a href="{{ url('/') }}" class="footer-brand-logo">
                         <div class="nav-logo-icon">
-                            <svg viewBox="0 0 24 24"><path d="M13 3L4 14h7l-1 7 9-11h-7l1-7z"/></svg>
+                            <img src="{{ asset('img/LOGOMREYZE1.png') }}" alt="MREYZE Logo">
                         </div>
                         <div>
-                            <span class="nav-logo-text">M<span>Tech</span></span>
-                            <span class="nav-logo-sub">Automatización & Software</span>
+                            <span class="nav-logo-sub">Automatización y Sistemas S.A.C</span>
                         </div>
                     </a>
                     <p>Soluciones de automatización industrial, IoT y desarrollo de software a medida para la industria moderna en Trujillo, Perú.</p>
@@ -415,20 +398,20 @@
                     <a href="{{ url('/privacidad') }}">Política de privacidad</a>
                     <a href="{{ url('/terminos') }}">Términos de uso</a>
                     <h4 style="margin-top: 1.5rem;">Contacto</h4>
-                    <a href="mailto:contacto@mtech.pe">contacto@mtech.pe</a>
+                    <a href="mailto:contacto@mreyze.pe">contacto@mreyze.pe</a>
                     <a href="tel:+51999999999">+51 999 999 999</a>
                 </div>
 
             </div>
             <div class="footer-bottom">
                 <span>© {{ date('Y') }} MREYZE. Todos los derechos reservados.</span>
-                <span>Hecho en Perú</span>
+                <span>Hecho en Perú 🇵🇪</span>
             </div>
         </div>
     </footer>
 
     <script>
-        // ── Hamburger mobile ──
+        // Hamburger mobile
         const toggle = document.getElementById('navToggle');
         const mobile = document.getElementById('navMobile');
         if (toggle) {
@@ -438,7 +421,7 @@
             });
         }
 
-        // ── Scroll reveal ──
+        // Scroll reveal
         const observer = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
                 if (entry.isIntersecting) {
@@ -448,7 +431,7 @@
         }, { threshold: 0.12 });
         document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
 
-        // ── Dropdown usuario ──
+        // Dropdown usuario
         const userToggle = document.getElementById('userMenuToggle');
         const userDropdown = document.getElementById('userDropdown');
         if (userToggle) {
@@ -464,7 +447,6 @@
         }
     </script>
 
-    {{-- Scripts adicionales por página --}}
     @stack('scripts')
 
 </body>

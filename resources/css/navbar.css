@@ -8,21 +8,34 @@
 /* ── Variables de color ── */
 /* ── Paleta verde TechSys ── */
 :root {
-  --nav-bg:               #0F6E56;   /* fondo principal del navbar     */
-  --nav-bg-hover:         #1D9E75;   /* hover de fondo en items        */
-  --nav-accent:           #5DCAA5;   /* acento principal (logo, activo)*/
-  --nav-accent-line:      #9FE1CB;   /* línea top del navbar           */
-  --nav-text:             #E1F5EE;   /* texto principal                */
-  --nav-text-muted:       #9FE1CB;   /* texto apagado en links         */
-  --nav-active:           #5DCAA5;   /* link activo                    */
-  --nav-dropdown-bg:      #085041;   /* fondo del dropdown             */
-  --nav-btn-google-bg:    #E1F5EE;   /* botón Google                   */
-  --nav-btn-google-text:  #085041;
-  --nav-btn-login-border: #5DCAA5;   /* botón iniciar sesión           */
-  --nav-btn-login-text:   #9FE1CB;
-  --nav-btn-cta-bg:       #5DCAA5;   /* botón Registrarse              */
-  --nav-btn-cta-text:     #04342C;
-  --nav-dot:              #9FE1CB;   /* puntito en Tienda              */
+  --nav-bg: #0F6E56;
+  --nav-bg-hover: #1D9E75;
+  --nav-accent: #5DCAA5;
+  --nav-accent-line: #9FE1CB;
+  --nav-text: #E1F5EE;
+  --nav-text-muted: #9FE1CB;
+  --nav-active: #5DCAA5;
+  --nav-dropdown-bg: #085041;
+  --nav-btn-google-bg: #E1F5EE;
+  --nav-btn-google-text: #085041;
+  --nav-btn-login-border: #5DCAA5;
+  --nav-btn-login-text: #9FE1CB;
+  --nav-btn-cta-bg: #5DCAA5;
+  --nav-btn-cta-text: #04342C;
+  --nav-dot: #9FE1CB;
+
+  --ice-900: #0a2826;
+  --ice-800: #0d1f3c;
+  --ice-700: #112952;
+  --ice-600: #1a3a6e;
+  --ice-500: #1e4d99;
+  --ice-400: #2563c7;
+  --ice-300: #4a90d9;
+  --ice-200: #7ab8f5;
+  --ice-100: #b8d9f9;
+
+  --accent: #00d4ff;
+  --glow: #00d4ff;
 }
 
 * {

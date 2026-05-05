@@ -1,6 +1,6 @@
 @extends('welcome')
 
-@section('title', 'Inicio')
+@section('title', 'Proyectos — MREYZE')
 
 @section('content')
 
