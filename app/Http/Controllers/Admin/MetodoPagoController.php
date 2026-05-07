@@ -1,4 +1,3 @@
-// app/Http/Controllers/Admin/MetodoPagoController.php
 <?php
 
 namespace App\Http\Controllers\Admin;

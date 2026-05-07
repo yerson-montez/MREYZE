@@ -4,100 +4,120 @@ namespace App\Http\Controllers;
 
 use App\Models\Pedido;
 use App\Models\Producto;
-use App\Models\Colaborador;
 use Illuminate\Http\Request;
-use Illuminate\Http\RedirectResponse;
-use Illuminate\View\View;
+use MercadoPago\Client\Preference\PreferenceClient;
+use MercadoPago\MercadoPagoConfig;
 
 class PedidoController extends Controller
 {
-    /**
-     * Formulario de pedido para un producto.
-     */
-    public function create(Producto $producto): View
+    public function create(Producto $producto)
     {
-        abort_if(! $producto->activo ?? false, 404); // si tienes campo activo
-
-        $adelanto = round($producto->precio * 0.5, 2);
-        $saldo    = $producto->precio - $adelanto;
+        $adelanto = round($producto->precio * 0.50, 2);
+        $saldo    = round($producto->precio - $adelanto, 2);
 
         return view('pedidos.create', compact('producto', 'adelanto', 'saldo'));
     }
 
-    /**
-     * Almacena el nuevo pedido.
-     */
-    public function store(Request $request, Producto $producto): RedirectResponse
+    public function store(Request $request, Producto $producto)
     {
-        $validated = $request->validate([
+        $datos = $request->validate([
             'cliente_nombre'    => 'required|string|max:255',
             'cliente_telefono'  => 'required|string|max:20',
+            'cliente_email'     => 'required|email|max:255',
+            'departamento'      => 'required|string|max:100',
+            'provincia'         => 'required|string|max:100',
+            'distrito'          => 'required|string|max:100',
             'cliente_direccion' => 'required|string|max:500',
         ]);
 
-        // Detectar colaborador desde cookie
-        $colaboradorId = null;
-        $codigoRef = $request->cookie('ref_colaborador');
+        $total    = $producto->precio;
+        $adelanto = round($total * 0.50, 2);
+        $saldo    = round($total - $adelanto, 2);
 
-        if ($codigoRef) {
-            $colaborador   = Colaborador::where('codigo_ref', $codigoRef)
-                                        ->where('activo', true)
-                                        ->first();
-            $colaboradorId = $colaborador?->id;
-        }
+        // Dirección completa en un solo campo (tu migración tiene cliente_direccion)
+        $direccionCompleta = $datos['departamento'] . ', '
+                           . $datos['provincia'] . ', '
+                           . $datos['distrito'] . ' — '
+                           . $datos['cliente_direccion'];
 
-        $pedido = new Pedido(array_merge($validated, [
-            'producto_id'    => $producto->id,
-            'colaborador_id' => $colaboradorId,
-            'user_id'        => auth()->id(), // 👈 CLAVE
-            'total'          => $producto->precio,
-        ]));
+        $pedido = Pedido::create([
+            'producto_id'      => $producto->id,
+            'user_id'          => auth()->id(),
+            'cliente_nombre'   => $datos['cliente_nombre'],
+            'cliente_telefono' => $datos['cliente_telefono'],
+            'cliente_direccion'=> $direccionCompleta,
+            'total'            => $total,      // ← tu migración usa "total"
+            'adelanto'         => $adelanto,
+            'saldo'            => $saldo,
+            'estado'           => 'pendiente',
+        ]);
 
-        $pedido->calcularPagos();
-        $pedido->save();
+        // Mercado Pago
+        MercadoPagoConfig::setAccessToken(config('services.mercadopago.access_token'));
 
-        return redirect()
-            ->route('pedidos.confirmacion', $pedido)
-            ->with('success', '¡Pedido realizado con éxito!');
+        $client = new PreferenceClient();
+
+        $preference = $client->create([
+            'items' => [[
+                'id'          => (string) $pedido->id,
+                'title'       => 'Adelanto — ' . $producto->nombre,
+                'description' => 'Pedido #' . $pedido->id,
+                'quantity'    => 1,
+                'unit_price'  => (float) $adelanto,
+                'currency_id' => 'PEN',
+            ]],
+            'payer' => [
+                'name'  => $datos['cliente_nombre'],
+                'email' => $datos['cliente_email'],
+                'phone' => ['number' => $datos['cliente_telefono']],
+            ],
+            'back_urls' => [
+                'success' => route('pedidos.exitoso'),
+                'failure' => route('pedidos.fallido'),
+                'pending' => route('pedidos.pendiente'),
+            ],
+            'auto_return'        => 'approved',
+            'external_reference' => (string) $pedido->id,
+        ]);
+
+        return redirect($preference->sandbox_init_point);
+        // Producción: $preference->init_point
     }
 
-    /**
-     * Confirmación del pedido para el cliente.
-     */
-    public function confirmacion(Pedido $pedido): View
+    public function exitoso(Request $request)
+    {
+        $pedidoId = $request->query('external_reference');
+        if ($pedidoId) {
+            Pedido::where('id', $pedidoId)->update(['estado' => 'confirmado']); // tu enum usa 'confirmado'
+        }
+        return view('pedidos.exitoso', ['pedidoId' => $pedidoId]);
+    }
+
+    public function fallido()
+    {
+        return view('pedidos.fallido');
+    }
+
+    public function pendiente()
+    {
+        return view('pedidos.pendiente');
+    }
+
+    public function misPedidos()
+    {
+        $pedidos = Pedido::where('user_id', auth()->id())
+            ->with('producto')
+            ->latest()
+            ->get();
+        return view('pedidos.mis-pedidos', compact('pedidos'));
+    }
+
+    public function confirmacion(Pedido $pedido)
     {
         return view('pedidos.confirmacion', compact('pedido'));
     }
 
-    /**
- * Lista de pedidos del cliente logueado
- */
-    public function misPedidos(): View
-    {
-        $pedidos = Pedido::with('producto')
-            ->where('user_id', auth()->id())
-            ->latest()
-            ->get();
-
-        return view('pedidos.mis', compact('pedidos'));
-    }
-
-/**
- * Simulación de pago (adelanto)
- */
-    public function pagar(Pedido $pedido): RedirectResponse
-    {
-    // Seguridad: solo el dueño puede pagar
-        if ($pedido->user_id !== auth()->id()) {
-            abort(403);
-        }
-
-        $pedido->pagado = true;
-        $pedido->estado = 'pagado';
-        $pedido->save();
-
-        return redirect()
-           ->route('pedidos.mis')
-           ->with('success', 'Pago realizado correctamente');
-    }
+    public function pagar(Request $request, Pedido $pedido) {}
+    public function confirmarYape(Request $request) {}
+    public function pagarCulqi(Request $request) {}
 }

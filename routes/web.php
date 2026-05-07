@@ -12,6 +12,8 @@ use App\Http\Controllers\Admin\PedidoAdminController;
 use App\Http\Controllers\Admin\ColaboradorAdminController;
 use App\Http\Controllers\SolicitudColaboradorController;
 use App\Http\Controllers\PaymentController;
+use App\Http\Controllers\PagoController;
+
 
 // ─── HOME ────────────────────────────────────────────────────────
 Route::get('/', function () {
@@ -22,7 +24,7 @@ Route::get('/test-pedidos', function () {
     return view('pedidos.test');
 });
 
-// ─── PÁGINAS ESTÁTICAS ───────────────────────────────────────────
+// ─── PÁGINAS ESTÁTICAS ──────────────────────────────────────────
 Route::get('/nosotros',  fn() => view('sections.nosotros'))->name('nosotros');
 Route::get('/servicios', fn() => view('sections.servicios'))->name('servicios');
 Route::get('/proyectos', fn() => view('sections.proyectos'))->name('proyectos');
@@ -38,6 +40,8 @@ Route::get('/servicios/consultoria',    fn() => view('sections.servicios.consult
 // ─── TIENDA PÚBLICA ──────────────────────────────────────────────
 Route::get('/tienda',               [TiendaController::class, 'index'])->name('tienda.index');
 Route::get('/tienda/{producto:slug}', [TiendaController::class, 'show'])->name('tienda.show');
+
+Route::post('/pagar', [PagoController::class, 'pagar'])->name('pagar');
 
 // Página principal → redirige al checkout
 //Route::get('/', function () {
@@ -87,6 +91,16 @@ Route::middleware('auth')->group(function () {
     Route::post('/pedidos/{pedido}/pagar',   [PedidoController::class, 'pagar'])->name('pedidos.pagar');
     Route::post('/pedidos/confirmar-yape',   [PedidoController::class, 'confirmarYape'])->name('pedidos.confirmar-yape');
     Route::post('/pedidos/pagar-culqi',      [PedidoController::class, 'pagarCulqi'])->name('pedidos.pagar-culqi');
+    
+    // Retorno de Mercado Pago
+    Route::get('/pedidos/exitoso',   [PedidoController::class, 'exitoso'])->name('pedidos.exitoso');
+    Route::get('/pedidos/fallido',   [PedidoController::class, 'fallido'])->name('pedidos.fallido');
+    Route::get('/pedidos/pendiente', [PedidoController::class, 'pendiente'])->name('pedidos.pendiente');
+    
+    // Otros métodos (Yape, Culqi — por ahora vacíos)
+    Route::post('/pedidos/{pedido}/pagar',  [PedidoController::class, 'pagar'])->name('pedidos.pagar');
+    Route::post('/pedidos/confirmar-yape',  [PedidoController::class, 'confirmarYape'])->name('pedidos.confirmar-yape');
+    Route::post('/pedidos/pagar-culqi',     [PedidoController::class, 'pagarCulqi'])->name('pedidos.pagar-culqi');
 
     // Colaborador link
     Route::get('/mi-link', [SolicitudColaboradorController::class, 'miLink'])->name('colaborador.link');

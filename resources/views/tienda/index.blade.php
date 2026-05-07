@@ -127,14 +127,10 @@
     }
 
     .producto-img-bg {
-        position: absolute;
-        inset: 0;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 4rem;
-        opacity: 0.05;
-        transition: all 0.4s;
+         width: 100%;
+         height: 100%;
+         position: relative; 
+         opacity: 1;      
     }
 
     .producto-card:hover .producto-img-bg { opacity: 0.1; transform: scale(1.1); }
@@ -273,6 +269,13 @@
         color: var(--ice-300);
     }
 
+    .producto-img-full {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+   }
+
     /* Banner promo */
     .tienda-banner {
         margin-top: 3rem;
@@ -371,27 +374,28 @@
 
             @forelse($productos as $p)
             <div class="producto-card reveal" data-cat="{{ $p->categoria }}">
+                
                 <div class="producto-img">
-                    <div class="producto-img-bg">{{ $p->icono_emoji }}</div>
-                    <div class="producto-img-icon" style="background:{{ $p->icono_color }};border:1px solid {{ str_replace('0.12','0.3',$p->icono_color) }}">
-                        {{-- Ícono SVG genérico según categoría --}}
-                        @if($p->categoria === 'iot')
-                            <svg viewBox="0 0 24 24" fill="rgba(0,212,255,0.9)"><path d="M1 9l2 2c4.97-4.97 13.03-4.97 18 0l2-2C16.93 2.93 7.08 2.93 1 9zm8 8l3 3 3-3c-1.65-1.66-4.34-1.66-6 0zm-4-4l2 2c2.76-2.76 7.24-2.76 10 0l2-2C15.14 9.14 8.87 9.14 5 13z"/></svg>
-                        @elseif($p->categoria === 'software')
-                            <svg viewBox="0 0 24 24" fill="rgba(45,212,191,0.9)"><path d="M9.4 16.6L4.8 12l4.6-4.6L8 6l-6 6 6 6 1.4-1.4zm5.2 0l4.6-4.6-4.6-4.6L16 6l6 6-6 6-1.4-1.4z"/></svg>
-                        @else
-                            <svg viewBox="0 0 24 24" fill="rgba(122,184,245,0.9)"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58z"/></svg>
-                        @endif
+
+                @if($p->icono_imagen)
+                    <img src="{{ asset('storage/' . $p->icono_imagen) }}" 
+                    alt="{{ $p->nombre }}"
+                    class="producto-img-full">
+                @else
+                    <div class="producto-img-bg">
+                        <span style="font-size:12px;color:#7a9ab8">Sin imagen</span>
                     </div>
+                @endif
 
-                    {{-- Badge estado --}}
-                    <span class="producto-stock {{ $p->estado }}">{{ ucfirst($p->estado) }}</span>
+                {{-- Badge estado --}}
+                <span class="producto-stock {{ $p->estado }}">{{ ucfirst($p->estado) }}</span>
 
-                    {{-- Badge descuento --}}
-                    @if($p->tieneDescuento())
-                    <span class="producto-descuento">-{{ $p->porcentaje_descuento }}%</span>
-                    @endif
-                </div>
+                {{-- Badge descuento --}}
+                @if($p->tieneDescuento())
+                <span class="producto-descuento">-{{ $p->porcentaje_descuento }}%</span>
+                @endif
+
+        </div>
 
                 <div class="producto-body">
                     <div class="producto-cat">{{ strtoupper($p->categoria) }}</div>

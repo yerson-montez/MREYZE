@@ -618,54 +618,35 @@
 
             </div>
         </div>
-
-        {{-- ── Footer ── --}}
-        <footer class="site-footer">
-            <a href="{{ url('/') }}" class="footer-logo">
-                <div class="footer-logo-icon">
-                    <svg viewBox="0 0 24 24"><path d="M13 3L4 14h7l-1 7 9-11h-7l1-7z"/></svg>
-                </div>
-                <span class="footer-logo-text">M<span>Tech</span></span>
-            </a>
-
-            <p class="footer-copy">
-                © {{ date('Y') }} MTech— Automatización & Software. Hecho en Perú.
-            </p>
-
-            <div class="footer-links">
-                <a href="#">Privacidad</a>
-                <a href="#">Términos</a>
-                <a href="{{ url('/blog') }}">Blog</a>
-                <a href="{{ url('/contacto') }}">Contacto</a>
-            </div>
-        </footer>
-
     </div>
 </section>
+S
+ <script>
 
-<script>
-    function enviarFormulario() {
-        const nombre   = document.getElementById('f-nombre').value.trim();
-        const email    = document.getElementById('f-email').value.trim();
-        const servicio = document.getElementById('f-servicio').value;
-        const mensaje  = document.getElementById('f-mensaje').value.trim();
-        const privacidad = document.getElementById('f-privacidad').checked;
+ fetch('/api/contacto', {
+    method: 'POST',
+    headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+    },
+    body: JSON.stringify({ nombre, email, servicio, mensaje })
+})
+.then(async res => {
+    const text = await res.text();
+    console.log("RESPUESTA RAW:", text);
 
-        if (!nombre || !email || !servicio || !mensaje) {
-            alert('Por favor completa todos los campos obligatorios (*)');
-            return;
-        }
-        if (!privacidad) {
-            alert('Debes aceptar la política de privacidad');
-            return;
-        }
-
-        // Aquí puedes hacer la petición real con fetch/axios a tu backend Laravel
-        fetch('/api/contacto', { method: 'POST', body: JSON.stringify({nombre, email, servicio, mensaje}) })
-
-        // Simulación de éxito
-        document.getElementById('contactoForm').style.display = 'none';
-        document.getElementById('formSuccess').style.display = 'block';
+    try {
+        const data = JSON.parse(text);
+        return data;
+    } catch (e) {
+        throw new Error("El backend no está devolviendo JSON");
     }
+})
+.then(data => {
+    console.log("OK:", data);
+})
+.catch(err => {
+    console.error("ERROR REAL:", err);
+});
 </script>
 @endsection

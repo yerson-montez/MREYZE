@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
+
     <title>@yield('title', 'MREYZE — Automatización & Sistemas S.A.C')</title>
     <meta name="description" content="@yield('meta_description', 'Soluciones de automatización industrial, IoT y desarrollo de software a medida en Trujillo, Perú.')">
 

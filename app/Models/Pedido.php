@@ -13,6 +13,7 @@ class Pedido extends Model
         'user_id',
         'cliente_nombre',
         'cliente_telefono',
+        'cliente_email',
         'cliente_direccion',
         'total',
         'adelanto',
