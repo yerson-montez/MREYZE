@@ -5,8 +5,6 @@ namespace App\Http\Controllers;
 use App\Models\Pedido;
 use App\Models\Producto;
 use Illuminate\Http\Request;
-use MercadoPago\Client\Preference\PreferenceClient;
-use MercadoPago\MercadoPagoConfig;
 
 class PedidoController extends Controller
 {
@@ -34,7 +32,6 @@ class PedidoController extends Controller
         $adelanto = round($total * 0.50, 2);
         $saldo    = round($total - $adelanto, 2);
 
-        // Dirección completa en un solo campo (tu migración tiene cliente_direccion)
         $direccionCompleta = $datos['departamento'] . ', '
                            . $datos['provincia'] . ', '
                            . $datos['distrito'] . ' — '
@@ -45,79 +42,24 @@ class PedidoController extends Controller
             'user_id'          => auth()->id(),
             'cliente_nombre'   => $datos['cliente_nombre'],
             'cliente_telefono' => $datos['cliente_telefono'],
+            'cliente_email'    => $datos['cliente_email'],
             'cliente_direccion'=> $direccionCompleta,
-            'total'            => $total,      // ← tu migración usa "total"
+            'total'            => $total,
             'adelanto'         => $adelanto,
             'saldo'            => $saldo,
-            'estado'           => 'pendiente',
+            'estado'           => 'pendiente_pago',
         ]);
 
-        // Mercado Pago
-        MercadoPagoConfig::setAccessToken(config('services.mercadopago.access_token'));
-
-        $client = new PreferenceClient();
-
-        $preference = $client->create([
-            'items' => [[
-                'id'          => (string) $pedido->id,
-                'title'       => 'Adelanto — ' . $producto->nombre,
-                'description' => 'Pedido #' . $pedido->id,
-                'quantity'    => 1,
-                'unit_price'  => (float) $adelanto,
-                'currency_id' => 'PEN',
-            ]],
-            'payer' => [
-                'name'  => $datos['cliente_nombre'],
-                'email' => $datos['cliente_email'],
-                'phone' => ['number' => $datos['cliente_telefono']],
-            ],
-            'back_urls' => [
-                'success' => route('pedidos.exitoso'),
-                'failure' => route('pedidos.fallido'),
-                'pending' => route('pedidos.pendiente'),
-            ],
-            'auto_return'        => 'approved',
-            'external_reference' => (string) $pedido->id,
-        ]);
-
-        return redirect($preference->sandbox_init_point);
-        // Producción: $preference->init_point
-    }
-
-    public function exitoso(Request $request)
-    {
-        $pedidoId = $request->query('external_reference');
-        if ($pedidoId) {
-            Pedido::where('id', $pedidoId)->update(['estado' => 'confirmado']); // tu enum usa 'confirmado'
-        }
-        return view('pedidos.exitoso', ['pedidoId' => $pedidoId]);
-    }
-
-    public function fallido()
-    {
-        return view('pedidos.fallido');
-    }
-
-    public function pendiente()
-    {
-        return view('pedidos.pendiente');
+        return redirect()->route('pedidos.pago', $pedido);
     }
 
     public function misPedidos()
     {
         $pedidos = Pedido::where('user_id', auth()->id())
-            ->with('producto')
+            ->with('producto', 'ultimoPago')
             ->latest()
             ->get();
-        return view('pedidos.mis-pedidos', compact('pedidos'));
-    }
 
-    public function confirmacion(Pedido $pedido)
-    {
-        return view('pedidos.confirmacion', compact('pedido'));
+        return view('pedidos.mis', compact('pedidos'));
     }
-
-    public function pagar(Request $request, Pedido $pedido) {}
-    public function confirmarYape(Request $request) {}
-    public function pagarCulqi(Request $request) {}
 }

@@ -39,6 +39,7 @@
             --glow:    #3b82f6;
             --accent:  #00d4ff;
         }
+        
 
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -47,6 +48,16 @@
             background: var(--ice-900);
             color: #e2ecff;
             min-height: 100vh;
+            overflow-x: hidden;  
+            width: 100%;
+            overflow-y: auto;  
+            scrollbar-width: none;      
+        }
+
+        html::-webkit-scrollbar,
+        body::-webkit-scrollbar {
+            display: none;
+
         }
 
         /* ── NAVBAR ── */
@@ -252,7 +263,7 @@
                 <li>
                     <a href="{{ url('/proyectos') }}" @class(['active' => request()->is('proyectos*')])>
                         <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20 6h-2.18c.07-.44.18-.87.18-1.33C18 2.54 16.46 1 14.67 1c-1.06 0-1.96.54-2.67 1.4L12 2.5l-.33-.4C10.96 1.54 10 1 9.33 1 7.54 1 6 2.54 6 4.33c0 .43.1.86.18 1.3H4c-1.1 0-2 .9-2 2v11c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2z"/></svg>
-                        Proyectos
+                        Proyectos & Invertir
                     </a>
                 </li>
                 <li>

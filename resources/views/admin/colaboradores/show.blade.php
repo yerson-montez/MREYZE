@@ -89,14 +89,17 @@
                         <td class="px-4 py-3 text-center">
                             @php
                                 $badge = [
-                                    'pendiente'  => 'bg-yellow-100 text-yellow-700',
-                                    'confirmado' => 'bg-blue-100 text-blue-700',
-                                    'entregado'  => 'bg-green-100 text-green-700',
-                                    'cancelado'  => 'bg-red-100 text-red-700',
-                                ][$pedido->estado] ?? '';
+                                    'pendiente_pago'     => 'bg-yellow-100 text-yellow-700',
+                                    'pendiente_aprobacion' => 'bg-blue-100 text-blue-700',
+                                    'pagado_parcial'     => 'bg-indigo-100 text-indigo-700',
+                                    'preparando'         => 'bg-purple-100 text-purple-700',
+                                    'enviado'            => 'bg-cyan-100 text-cyan-700',
+                                    'entregado'          => 'bg-green-100 text-green-700',
+                                    'cancelado'          => 'bg-red-100 text-red-700',
+                                ][$pedido->estado] ?? 'bg-gray-100 text-gray-700';
                             @endphp
                             <span class="px-2 py-0.5 rounded-full text-xs font-medium {{ $badge }}">
-                                {{ ucfirst($pedido->estado) }}
+                                {{ $pedido->estado_label }}
                             </span>
                         </td>
                     </tr>

@@ -5,15 +5,14 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Auth\SocialController;
 use App\Http\Controllers\TiendaController;
 use App\Http\Controllers\PedidoController;
+use App\Http\Controllers\PagoController;
 use App\Http\Controllers\Admin\AdminController;
 use App\Http\Controllers\Admin\AdminProductoController;
 use App\Http\Controllers\Admin\MetodoPagoController;
 use App\Http\Controllers\Admin\PedidoAdminController;
+use App\Http\Controllers\Admin\PagoAdminController;
 use App\Http\Controllers\Admin\ColaboradorAdminController;
 use App\Http\Controllers\SolicitudColaboradorController;
-use App\Http\Controllers\PaymentController;
-use App\Http\Controllers\PagoController;
-
 
 // ─── HOME ────────────────────────────────────────────────────────
 Route::get('/', function () {
@@ -38,29 +37,8 @@ Route::get('/servicios/desarrollo',     fn() => view('sections.servicios.desarro
 Route::get('/servicios/consultoria',    fn() => view('sections.servicios.consultoria'))->name('servicios.consultoria');
 
 // ─── TIENDA PÚBLICA ──────────────────────────────────────────────
-Route::get('/tienda',               [TiendaController::class, 'index'])->name('tienda.index');
+Route::get('/tienda',                 [TiendaController::class, 'index'])->name('tienda.index');
 Route::get('/tienda/{producto:slug}', [TiendaController::class, 'show'])->name('tienda.show');
-
-Route::post('/pagar', [PagoController::class, 'pagar'])->name('pagar');
-
-// Página principal → redirige al checkout
-//Route::get('/', function () {
-    //return redirect()->route('checkout');
-//});
-
-// ── Checkout ──────────────────────────────────────────────────────────────
-// GET /checkout  → muestra la vista del checkout
-//Route::get('/checkout', [PaymentController::class, 'showCheckout'])
-    //->name('checkout');
-
-// POST /pagar → procesa el pago (recibe token desde JS)
-//Route::post('/pagar', [PaymentController::class, 'procesarPago'])
-    //->name('pago.procesar');
-
-// ── Webhook de Culqi ──────────────────────────────────────────────────────
-// IMPORTANTE: excluir del CSRF middleware (ver app/Http/Middleware/VerifyCsrfToken.php)
-//Route::post('/webhook/culqi', [PaymentController::class, 'webhook'])
-    //->name('webhook.culqi');
 
 // ─── COLABORADORES PÚBLICAS ──────────────────────────────────────
 Route::get('/unete',        [SolicitudColaboradorController::class, 'show'])->name('colaboradores.solicitud');
@@ -74,35 +52,19 @@ Route::get('/auth/google/callback', [SocialController::class, 'callback'])->name
 // ─── RUTAS AUTENTICADAS (usuarios normales) ───────────────────────
 Route::middleware('auth')->group(function () {
 
-    // Perfil
     Route::get('/profile',    [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile',  [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
-    // Pedidos — crear
+    // Pedidos
     Route::get('/pedidos/crear/{producto:slug}',  [PedidoController::class, 'create'])->name('pedidos.create');
     Route::post('/pedidos/crear/{producto:slug}', [PedidoController::class, 'store'])->name('pedidos.store');
-    Route::get('/pedidos/{pedido}/confirmacion',  [PedidoController::class, 'confirmacion'])->name('pedidos.confirmacion');
-
-    // Pedidos — mis pedidos
     Route::get('/mis-pedidos', [PedidoController::class, 'misPedidos'])->name('pedidos.mis');
 
-    // Pedidos — pagos  ← ESTAS SON LAS QUE FALTABAN AQUÍ
-    Route::post('/pedidos/{pedido}/pagar',   [PedidoController::class, 'pagar'])->name('pedidos.pagar');
-    Route::post('/pedidos/confirmar-yape',   [PedidoController::class, 'confirmarYape'])->name('pedidos.confirmar-yape');
-    Route::post('/pedidos/pagar-culqi',      [PedidoController::class, 'pagarCulqi'])->name('pedidos.pagar-culqi');
-    
-    // Retorno de Mercado Pago
-    Route::get('/pedidos/exitoso',   [PedidoController::class, 'exitoso'])->name('pedidos.exitoso');
-    Route::get('/pedidos/fallido',   [PedidoController::class, 'fallido'])->name('pedidos.fallido');
-    Route::get('/pedidos/pendiente', [PedidoController::class, 'pendiente'])->name('pedidos.pendiente');
-    
-    // Otros métodos (Yape, Culqi — por ahora vacíos)
-    Route::post('/pedidos/{pedido}/pagar',  [PedidoController::class, 'pagar'])->name('pedidos.pagar');
-    Route::post('/pedidos/confirmar-yape',  [PedidoController::class, 'confirmarYape'])->name('pedidos.confirmar-yape');
-    Route::post('/pedidos/pagar-culqi',     [PedidoController::class, 'pagarCulqi'])->name('pedidos.pagar-culqi');
+    // Pago con Yape
+    Route::get('/pedido/{pedido}/pago',        [PagoController::class, 'show'])->name('pedidos.pago');
+    Route::post('/pedido/{pedido}/comprobante', [PagoController::class, 'storeComprobante'])->name('pedidos.comprobante');
 
-    // Colaborador link
     Route::get('/mi-link', [SolicitudColaboradorController::class, 'miLink'])->name('colaborador.link');
 });
 
@@ -112,20 +74,16 @@ Route::prefix('admin')
     ->middleware(['auth', 'es_admin'])
     ->group(function () {
 
-        // Dashboard
         Route::get('/', [AdminController::class, 'dashboard'])->name('dashboard');
 
-        // Métodos de pago
         Route::get('/metodos-pago',                       [MetodoPagoController::class, 'index'])->name('metodos-pago.index');
         Route::put('/metodos-pago/{metodoPago}',          [MetodoPagoController::class, 'update'])->name('metodos-pago.update');
         Route::patch('/metodos-pago/{metodoPago}/toggle', [MetodoPagoController::class, 'toggle'])->name('metodos-pago.toggle');
 
-        // Solicitudes colaboradores
         Route::get('/colaboradores/solicitudes',                          [SolicitudColaboradorController::class, 'index'])->name('colaboradores.solicitudes.index');
         Route::patch('/colaboradores/solicitudes/{solicitud}/aprobar',    [SolicitudColaboradorController::class, 'aprobar'])->name('colaboradores.solicitudes.aprobar');
         Route::patch('/colaboradores/solicitudes/{solicitud}/rechazar',   [SolicitudColaboradorController::class, 'rechazar'])->name('colaboradores.solicitudes.rechazar');
 
-        // Productos
         Route::get('/productos',                      [AdminProductoController::class, 'index'])->name('productos.index');
         Route::get('/productos/crear',                [AdminProductoController::class, 'create'])->name('productos.create');
         Route::post('/productos',                     [AdminProductoController::class, 'store'])->name('productos.store');
@@ -135,12 +93,15 @@ Route::prefix('admin')
         Route::patch('/productos/{producto}/toggle',  [AdminProductoController::class, 'toggleActivo'])->name('productos.toggle');
         Route::patch('/productos/{producto}/stock',   [AdminProductoController::class, 'actualizarStock'])->name('productos.stock');
 
-        // Pedidos admin
-        Route::get('pedidos',                         [PedidoAdminController::class, 'index'])->name('pedidos.index');
-        Route::get('pedidos/{pedido}',                [PedidoAdminController::class, 'show'])->name('pedidos.show');
-        Route::patch('pedidos/{pedido}/estado',       [PedidoAdminController::class, 'actualizarEstado'])->name('pedidos.estado');
+        Route::get('pedidos',                    [PedidoAdminController::class, 'index'])->name('pedidos.index');
+        Route::get('pedidos/{pedido}',           [PedidoAdminController::class, 'show'])->name('pedidos.show');
+        Route::patch('pedidos/{pedido}/estado',  [PedidoAdminController::class, 'actualizarEstado'])->name('pedidos.estado');
 
-        // Colaboradores admin
+        // Pagos admin
+        Route::get('pagos',                    [PagoAdminController::class, 'index'])->name('pagos.index');
+        Route::get('pagos/{pago}',             [PagoAdminController::class, 'show'])->name('pagos.show');
+        Route::post('pagos/{pago}/aprobar',    [PagoAdminController::class, 'aprobar'])->name('pagos.aprobar');
+
         Route::get('colaboradores',                          [ColaboradorAdminController::class, 'index'])->name('colaboradores.index');
         Route::get('colaboradores/crear',                    [ColaboradorAdminController::class, 'create'])->name('colaboradores.create');
         Route::post('colaboradores',                         [ColaboradorAdminController::class, 'store'])->name('colaboradores.store');

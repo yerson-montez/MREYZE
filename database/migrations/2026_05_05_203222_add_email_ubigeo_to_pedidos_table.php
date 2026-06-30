@@ -10,9 +10,9 @@ return new class extends Migration
     {
         Schema::table('pedidos', function (Blueprint $table) {
             $table->string('cliente_email', 255)->after('cliente_telefono');
-            $table->string('departamento', 100)->after('cliente_direccion');
-            $table->string('provincia', 100)->after('departamento');
-            $table->string('distrito', 100)->after('provincia');
+            $table->string('departamento', 100)->nullable()->after('cliente_direccion');
+            $table->string('provincia', 100)->nullable()->after('departamento');
+            $table->string('distrito', 100)->nullable()->after('provincia');
         });
     }
 

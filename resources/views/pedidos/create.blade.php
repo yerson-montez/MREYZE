@@ -446,19 +446,19 @@ textarea{resize:vertical;min-height:88px;padding-left:36px;padding-top:11px;line
             <div class="ubigeo-grid">
               <div>
                 <label class="lbl">Departamento <span class="req">*</span></label>
-                <input type="text" id="fb-dep" name="departamento"
+                <input type="text" id="fb-dep"
                   placeholder="Ej: Lima" class="no-icon"
                   value="{{ old('departamento') }}">
               </div>
               <div>
                 <label class="lbl">Provincia <span class="req">*</span></label>
-                <input type="text" id="fb-prov" name="provincia"
+                <input type="text" id="fb-prov"
                   placeholder="Ej: Lima" class="no-icon"
                   value="{{ old('provincia') }}">
               </div>
               <div>
                 <label class="lbl">Distrito <span class="req">*</span></label>
-                <input type="text" id="fb-dist" name="distrito"
+                <input type="text" id="fb-dist"
                   placeholder="Ej: Miraflores" class="no-icon"
                   value="{{ old('distrito') }}">
               </div>
@@ -662,6 +662,9 @@ async function initUbigeo() {
     console.error('[Ubigeo]', err);
     elLoading.style.display = 'none';
     elFallback.style.display = 'block';
+    fbDep.name = 'departamento';
+    fbProv.name = 'provincia';
+    fbDist.name = 'distrito';
     modoFallback = true;
   }
 }

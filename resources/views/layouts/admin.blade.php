@@ -492,7 +492,14 @@
             <span class="adm-nav-icon">📦</span> Pedidos
         </a>
 
-       
+        <a href="{{ route('admin.pagos.index') }}" class="adm-nav-link {{ request()->routeIs('admin.pagos*') ? 'active' : '' }}">
+            <span class="adm-nav-icon">💰</span> Pagos
+            @php $pagosPendientes = \App\Models\Pago::where('estado_pago','pendiente')->count() @endphp
+            @if($pagosPendientes > 0)
+                <span class="adm-badge">{{ $pagosPendientes }}</span>
+            @endif
+        </a>
+
     </nav>
 
     <div class="adm-sidebar-footer">

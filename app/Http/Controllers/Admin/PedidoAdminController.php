@@ -12,7 +12,7 @@ class PedidoAdminController extends Controller
 {
     public function index(Request $request): View
     {
-        $pedidos = Pedido::with(['producto', 'colaborador'])
+        $pedidos = Pedido::with(['producto', 'colaborador', 'ultimoPago'])
             ->when($request->estado, fn ($q, $e) => $q->where('estado', $e))
             ->when($request->search, function ($q, $s) {
                 $q->where('cliente_nombre', 'like', "%{$s}%")
@@ -23,10 +23,13 @@ class PedidoAdminController extends Controller
             ->withQueryString();
 
         $totales = [
-            'pendientes'  => Pedido::where('estado', 'pendiente')->count(),
-            'confirmados' => Pedido::where('estado', 'confirmado')->count(),
-            'entregados'  => Pedido::where('estado', 'entregado')->count(),
-            'cancelados'  => Pedido::where('estado', 'cancelado')->count(),
+            'pendiente_pago'     => Pedido::where('estado', 'pendiente_pago')->count(),
+            'pendiente_aprobacion' => Pedido::where('estado', 'pendiente_aprobacion')->count(),
+            'pagado_parcial'     => Pedido::where('estado', 'pagado_parcial')->count(),
+            'preparando'         => Pedido::where('estado', 'preparando')->count(),
+            'enviado'            => Pedido::where('estado', 'enviado')->count(),
+            'entregado'          => Pedido::where('estado', 'entregado')->count(),
+            'cancelado'          => Pedido::where('estado', 'cancelado')->count(),
         ];
 
         $ventasHoy = Pedido::whereDate('created_at', today())->count();
@@ -36,29 +39,25 @@ class PedidoAdminController extends Controller
 
     public function show(Pedido $pedido): View
     {
-        $pedido->load(['producto', 'colaborador']);
+        $pedido->load(['producto', 'colaborador', 'pagos' => fn ($q) => $q->latest()]);
         return view('admin.pedidos.show', compact('pedido'));
     }
 
-    /**
-     * Actualiza el estado y dispara comisión si aplica.
-     */
     public function actualizarEstado(Request $request, Pedido $pedido): RedirectResponse
     {
         $request->validate([
-            'estado' => 'required|in:pendiente,confirmado,entregado,cancelado',
+            'estado' => 'required|in:pendiente_pago,pendiente_aprobacion,pagado_parcial,preparando,enviado,entregado,cancelado',
         ]);
 
         $estadoAnterior = $pedido->estado;
         $pedido->update(['estado' => $request->estado]);
 
-        // Comisión solo al pasar a "entregado" por primera vez
         if ($estadoAnterior !== 'entregado' && $request->estado === 'entregado') {
             $pedido->procesarComision();
         }
 
         return redirect()
             ->route('admin.pedidos.show', $pedido)
-            ->with('success', 'Estado actualizado a "' . ucfirst($request->estado) . '".');
+            ->with('success', 'Estado actualizado a "' . $pedido->estado_label . '".');
     }
 }

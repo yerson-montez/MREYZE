@@ -4,10 +4,13 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Str;
 
 class Pedido extends Model
 {
     protected $fillable = [
+        'numero_pedido',
         'producto_id',
         'colaborador_id',
         'user_id',
@@ -33,7 +36,15 @@ class Pedido extends Model
         'entregado_at'      => 'datetime',
     ];
 
-    // ── Relaciones ─────────────────────────────────────────────────────
+    protected static function booted(): void
+    {
+        static::creating(function (Pedido $pedido) {
+            if (empty($pedido->numero_pedido)) {
+                $pedido->numero_pedido = 'PED-' . strtoupper(Str::random(8));
+            }
+        });
+    }
+
     public function producto(): BelongsTo
     {
         return $this->belongsTo(Producto::class);
@@ -49,22 +60,22 @@ class Pedido extends Model
        return $this->belongsTo(User::class);
     }
 
-    // ── Negocio ────────────────────────────────────────────────────────
+    public function pagos(): HasMany
+    {
+        return $this->hasMany(Pago::class);
+    }
 
-    /**
-     * Calcula adelanto (50%) y saldo (50%) a partir del total.
-     * Llamar ANTES de save() al crear el pedido.
-     */
+    public function ultimoPago()
+    {
+        return $this->hasOne(Pago::class)->latestOfMany();
+    }
+
     public function calcularPagos(): void
     {
         $this->adelanto = round($this->total * 0.5, 2);
-        $this->saldo    = $this->total - $this->adelanto; // evita error de centavos
+        $this->saldo    = $this->total - $this->adelanto;
     }
 
-    /**
-     * Procesa la comisión del colaborador al marcar como "entregado".
-     * Idempotente: no hace nada si ya fue calculada.
-     */
     public function procesarComision(): void
     {
         if ($this->estado !== 'entregado')  return;
@@ -82,10 +93,37 @@ class Pedido extends Model
         $colaborador->increment('comision_total_acumulada', $comision);
     }
 
-    // ── Scopes ─────────────────────────────────────────────────────────
+    public function getEstadoColorAttribute(): string
+    {
+        return match ($this->estado) {
+            'pendiente_pago'     => 'bg-amber-100 text-amber-700',
+            'pendiente_aprobacion' => 'bg-blue-100 text-blue-700',
+            'pagado_parcial'     => 'bg-indigo-100 text-indigo-700',
+            'preparando'         => 'bg-purple-100 text-purple-700',
+            'enviado'            => 'bg-cyan-100 text-cyan-700',
+            'entregado'          => 'bg-green-100 text-green-700',
+            'cancelado'          => 'bg-red-100 text-red-700',
+            default              => 'bg-gray-100 text-gray-700',
+        };
+    }
+
+    public function getEstadoLabelAttribute(): string
+    {
+        return match ($this->estado) {
+            'pendiente_pago'     => 'Pendiente de pago',
+            'pendiente_aprobacion' => 'Pendiente de aprobación',
+            'pagado_parcial'     => 'Pago aprobado',
+            'preparando'         => 'Preparando pedido',
+            'enviado'            => 'Enviado',
+            'entregado'          => 'Entregado',
+            'cancelado'          => 'Cancelado',
+            default              => $this->estado,
+        };
+    }
+
     public function scopePendientes($query)
     {
-        return $query->where('estado', 'pendiente');
+        return $query->where('estado', 'pendiente_pago');
     }
 
     public function scopeEntregados($query)

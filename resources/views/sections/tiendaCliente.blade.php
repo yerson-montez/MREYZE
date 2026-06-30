@@ -4,12 +4,11 @@
 
 @section('content')
 
-{{-- resources/views/sections/tienda.blade.php --}}
-{{-- Uso: @include('sections.tienda') --}}
+{{-- resources/views/sections/tiendaCliente.blade.php --}}
 
 <style>
     /* ═══════════════════════════════════════
-       TIENDA SECTION
+       TIENDA SECTION — v2.0
     ═══════════════════════════════════════ */
     .tienda {
         padding: 7rem 2rem;
@@ -42,6 +41,7 @@
         z-index: 2;
     }
 
+    /* ── Header ── */
     .tienda-header {
         display: flex;
         align-items: flex-end;
@@ -69,7 +69,7 @@
     .tienda-ver-mas:hover { background: rgba(0,212,255,0.1); border-color: rgba(0,212,255,0.5); }
     .tienda-ver-mas:hover svg { transform: translateX(4px); }
 
-    /* Categorías */
+    /* ── Categorías ── */
     .tienda-cats {
         display: flex;
         gap: 0.5rem;
@@ -91,20 +91,20 @@
     .cat-btn:hover { border-color: rgba(74,144,217,0.5); color: var(--ice-100); }
     .cat-btn.active { background: rgba(37,99,199,0.3); border-color: rgba(0,212,255,0.5); color: var(--accent); }
 
-    /* Grid de productos */
+    /* ── Grid de productos ── */
     .tienda-grid {
         display: grid;
         grid-template-columns: repeat(4, 1fr);
         gap: 1.25rem;
     }
 
-    /* Tarjeta de producto */
+    /* ── Tarjeta ── */
     .producto-card {
         background: rgba(10,22,40,0.7);
         border: 1px solid rgba(74,144,217,0.15);
         border-radius: 16px;
         overflow: hidden;
-        transition: all 0.35s;
+        transition: border-color 0.35s, transform 0.35s, box-shadow 0.35s;
         position: relative;
     }
 
@@ -114,15 +114,77 @@
         box-shadow: 0 20px 50px rgba(0,30,90,0.5), 0 0 0 1px rgba(0,212,255,0.08);
     }
 
-    /* Imagen del producto */
+    /* ════════════════════════════════
+       IMAGEN DEL PRODUCTO — nuevo
+    ════════════════════════════════ */
     .producto-img {
-        height: 160px;
+        height: 190px;            /* un poco más alta para las fotos reales */
         background: rgba(13,31,60,0.8);
+        position: relative;
+        overflow: hidden;
+        cursor: zoom-in;
+    }
+
+    /* Imagen real */
+    .producto-img-real {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        position: absolute;
+        inset: 0;
+        z-index: 1;
+        transition: transform 0.55s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+                    filter  0.55s ease;
+        filter: brightness(0.88) saturate(1.08);
+        will-change: transform, filter;
+    }
+
+    /* Zoom al hacer hover en la tarjeta */
+    .producto-card:hover .producto-img-real {
+        transform: scale(1.10);
+        filter: brightness(1.0) saturate(1.18);
+    }
+
+    /* Overlay degradado para que los badges sean siempre legibles */
+    .producto-img-overlay {
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(
+            160deg,
+            rgba(0,10,30,0.18) 0%,
+            rgba(0,10,30,0.08) 40%,
+            rgba(0,10,30,0.55) 100%
+        );
+        z-index: 2;
+        pointer-events: none;
+    }
+
+    /* Shimmer de brillo al hacer hover */
+    .producto-img::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(
+            105deg,
+            transparent 30%,
+            rgba(0,212,255,0.06) 50%,
+            transparent 70%
+        );
+        opacity: 0;
+        z-index: 3;
+        pointer-events: none;
+        transition: opacity 0.4s;
+    }
+    .producto-card:hover .producto-img::after { opacity: 1; }
+
+    /* Fallback — emoji + ícono SVG (comportamiento original) */
+    .producto-img-fallback {
+        position: absolute;
+        inset: 0;
         display: flex;
         align-items: center;
         justify-content: center;
-        position: relative;
-        overflow: hidden;
+        z-index: 1;
     }
 
     .producto-img-bg {
@@ -135,7 +197,6 @@
         opacity: 0.05;
         transition: all 0.4s;
     }
-
     .producto-card:hover .producto-img-bg { opacity: 0.1; transform: scale(1.1); }
 
     .producto-img-icon {
@@ -149,11 +210,10 @@
         justify-content: center;
         transition: transform 0.3s;
     }
-
     .producto-img-icon svg { width: 28px; height: 28px; }
     .producto-card:hover .producto-img-icon { transform: scale(1.1) rotate(-5deg); }
 
-    /* Badge de stock */
+    /* Badges — siempre por encima de todo */
     .producto-stock {
         position: absolute;
         top: 10px;
@@ -164,12 +224,13 @@
         border-radius: 20px;
         letter-spacing: 0.05em;
         text-transform: uppercase;
+        z-index: 4;
+        backdrop-filter: blur(6px);
     }
-    .producto-stock.disponible { background: rgba(34,197,94,0.15); border: 1px solid rgba(34,197,94,0.3); color: #4ade80; }
-    .producto-stock.agotado   { background: rgba(239,68,68,0.15);  border: 1px solid rgba(239,68,68,0.3);  color: #f87171; }
-    .producto-stock.nuevo     { background: rgba(0,212,255,0.15);   border: 1px solid rgba(0,212,255,0.3);   color: var(--accent); }
+    .producto-stock.disponible { background: rgba(34,197,94,0.18);  border: 1px solid rgba(34,197,94,0.35);  color: #4ade80; }
+    .producto-stock.agotado   { background: rgba(239,68,68,0.18);   border: 1px solid rgba(239,68,68,0.35);  color: #f87171; }
+    .producto-stock.nuevo     { background: rgba(0,212,255,0.18);   border: 1px solid rgba(0,212,255,0.35);  color: var(--accent); }
 
-    /* Badge descuento */
     .producto-descuento {
         position: absolute;
         top: 10px;
@@ -178,12 +239,14 @@
         font-weight: 700;
         padding: 3px 8px;
         border-radius: 6px;
-        background: rgba(251,191,36,0.2);
-        border: 1px solid rgba(251,191,36,0.4);
+        background: rgba(251,191,36,0.22);
+        border: 1px solid rgba(251,191,36,0.45);
         color: #fbbf24;
+        z-index: 4;
+        backdrop-filter: blur(6px);
     }
 
-    /* Cuerpo */
+    /* ── Cuerpo de la tarjeta ── */
     .producto-body {
         padding: 1.1rem;
     }
@@ -213,7 +276,7 @@
         margin-bottom: 1rem;
     }
 
-    /* Precio y botón */
+    /* ── Precio + botón ── */
     .producto-footer {
         display: flex;
         align-items: center;
@@ -221,10 +284,7 @@
         gap: 0.5rem;
     }
 
-    .producto-precio {
-        display: flex;
-        flex-direction: column;
-    }
+    .producto-precio { display: flex; flex-direction: column; }
 
     .producto-precio-actual {
         font-family: 'Exo 2', sans-serif;
@@ -232,7 +292,6 @@
         font-weight: 700;
         color: #fff;
     }
-
     .producto-precio-actual span { color: var(--accent); font-size: 0.75rem; }
 
     .producto-precio-anterior {
@@ -264,7 +323,8 @@
         transform: translateY(-1px);
         color: #fff;
     }
-    .producto-btn:disabled, .producto-btn.agotado-btn {
+    .producto-btn:disabled,
+    .producto-btn.agotado-btn {
         background: rgba(74,144,217,0.15);
         cursor: not-allowed;
         transform: none;
@@ -272,7 +332,70 @@
         color: var(--ice-300);
     }
 
-    /* Banner promo */
+    /* ── Lightbox / zoom modal ── */
+    .img-lightbox {
+        display: none;
+        position: fixed;
+        inset: 0;
+        z-index: 9999;
+        align-items: center;
+        justify-content: center;
+        background: rgba(0,8,20,0.92);
+        backdrop-filter: blur(12px);
+        cursor: zoom-out;
+        animation: lbFadeIn 0.25s ease;
+    }
+    .img-lightbox.open { display: flex; }
+
+    @keyframes lbFadeIn {
+        from { opacity: 0; }
+        to   { opacity: 1; }
+    }
+
+    .img-lightbox img {
+        max-width: 88vw;
+        max-height: 82vh;
+        border-radius: 16px;
+        box-shadow: 0 30px 80px rgba(0,0,0,0.7), 0 0 0 1px rgba(0,212,255,0.15);
+        animation: lbScaleIn 0.3s cubic-bezier(0.34,1.56,0.64,1);
+        object-fit: contain;
+    }
+
+    @keyframes lbScaleIn {
+        from { transform: scale(0.85); opacity: 0; }
+        to   { transform: scale(1);    opacity: 1; }
+    }
+
+    .img-lightbox-close {
+        position: absolute;
+        top: 1.5rem;
+        right: 1.5rem;
+        width: 42px;
+        height: 42px;
+        border-radius: 50%;
+        background: rgba(255,255,255,0.08);
+        border: 1px solid rgba(255,255,255,0.15);
+        color: #fff;
+        font-size: 1.3rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: background 0.2s, transform 0.2s;
+    }
+    .img-lightbox-close:hover { background: rgba(0,212,255,0.18); transform: scale(1.1); }
+
+    .img-lightbox-caption {
+        position: absolute;
+        bottom: 2rem;
+        left: 50%;
+        transform: translateX(-50%);
+        font-size: 0.85rem;
+        color: rgba(255,255,255,0.6);
+        white-space: nowrap;
+    }
+
+    /* ── Banner promo ── */
     .tienda-banner {
         margin-top: 3rem;
         padding: 2rem 2.5rem;
@@ -298,7 +421,6 @@
         border: 1px solid rgba(0,212,255,0.1);
     }
 
-    .tienda-banner-text {}
     .tienda-banner-title {
         font-family: 'Exo 2', sans-serif;
         font-size: 1.1rem;
@@ -309,21 +431,22 @@
     .tienda-banner-desc { font-size: 0.85rem; color: var(--ice-200); }
     .tienda-banner-desc strong { color: var(--accent); }
 
+    /* ── Responsive ── */
     @media (max-width: 1100px) { .tienda-grid { grid-template-columns: repeat(3, 1fr); } }
     @media (max-width: 768px)  { .tienda-grid { grid-template-columns: repeat(2, 1fr); } }
     @media (max-width: 480px)  { .tienda-grid { grid-template-columns: 1fr; } }
 </style>
 
-{{--
-    tiendaCliente.blade.php  ·  sección pública
-    Los productos ahora vienen del controlador: compact('productos')
---}}
+{{-- ═══════════════════════════════════════════════
+     SECCIÓN TIENDA
+     Los productos vienen del controlador: compact('productos')
+═══════════════════════════════════════════════ --}}
 
 <section class="tienda" id="tienda">
     <div class="tienda-bg"></div>
     <div class="tienda-container">
 
-        {{-- Header --}}
+        {{-- ── Header ── --}}
         <div class="tienda-header reveal">
             <div>
                 <div class="section-label">Productos</div>
@@ -357,7 +480,7 @@
             </div>
         </div>
 
-        {{-- Categorías --}}
+        {{-- ── Categorías ── --}}
         <div class="tienda-cats reveal">
             <button class="cat-btn active" onclick="filtrarCat('todos', this)">Todos</button>
             <button class="cat-btn" onclick="filtrarCat('iot', this)">IoT / Electrónica</button>
@@ -365,67 +488,111 @@
             <button class="cat-btn" onclick="filtrarCat('kits', this)">Kits</button>
         </div>
 
-        {{-- Productos dinámicos desde DB --}}
+        {{-- ── Grid de productos (dinámico desde DB) ── --}}
         <div class="tienda-grid">
 
             @forelse($productos as $p)
             <div class="producto-card reveal" data-cat="{{ $p->categoria }}">
-                <div class="producto-img">
-                    <div class="producto-img-bg">{{ $p->icono_emoji }}</div>
-                    <div class="producto-img-icon" style="background:{{ $p->icono_color }};border:1px solid {{ str_replace('0.12','0.3',$p->icono_color) }}">
-                        {{-- Ícono SVG genérico según categoría --}}
-                        @if($p->categoria === 'iot')
-                            <svg viewBox="0 0 24 24" fill="rgba(0,212,255,0.9)"><path d="M1 9l2 2c4.97-4.97 13.03-4.97 18 0l2-2C16.93 2.93 7.08 2.93 1 9zm8 8l3 3 3-3c-1.65-1.66-4.34-1.66-6 0zm-4-4l2 2c2.76-2.76 7.24-2.76 10 0l2-2C15.14 9.14 8.87 9.14 5 13z"/></svg>
-                        @elseif($p->categoria === 'software')
-                            <svg viewBox="0 0 24 24" fill="rgba(45,212,191,0.9)"><path d="M9.4 16.6L4.8 12l4.6-4.6L8 6l-6 6 6 6 1.4-1.4zm5.2 0l4.6-4.6-4.6-4.6L16 6l6 6-6 6-1.4-1.4z"/></svg>
-                        @else
-                            <svg viewBox="0 0 24 24" fill="rgba(122,184,245,0.9)"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58z"/></svg>
-                        @endif
-                    </div>
+
+                {{-- ════════════════════════════
+                     IMAGEN DEL PRODUCTO
+                ════════════════════════════ --}}
+                <div class="producto-img"
+                     @if($p->icono_imagen)
+                         onclick="abrirLightbox(
+                             '{{ asset('storage/' . $p->icono_imagen) }}',
+                             '{{ addslashes($p->nombre) }}'
+                         )"
+                     @endif>
+
+                    {{-- Overlay de degradado (mejora legibilidad de badges) --}}
+                    <div class="producto-img-overlay"></div>
+
+                    @if($p->icono_imagen)
+                        {{-- Imagen real almacenada en storage --}}
+                        <img
+                            src="{{ asset('storage/' . $p->icono_imagen) }}"
+                            alt="{{ $p->nombre }}"
+                            class="producto-img-real"
+                            loading="lazy"
+                            onerror="
+                                this.style.display='none';
+                                this.parentElement.querySelector('.producto-img-fallback').style.display='flex';
+                                this.parentElement.style.cursor='default';
+                            "
+                        >
+                        
+                    @else
+                        {{-- Sin imagen: mostrar emoji + ícono SVG directamente --}}
+                        <div class="producto-img-fallback" style="display:flex">
+                            <div class="producto-img-bg">{{ $p->icono_emoji }}</div>
+                            <div class="producto-img-icon"
+                                 style="background:{{ $p->icono_color }};border:1px solid {{ str_replace('0.12','0.3',$p->icono_color) }}">
+                                @if($p->categoria === 'iot')
+                                    <svg viewBox="0 0 24 24" fill="rgba(0,212,255,0.9)"><path d="M1 9l2 2c4.97-4.97 13.03-4.97 18 0l2-2C16.93 2.93 7.08 2.93 1 9zm8 8l3 3 3-3c-1.65-1.66-4.34-1.66-6 0zm-4-4l2 2c2.76-2.76 7.24-2.76 10 0l2-2C15.14 9.14 8.87 9.14 5 13z"/></svg>
+                                @elseif($p->categoria === 'software')
+                                    <svg viewBox="0 0 24 24" fill="rgba(45,212,191,0.9)"><path d="M9.4 16.6L4.8 12l4.6-4.6L8 6l-6 6 6 6 1.4-1.4zm5.2 0l4.6-4.6-4.6-4.6L16 6l6 6-6 6-1.4-1.4z"/></svg>
+                                @else
+                                    <svg viewBox="0 0 24 24" fill="rgba(122,184,245,0.9)"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58z"/></svg>
+                                @endif
+                            </div>
+                        </div>
+                    @endif
 
                     {{-- Badge estado --}}
                     <span class="producto-stock {{ $p->estado }}">{{ ucfirst($p->estado) }}</span>
 
                     {{-- Badge descuento --}}
                     @if($p->tieneDescuento())
-                    <span class="producto-descuento">-{{ $p->porcentaje_descuento }}%</span>
+                        <span class="producto-descuento">-{{ $p->porcentaje_descuento }}%</span>
                     @endif
-                </div>
 
+                </div>{{-- /.producto-img --}}
+
+                {{-- ── Cuerpo ── --}}
                 <div class="producto-body">
                     <div class="producto-cat">{{ strtoupper($p->categoria) }}</div>
                     <div class="producto-nombre">{{ $p->nombre }}</div>
                     <p class="producto-desc">{{ $p->descripcion }}</p>
+
                     <div class="producto-footer">
                         <div class="producto-precio">
                             <div class="producto-precio-actual">
                                 S/ {{ number_format($p->precio, 0) }}<span>.{{ substr(number_format($p->precio, 2), -2) }}</span>
                             </div>
                             @if($p->precio_anterior)
-                            <div class="producto-precio-anterior">S/ {{ number_format($p->precio_anterior, 2) }}</div>
+                                <div class="producto-precio-anterior">S/ {{ number_format($p->precio_anterior, 2) }}</div>
                             @endif
                         </div>
 
                         @if($p->estado !== 'agotado')
+<<<<<<< HEAD
+                            <a href="{{ url('/tienda/' . $p->slug) }}" class="producto-btn">
+                                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zM1 2v2h2l3.6 7.59-1.35 2.45c-.16.28-.25.61-.25.96C5 16.1 6.9 18 9 18h12v-2H9.42c-.14 0-.25-.11-.25-.25l.03-.12.9-1.63H19c.75 0 1.41-.41 1.75-1.03l3.58-6.49c.08-.14.12-.31.12-.48 0-.55-.45-1-1-1H5.21l-.94-2H1zm16 16c-1.1 0-1.99.9-1.99 2s.89 2 1.99 2 2-.9 2-2-.9-2-2-2z"/></svg>
+                                Comprar
+                            </a>
+=======
                         <a href="{{ route('pedidos.create', $p->slug) }}" class="producto-btn">
                             <svg viewBox="0 0 24 24" fill="currentColor"><path d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zM1 2v2h2l3.6 7.59-1.35 2.45c-.16.28-.25.61-.25.96C5 16.1 6.9 18 9 18h12v-2H9.42c-.14 0-.25-.11-.25-.25l.03-.12.9-1.63H19c.75 0 1.41-.41 1.75-1.03l3.58-6.49c.08-.14.12-.31.12-.48 0-.55-.45-1-1-1H5.21l-.94-2H1zm16 16c-1.1 0-1.99.9-1.99 2s.89 2 1.99 2 2-.9 2-2-.9-2-2-2z"/></svg>
                             Comprar
                         </a>
+>>>>>>> 3e2468f1584df6b4e6883faeb30a7076fdb87586
                         @else
-                        <button class="producto-btn agotado-btn" disabled>Agotado</button>
+                            <button class="producto-btn agotado-btn" disabled>Agotado</button>
                         @endif
                     </div>
                 </div>
-            </div>
+
+            </div>{{-- /.producto-card --}}
             @empty
             <div style="grid-column:1/-1;text-align:center;padding:3rem;color:#7a9ab8">
                 No hay productos disponibles en este momento.
             </div>
             @endforelse
 
-        </div>
+        </div>{{-- /.tienda-grid --}}
 
-        {{-- Banner promo --}}
+        {{-- ── Banner promo ── --}}
         <div class="tienda-banner reveal">
             <div class="tienda-banner-text">
                 <div class="tienda-banner-title">🎯 ¿Necesitas algo específico?</div>
@@ -440,7 +607,17 @@
     </div>
 </section>
 
+{{-- ═══════════════════════════════════════════
+     LIGHTBOX — zoom de imagen al hacer clic
+═══════════════════════════════════════════ --}}
+<div class="img-lightbox" id="imgLightbox" onclick="cerrarLightbox(event)">
+    <button class="img-lightbox-close" onclick="cerrarLightbox(null, true)" aria-label="Cerrar">✕</button>
+    <img id="imgLightboxImg" src="" alt="">
+    <span class="img-lightbox-caption" id="imgLightboxCaption"></span>
+</div>
+
 <script>
+/* ── Filtro por categoría ── */
 function filtrarCat(cat, btn) {
     document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
@@ -448,5 +625,30 @@ function filtrarCat(cat, btn) {
         card.style.display = (cat === 'todos' || card.dataset.cat === cat) ? '' : 'none';
     });
 }
+
+/* ── Lightbox ── */
+function abrirLightbox(src, nombre) {
+    const lb  = document.getElementById('imgLightbox');
+    const img = document.getElementById('imgLightboxImg');
+    const cap = document.getElementById('imgLightboxCaption');
+    img.src       = src;
+    img.alt       = nombre;
+    cap.textContent = nombre;
+    lb.classList.add('open');
+    document.body.style.overflow = 'hidden';
+}
+
+function cerrarLightbox(e, forzar) {
+    if (forzar || (e && e.target === document.getElementById('imgLightbox'))) {
+        document.getElementById('imgLightbox').classList.remove('open');
+        document.body.style.overflow = '';
+    }
+}
+
+/* Cerrar con tecla Escape */
+document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') cerrarLightbox(null, true);
+});
 </script>
+
 @endsection

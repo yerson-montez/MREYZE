@@ -2,7 +2,7 @@
     <div class="max-w-2xl mx-auto p-6">
 
         <div class="flex items-center justify-between mb-6">
-            <h1 class="text-2xl font-semibold text-gray-900">Pedido #{{ $pedido->id }}</h1>
+            <h1 class="text-2xl font-semibold text-gray-900">Pedido {{ $pedido->numero_pedido ?? '#' . $pedido->id }}</h1>
             <a href="{{ route('admin.pedidos.index') }}"
                class="text-sm text-gray-400 hover:text-gray-600">← Volver</a>
         </div>
@@ -25,6 +25,14 @@
                     <p class="text-gray-400 text-xs">Teléfono</p>
                     <p class="font-medium text-gray-800">{{ $pedido->cliente_telefono }}</p>
                 </div>
+                <div>
+                    <p class="text-gray-400 text-xs">Email</p>
+                    <p class="font-medium text-gray-800">{{ $pedido->cliente_email }}</p>
+                </div>
+                <div>
+                    <p class="text-gray-400 text-xs">Estado</p>
+                    <p class="font-medium text-gray-800">{{ $pedido->estado_label }}</p>
+                </div>
                 <div class="col-span-2">
                     <p class="text-gray-400 text-xs">Dirección de entrega</p>
                     <p class="font-medium text-gray-800">{{ $pedido->cliente_direccion }}</p>
@@ -42,7 +50,7 @@
                     <p class="font-bold text-lg text-gray-800">S/ {{ number_format($pedido->total, 2) }}</p>
                 </div>
                 <div class="bg-green-50 rounded-lg p-3">
-                    <p class="text-green-500 text-xs mb-1">Adelanto pagado</p>
+                    <p class="text-green-500 text-xs mb-1">Adelanto</p>
                     <p class="font-bold text-lg text-green-700">S/ {{ number_format($pedido->adelanto, 2) }}</p>
                 </div>
                 <div class="bg-amber-50 rounded-lg p-3">
@@ -51,6 +59,41 @@
                 </div>
             </div>
         </div>
+
+        {{── Pagos del pedido ──}}
+        @if ($pedido->pagos->count() > 0)
+        <div class="bg-white rounded-xl border p-5 mb-4">
+            <h2 class="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-3">Pagos recibidos</h2>
+            @foreach ($pedido->pagos as $pago)
+            <div class="border rounded-lg p-3 mb-2 last:mb-0 text-sm">
+                <div class="flex justify-between items-center">
+                    <span class="font-medium text-gray-800">#{{ $pago->id }} — {{ ucfirst($pago->metodo_pago) }}</span>
+                    <span class="font-semibold text-gray-800">S/ {{ number_format($pago->monto, 2) }}</span>
+                </div>
+                <div class="flex justify-between items-center mt-1">
+                    <span class="text-xs text-gray-400">
+                        @if ($pago->numero_operacion)
+                        Nro: {{ $pago->numero_operacion }} ·
+                        @endif
+                        {{ $pago->created_at->format('d/m/Y H:i') }}
+                    </span>
+                    <span class="text-xs px-2 py-0.5 rounded-full font-medium
+                        {{ $pago->estado_pago === 'pendiente' ? 'bg-yellow-100 text-yellow-700' : '' }}
+                        {{ $pago->estado_pago === 'aprobado' ? 'bg-green-100 text-green-700' : '' }}
+                        {{ $pago->estado_pago === 'rechazado' ? 'bg-red-100 text-red-700' : '' }}">
+                        {{ ucfirst($pago->estado_pago) }}
+                    </span>
+                </div>
+                @if ($pago->comprobante_pago)
+                <div class="mt-1">
+                    <a href="{{ asset('storage/' . $pago->comprobante_pago) }}" target="_blank"
+                       class="text-blue-600 hover:text-blue-800 text-xs font-medium">Ver comprobante →</a>
+                </div>
+                @endif
+            </div>
+            @endforeach
+        </div>
+        @endif
 
         {{-- Colaborador --}}
         @if ($pedido->colaborador)
@@ -87,9 +130,9 @@
                 @method('PATCH')
                 <select name="estado"
                     class="flex-1 border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500">
-                    @foreach (['pendiente', 'confirmado', 'entregado', 'cancelado'] as $estado)
+                    @foreach (['pendiente_pago','pendiente_aprobacion','pagado_parcial','preparando','enviado','entregado','cancelado'] as $estado)
                         <option value="{{ $estado }}" @selected($pedido->estado === $estado)>
-                            {{ ucfirst($estado) }}
+                            {{ ucfirst(str_replace('_', ' ', $estado)) }}
                         </option>
                     @endforeach
                 </select>
