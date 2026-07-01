@@ -11,10 +11,12 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        // Aquí registras tus middlewares personalizados
         $middleware->alias([
             'es_admin' => \App\Http\Middleware\EsAdmin::class,
         ]);
+
+        // Confiar en todos los proxies (Railway, Cloudflare, etc.)
+        $middleware->trustProxies(at: '*');
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //
