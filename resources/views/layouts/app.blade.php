@@ -105,13 +105,25 @@
         .nav-accent-line { height: 2px; background: linear-gradient(90deg, transparent 0%, var(--ice-500) 20%, var(--accent) 50%, var(--ice-500) 80%, transparent 100%); }
 
         /* Mobile nav */
-        .nav-mobile { display: none !important; flex-direction: column; gap: 0.25rem; padding: 1rem 0 1.2rem; border-top: 1px solid rgba(74, 144, 217, 0.15); }
+        .nav-mobile { display: none !important; flex-direction: column; gap: 0.8rem; padding: 0.9rem 0.9rem 1rem; border-top: 1px solid rgba(74, 144, 217, 0.16); background: linear-gradient(180deg, rgba(13, 31, 60, 0.95), rgba(7, 18, 36, 0.96)); backdrop-filter: blur(14px); }
         .nav-mobile.open { display: flex !important; animation: slideDown 0.28s ease; }
         @keyframes slideDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
-        .nav-mobile a { padding: 0.65rem 1rem; border-radius: 8px; font-size: 0.9rem; color: var(--ice-100); text-decoration: none; display: flex; align-items: center; gap: 10px; transition: all 0.18s; }
-        .nav-mobile a:hover { background: rgba(37, 99, 199, 0.25); color: #fff; }
-        .nav-mobile-divider { height: 1px; background: rgba(74, 144, 217, 0.12); margin: 0.4rem 0; }
-        .nav-mobile .btn-cta { margin-top: 0.5rem; justify-content: center; }
+        .nav-mobile-section { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.6rem; }
+        .nav-mobile-link { display: flex; align-items: center; gap: 0.7rem; padding: 0.8rem 0.9rem; border-radius: 12px; border: 1px solid rgba(74, 144, 217, 0.16); background: rgba(255, 255, 255, 0.03); color: var(--ice-100); text-decoration: none; font-size: 0.9rem; font-weight: 500; transition: all 0.2s ease; }
+        .nav-mobile-link:hover, .nav-mobile-link.active { background: rgba(37, 99, 199, 0.22); border-color: rgba(74, 144, 217, 0.35); color: #fff; transform: translateY(-1px); }
+        .nav-mobile-icon { width: 34px; height: 34px; display: grid; place-items: center; flex-shrink: 0; border-radius: 10px; background: rgba(37, 99, 199, 0.16); color: var(--accent); }
+        .nav-mobile-icon svg { width: 16px; height: 16px; }
+        .nav-mobile-divider { height: 1px; background: rgba(74, 144, 217, 0.14); margin: 0.2rem 0; }
+        .nav-mobile-actions { display: flex; flex-direction: column; gap: 0.6rem; }
+        .nav-mobile-action { display: flex; align-items: center; justify-content: center; gap: 0.6rem; padding: 0.75rem 0.95rem; border-radius: 999px; border: 1px solid rgba(74, 144, 217, 0.18); background: rgba(255, 255, 255, 0.05); color: var(--ice-100); text-decoration: none; font-weight: 600; transition: all 0.2s ease; }
+        .nav-mobile-action:hover { background: rgba(37, 99, 199, 0.2); color: #fff; }
+        .nav-mobile-action.primary { background: linear-gradient(135deg, var(--ice-500), var(--ice-400)); border-color: rgba(74, 144, 217, 0.4); color: #fff; box-shadow: 0 6px 18px rgba(30, 77, 153, 0.3); }
+        .nav-mobile-action.google { justify-content: center; }
+        .nav-mobile-action img { width: 16px; height: 16px; }
+        @media (max-width: 560px) {
+            .nav-mobile-section { grid-template-columns: 1fr; }
+            .nav-mobile { padding: 0.8rem 0.8rem 1rem; }
+        }
 
         /* Nav user dropdown */
         .nav-user-wrapper { position: relative; }
@@ -330,24 +342,49 @@
         </nav>
 
         <div class="nav-mobile" id="navMobile">
-            <a href="{{ url('/') }}">Inicio</a>
-            <a href="{{ url('/nosotros') }}">Nosotros</a>
-            <a href="{{ url('/servicios') }}">Servicios</a>
-            <a href="{{ url('/proyectos') }}">Proyectos</a>
-            <a href="{{ url('/tienda') }}">Tienda</a>
-            <a href="{{ url('/blog') }}">Blog</a>
-            <a href="{{ url('/contacto') }}">Contacto</a>
-            <div class="nav-mobile-divider"></div>
-            @auth
-                <a href="{{ url('/welcome') }}">Mi Dashboard</a>
-            @else
-                <a href="{{ route('auth.google') }}">
-                    <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" style="width:16px">
-                    Iniciar con Google
+            <div class="nav-mobile-section">
+                <a href="{{ url('/') }}" class="nav-mobile-link @class(['active' => request()->is('/')])">
+                    <span class="nav-mobile-icon"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg></span>
+                    Inicio
                 </a>
-                @if (Route::has('login'))<a href="{{ route('login') }}">Iniciar sesión</a>@endif
-                @if (Route::has('register'))<a href="{{ route('register') }}" class="btn-cta">Registrarse</a>@endif
-            @endauth
+                <a href="{{ url('/nosotros') }}" class="nav-mobile-link @class(['active' => request()->is('nosotros')])">
+                    <span class="nav-mobile-icon"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg></span>
+                    Nosotros
+                </a>
+                <a href="{{ url('/servicios') }}" class="nav-mobile-link @class(['active' => request()->is('servicios*')])">
+                    <span class="nav-mobile-icon"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58z"/></svg></span>
+                    Servicios
+                </a>
+                <a href="{{ url('/proyectos') }}" class="nav-mobile-link @class(['active' => request()->is('proyectos*')])">
+                    <span class="nav-mobile-icon"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M20 6h-2.18c.07-.44.18-.87.18-1.33C18 2.54 16.46 1 14.67 1c-1.06 0-1.96.54-2.67 1.4L12 2.5l-.33-.4C10.96 1.54 10 1 9.33 1 7.54 1 6 2.54 6 4.33c0 .43.1.86.18 1.3H4c-1.1 0-2 .9-2 2v11c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2z"/></svg></span>
+                    Proyectos &amp; Invertir
+                </a>
+                <a href="{{ url('/tienda') }}" class="nav-mobile-link @class(['active' => request()->is('tienda*')])">
+                    <span class="nav-mobile-icon"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zM1 2v2h2l3.6 7.59-1.35 2.45c-.16.28-.25.61-.25.96C5 16.1 6.9 18 9 18h12v-2H9.42c-.14 0-.25-.11-.25-.25l.03-.12.9-1.63H19c.75 0 1.41-.41 1.75-1.03l3.58-6.49c.08-.14.12-.31.12-.48 0-.55-.45-1-1-1H5.21l-.94-2H1zm16 16c-1.1 0-1.99.9-1.99 2s.89 2 1.99 2 2-.9 2-2-.9-2-2-2z"/></svg></span>
+                    Tienda
+                </a>
+                <a href="{{ url('/blog') }}" class="nav-mobile-link @class(['active' => request()->is('blog*')])">
+                    <span class="nav-mobile-icon"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/></svg></span>
+                    Blog
+                </a>
+                <a href="{{ url('/contacto') }}" class="nav-mobile-link @class(['active' => request()->is('contacto')])">
+                    <span class="nav-mobile-icon"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg></span>
+                    Contacto
+                </a>
+            </div>
+            <div class="nav-mobile-divider"></div>
+            <div class="nav-mobile-actions">
+                @auth
+                    <a href="{{ url('/welcome') }}" class="nav-mobile-action primary">Mi Dashboard</a>
+                @else
+                    <a href="{{ route('auth.google') }}" class="nav-mobile-action google">
+                        <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google">
+                        Iniciar con Google
+                    </a>
+                    @if (Route::has('login'))<a href="{{ route('login') }}" class="nav-mobile-action">Iniciar sesión</a>@endif
+                    @if (Route::has('register'))<a href="{{ route('register') }}" class="nav-mobile-action primary">Registrarse</a>@endif
+                @endauth
+            </div>
         </div>
     </header>
 
@@ -417,8 +454,9 @@
         const mobile = document.getElementById('navMobile');
         if (toggle) {
             toggle.addEventListener('click', () => {
-                toggle.classList.toggle('open');
-                mobile.classList.toggle('open');
+                const isOpen = toggle.classList.toggle('open');
+                mobile.classList.toggle('open', isOpen);
+                toggle.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
             });
         }
 

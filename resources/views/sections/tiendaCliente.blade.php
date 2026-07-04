@@ -434,7 +434,8 @@
     /* ── Responsive ── */
     @media (max-width: 1100px) { .tienda-grid { grid-template-columns: repeat(3, 1fr); } }
     @media (max-width: 768px)  { .tienda-grid { grid-template-columns: repeat(2, 1fr); } }
-    @media (max-width: 480px)  { .tienda-grid { grid-template-columns: 1fr; } }
+    @media (max-width: 520px)  { .tienda-grid { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 360px)  { .tienda-grid { grid-template-columns: 1fr; } }
 </style>
 
 {{-- ═══════════════════════════════════════════════
