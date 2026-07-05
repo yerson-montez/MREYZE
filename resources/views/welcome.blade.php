@@ -385,7 +385,11 @@
             <div class="nav-mobile-divider"></div>
             <div class="nav-mobile-actions">
                 @auth
-                    <a href="{{ url('/welcome') }}" class="nav-mobile-action primary">Mi Dashboard</a>
+                    <a href="{{ route('profile.edit') }}" class="nav-mobile-action">Mi perfil</a>
+                    <form method="POST" action="{{ route('logout') }}" class="nav-mobile-action" style="padding:0;">
+                        @csrf
+                        <button type="submit" style="all: unset; width:100%; height:100%; display:flex; align-items:center; justify-content:center; cursor:pointer;">Cerrar sesión</button>
+                    </form>
                 @else
                     <a href="{{ route('auth.google') }}" class="nav-mobile-action google">
                         <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google">
@@ -447,7 +451,7 @@
                     <a href="{{ url('/terminos') }}">Términos de uso</a>
                     <h4 style="margin-top: 1.5rem;">Contacto</h4>
                     <a href="mailto:contacto@mreyze.pe">contacto@mreyze.pe</a>
-                    <a href="tel:+51999999999">+51 999 999 999</a>
+                    <a href="tel:+51930930949">+51 930 930 949</a>
                 </div>
 
             </div>

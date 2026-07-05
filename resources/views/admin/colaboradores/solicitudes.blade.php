@@ -12,8 +12,10 @@
 
 {{-- Header --}}
 <div class="adm-page-header">
-    <h1 class="adm-page-title">Solicitudes de Colaboradores</h1>
-    <p class="adm-page-sub">Gestiona las solicitudes de personas que quieren unirse como colaboradores.</p>
+    <div>
+        <h1 class="adm-page-title">Solicitudes de Colaboradores</h1>
+        <p class="adm-page-sub">Gestiona las solicitudes de personas que quieren unirse como colaboradores.</p>
+    </div>
 </div>
 
 {{-- Alertas --}}
@@ -27,26 +29,26 @@
 
 {{-- Stats --}}
 <div class="adm-stats">
-    <div class="adm-stat">
-        <div class="adm-stat-label">Pendientes</div>
-        <div class="adm-stat-value accent">{{ $solicitudes->where('estado','pendiente')->count() }}</div>
+    <div class="adm-card" style="padding: 1rem; text-align: center;">
+        <div class="adm-stat-label" style="font-size: .72rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; margin-bottom: .35rem;">Pendientes</div>
+        <div class="adm-stat-value accent" style="font-size: 1.6rem; font-weight: 800; color: var(--accent);">{{ $solicitudes->where('estado','pendiente')->count() }}</div>
     </div>
-    <div class="adm-stat">
-        <div class="adm-stat-label">Aprobadas</div>
-        <div class="adm-stat-value">{{ $solicitudes->where('estado','aprobada')->count() }}</div>
+    <div class="adm-card" style="padding: 1rem; text-align: center;">
+        <div class="adm-stat-label" style="font-size: .72rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; margin-bottom: .35rem;">Aprobadas</div>
+        <div class="adm-stat-value" style="font-size: 1.6rem; font-weight: 800; color: #10b981;">{{ $solicitudes->where('estado','aprobada')->count() }}</div>
     </div>
-    <div class="adm-stat">
-        <div class="adm-stat-label">Rechazadas</div>
-        <div class="adm-stat-value">{{ $solicitudes->where('estado','rechazada')->count() }}</div>
+    <div class="adm-card" style="padding: 1rem; text-align: center;">
+        <div class="adm-stat-label" style="font-size: .72rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; margin-bottom: .35rem;">Rechazadas</div>
+        <div class="adm-stat-value" style="font-size: 1.6rem; font-weight: 800; color: #f43f5e;">{{ $solicitudes->where('estado','rechazada')->count() }}</div>
     </div>
-    <div class="adm-stat">
-        <div class="adm-stat-label">Total</div>
-        <div class="adm-stat-value">{{ $solicitudes->count() }}</div>
+    <div class="adm-card" style="padding: 1rem; text-align: center;">
+        <div class="adm-stat-label" style="font-size: .72rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; margin-bottom: .35rem;">Total</div>
+        <div class="adm-stat-value" style="font-size: 1.6rem; font-weight: 800; color: var(--text);">{{ $solicitudes->count() }}</div>
     </div>
 </div>
 
 {{-- Tabla --}}
-<div class="adm-card">
+<div class="adm-table-container">
 
     @if($solicitudes->isEmpty())
 
@@ -126,14 +128,18 @@
             </tbody>
         </table>
 
-        @if($solicitudes instanceof \Illuminate\Pagination\LengthAwarePaginator && $solicitudes->hasPages())
-            <div style="padding:1rem 0 0;display:flex;justify-content:flex-end;">
-                {{ $solicitudes->links() }}
-            </div>
-        @endif
-
     @endif
 
 </div>
+
+@if($solicitudes instanceof \Illuminate\Pagination\LengthAwarePaginator && $solicitudes->hasPages())
+    <div class="adm-pagination">
+        <span class="adm-pagination-info">
+            Mostrando {{ $solicitudes->firstItem() }}–{{ $solicitudes->lastItem() }}
+            de {{ $solicitudes->total() }} solicitudes
+        </span>
+        {{ $solicitudes->links() }}
+    </div>
+@endif
 
 @endsection

@@ -6,6 +6,14 @@
     <title>@yield('title', 'Admin Panel')</title>
     <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="icon" href="/favicon.ico" type="image/x-icon">
+    
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+
+    @if (file_exists(public_path('build/manifest.json')) || file_exists(public_path('hot')))
+        @vite(['resources/css/app.css', 'resources/js/app.js'])
+    @endif
+
     <style>
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -19,7 +27,7 @@
             --accent-dim:#0099bb;
             --text:      #e2f0fb;
             --muted:     #7a9ab8;
-            --sidebar-w: 240px;
+            --sidebar-w: 260px;
         }
 
         html, body { height: 100%; }
@@ -30,18 +38,17 @@
             color: var(--text);
             display: flex;
             min-height: 100vh;
+            overflow-x: hidden;
         }
 
-        /* ── SIDEBAR ─────────────────────────── */
+        /* ── SIDEBAR (Bootstrap 5 Offcanvas Integration) ──────────────── */
         .adm-sidebar {
             width: var(--sidebar-w);
-            background: var(--surface);
+            background: var(--surface) !important;
             border-right: 1px solid var(--border);
             display: flex;
             flex-direction: column;
-            position: fixed;
-            top: 0; left: 0; bottom: 0;
-            z-index: 100;
+            height: 100vh;
         }
 
         .adm-logo {
@@ -117,7 +124,7 @@
         }
 
         .adm-nav-group {
-            padding: .25rem 1rem .5rem;
+            padding: .75rem 1.25rem .35rem;
             font-size: .68rem;
             font-weight: 700;
             color: var(--muted);
@@ -143,9 +150,10 @@
         }
 
         .adm-nav-link.active {
-            color: var(--accent);
+            color: var(--accent) !important;
             border-left-color: var(--accent);
             background: rgba(0,212,255,.08);
+            font-weight: 600;
         }
 
         .adm-nav-icon { font-size: 16px; flex-shrink: 0; }
@@ -165,30 +173,61 @@
             border-top: 1px solid var(--border);
         }
 
-        .adm-logout {
+        .adm-logout-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            width: 100%;
+            font-family: inherit;
             display: flex;
             align-items: center;
             gap: .6rem;
-            font-size: .82rem;
+            padding: .6rem 1.25rem;
+            font-size: .84rem;
             color: var(--muted);
-            text-decoration: none;
-            transition: color .15s;
+            transition: all .15s;
+            border-radius: 8px;
+            text-align: left;
         }
 
-        .adm-logout:hover { color: #f43f5e; }
+        .adm-logout-btn:hover {
+            color: #f43f5e;
+            background: rgba(244, 63, 94, 0.08);
+        }
 
-        /* ── TOPBAR ─────────────────────────── */
+        /* ── NAVBAR / TOPBAR ───────────────────── */
         .adm-topbar {
             position: fixed;
-            top: 0; left: var(--sidebar-w); right: 0;
+            top: 0; right: 0;
             height: 56px;
             background: var(--surface);
             border-bottom: 1px solid var(--border);
             display: flex;
             align-items: center;
-            padding: 0 1.75rem;
+            justify-content: space-between;
+            padding: 0 1.25rem;
             z-index: 90;
             gap: 1rem;
+        }
+
+        .adm-sidebar-toggle {
+            display: none;
+            background: transparent;
+            border: none;
+            color: var(--accent);
+            cursor: pointer;
+            align-items: center;
+            justify-content: center;
+            width: 36px; height: 36px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            transition: all 0.2s;
+        }
+        .adm-sidebar-toggle:hover {
+            background: rgba(0, 212, 255, 0.1);
+        }
+        .adm-sidebar-toggle svg {
+            width: 20px; height: 20px;
         }
 
         .adm-breadcrumb {
@@ -197,6 +236,11 @@
             gap: .4rem;
             font-size: .82rem;
             color: var(--muted);
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+            margin-bottom: 0;
+            margin-right: auto;
         }
 
         .adm-breadcrumb a {
@@ -213,20 +257,27 @@
             font-weight: 600;
         }
 
-        /* ── MAIN ─────────────────────────── */
+        /* ── MAIN CONTENT AREA ─────────────────── */
         .adm-main {
-            margin-left: var(--sidebar-w);
             padding-top: 56px;
             flex: 1;
             min-height: 100vh;
+            width: 100%;
         }
 
         .adm-content {
-            padding: 2rem 1.75rem;
+            padding: 2rem 1.25rem;
+            max-width: 1400px;
+            margin: 0 auto;
         }
 
         .adm-page-header {
             margin-bottom: 2rem;
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 1rem;
         }
 
         .adm-page-title {
@@ -242,213 +293,130 @@
             margin-top: .35rem;
         }
 
-        /* ── CARDS ─────────────────────────── */
-        .adm-card {
-            background: var(--card);
-            border: 1px solid var(--border);
-            border-radius: 16px;
-            padding: 1.5rem;
+        /* ── RESPONSIVE TABLE COMPATIBILITY (NO HORIZONTAL SCROLL) ── */
+        .adm-table-container, 
+        .table-wrap, 
+        .bg-white.rounded-xl.border {
+            overflow-x: auto !important;
+            -webkit-overflow-scrolling: touch !important;
+            max-width: 100% !important;
+            background: var(--card) !important;
+            border: 1px solid var(--border) !important;
+        }
+        .adm-table-container table, 
+        .table-wrap table, 
+        .bg-white.rounded-xl.border table, 
+        table.adm-table,
+        table.w-full {
+            min-width: 650px !important;
+            width: 100% !important;
         }
 
-        /* ── STAT CARD ─────────────────────── */
-        .adm-stats {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-            gap: 1rem;
-            margin-bottom: 1.75rem;
+        /* ── FORM RESPONSIVE AUTO-FIT ─────────── */
+        .adm-form-card, 
+        form.bg-white.rounded-xl.border {
+            max-width: 100% !important;
+            box-sizing: border-box !important;
+            background: var(--card) !important;
+            border-color: var(--border) !important;
+        }
+        .adm-form-row, 
+        .grid-cols-2 {
+            display: grid !important;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)) !important;
+            gap: 1.25rem !important;
         }
 
-        .adm-stat {
-            background: var(--card);
-            border: 1px solid var(--border);
-            border-radius: 14px;
-            padding: 1.1rem 1.25rem;
+        /* ── TAILWIND OVERRIDES FOR STYLING ───── */
+        .adm-content .bg-white { background-color: var(--card) !important; }
+        .adm-content .bg-gray-50 { background-color: rgba(0, 212, 255, 0.02) !important; }
+        .adm-content .bg-gray-100 { background-color: var(--bg) !important; }
+        .adm-content .text-gray-900, .adm-content .text-gray-800 { color: var(--text) !important; }
+        .adm-content .text-gray-600, .adm-content .text-gray-500, .adm-content .text-gray-400 { color: var(--muted) !important; }
+        .adm-content .border, .adm-content .border-b, .adm-content .border-t, .adm-content .divide-y > * { border-color: var(--border) !important; }
+        .adm-content .divide-gray-50 > * { border-color: rgba(0, 212, 255, 0.05) !important; }
+        .adm-content .hover\:bg-gray-50:hover { background-color: rgba(0, 212, 255, 0.02) !important; }
+
+        /* General layout overrides for 2 columns (stats & info) */
+        .adm-content .grid-cols-3 {
+            display: grid !important;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)) !important;
+            gap: 1rem !important;
         }
 
-        .adm-stat-label {
-            font-size: .72rem;
-            font-weight: 600;
-            color: var(--muted);
-            text-transform: uppercase;
-            letter-spacing: .07em;
-            margin-bottom: .5rem;
+        /* ── BOOTSTRAP OFFCANVAS CUSTOMIZATION ── */
+        .offcanvas-backdrop {
+            background-color: rgba(4, 9, 17, 0.85) !important;
+            backdrop-filter: blur(4px);
         }
 
-        .adm-stat-value {
-            font-size: 1.75rem;
-            font-weight: 800;
-            color: var(--text);
-            line-height: 1;
+        /* ── RESPONSIVE RESPONSIVENESS BREAKPOINTS ── */
+        @media (min-width: 992px) {
+            .adm-sidebar {
+                position: fixed !important;
+                top: 0; left: 0; bottom: 0;
+                width: var(--sidebar-w) !important;
+                background: var(--surface) !important;
+                border-right: 1px solid var(--border) !important;
+                display: flex !important;
+                flex-direction: column !important;
+                z-index: 100 !important;
+                transform: none !important;
+                visibility: visible !important;
+            }
+            .adm-main {
+                margin-left: var(--sidebar-w) !important;
+                width: calc(100% - var(--sidebar-w)) !important;
+            }
+            .adm-topbar {
+                left: var(--sidebar-w) !important;
+            }
+            .adm-sidebar-toggle {
+                display: none !important;
+            }
         }
 
-        .adm-stat-value.accent { color: var(--accent); }
-
-        /* ── TABLES ─────────────────────────── */
-        .adm-table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: .85rem;
+        @media (max-width: 991.98px) {
+            .adm-sidebar {
+                width: var(--sidebar-w) !important;
+                box-shadow: 0 0 35px rgba(0, 0, 0, 0.8) !important;
+            }
+            .adm-topbar {
+                left: 0 !important;
+            }
+            .adm-sidebar-toggle {
+                display: flex !important;
+            }
+            .adm-main {
+                margin-left: 0 !important;
+                width: 100% !important;
+            }
         }
 
-        .adm-table th {
-            text-align: left;
-            font-size: .7rem;
-            font-weight: 700;
-            color: var(--muted);
-            letter-spacing: .08em;
-            text-transform: uppercase;
-            padding: .75rem 1rem;
-            border-bottom: 1px solid var(--border);
+        @media (max-width: 480px) {
+            .adm-breadcrumb {
+                font-size: 0.75rem;
+            }
+            .adm-page-title {
+                font-size: 1.3rem;
+            }
+            .adm-content {
+                padding: 1.25rem 0.75rem;
+            }
         }
-
-        .adm-table td {
-            padding: .85rem 1rem;
-            border-bottom: 1px solid rgba(0,212,255,.06);
-            color: var(--text);
-            vertical-align: middle;
-        }
-
-        .adm-table tbody tr:hover td {
-            background: rgba(0,212,255,.03);
-        }
-
-        /* ── BADGES ─────────────────────────── */
-        .adm-pill {
-            display: inline-flex;
-            align-items: center;
-            gap: .3rem;
-            font-size: .72rem;
-            font-weight: 600;
-            padding: .25rem .7rem;
-            border-radius: 20px;
-        }
-
-        .adm-pill-pending {
-            background: rgba(250,180,0,.1);
-            color: #f59e0b;
-            border: 1px solid rgba(250,180,0,.2);
-        }
-
-        .adm-pill-approved {
-            background: rgba(16,185,129,.1);
-            color: #10b981;
-            border: 1px solid rgba(16,185,129,.2);
-        }
-
-        .adm-pill-rejected {
-            background: rgba(244,63,94,.1);
-            color: #f43f5e;
-            border: 1px solid rgba(244,63,94,.2);
-        }
-
-        /* ── BUTTONS ─────────────────────────── */
-        .adm-btn {
-            display: inline-flex;
-            align-items: center;
-            gap: .4rem;
-            padding: .55rem 1.1rem;
-            border-radius: 10px;
-            font-size: .82rem;
-            font-weight: 600;
-            font-family: inherit;
-            cursor: pointer;
-            text-decoration: none;
-            transition: all .15s;
-            border: none;
-        }
-
-        .adm-btn-primary {
-            background: var(--accent);
-            color: #07111e;
-        }
-
-        .adm-btn-primary:hover {
-            background: var(--accent-dim);
-            transform: translateY(-1px);
-        }
-
-        .adm-btn-ghost {
-            background: rgba(0,212,255,.07);
-            color: var(--accent);
-            border: 1px solid rgba(0,212,255,.2);
-        }
-
-        .adm-btn-ghost:hover {
-            background: rgba(0,212,255,.13);
-        }
-
-        .adm-btn-danger {
-            background: rgba(244,63,94,.1);
-            color: #f43f5e;
-            border: 1px solid rgba(244,63,94,.2);
-        }
-
-        .adm-btn-danger:hover {
-            background: rgba(244,63,94,.18);
-        }
-
-        /* ── ALERTS ─────────────────────────── */
-        .adm-alert {
-            display: flex;
-            align-items: center;
-            gap: .6rem;
-            padding: .8rem 1rem;
-            border-radius: 10px;
-            font-size: .85rem;
-            margin-bottom: 1.25rem;
-        }
-
-        .adm-alert-success {
-            background: rgba(16,185,129,.1);
-            border: 1px solid rgba(16,185,129,.25);
-            color: #10b981;
-        }
-
-        .adm-alert-error {
-            background: rgba(244,63,94,.1);
-            border: 1px solid rgba(244,63,94,.25);
-            color: #f43f5e;
-        }
-
-        /* ── EMPTY STATE ─────────────────────── */
-        .adm-empty {
-            text-align: center;
-            padding: 3.5rem 2rem;
-            color: var(--muted);
-        }
-
-        .adm-empty-icon {
-            font-size: 2.5rem;
-            margin-bottom: 1rem;
-            opacity: .5;
-        }
-
-        .adm-empty-title {
-            font-size: 1rem;
-            font-weight: 700;
-            color: var(--text);
-            margin-bottom: .4rem;
-        }
-
-        .adm-empty-sub {
-            font-size: .85rem;
-        }
-
-        /* ── SCROLLBAR ─────────────────────── */
-        ::-webkit-scrollbar { width: 4px; }
-        ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: rgba(0,212,255,.2); border-radius: 4px; }
     </style>
     @stack('styles')
-
 </head>
 <body>
 
-{{-- SIDEBAR --}}
-<aside class="adm-sidebar">
-    <div class="adm-logo">
-        <div class="adm-logo-text">Panel Admin</div>
-        <div class="adm-logo-sub">Tienda · Sistema</div>
+{{-- SIDEBAR (Official Bootstrap 5 Responsive Offcanvas) --}}
+<aside class="adm-sidebar offcanvas-lg offcanvas-start border-0" id="admSidebar" tabindex="-1" aria-labelledby="admSidebarLabel">
+    <div class="adm-logo d-flex justify-content-between align-items-center">
+        <div>
+            <div class="adm-logo-text">Panel Admin</div>
+            <div class="adm-logo-sub">Tienda · Sistema</div>
+        </div>
+        <button type="button" class="btn-close btn-close-white d-lg-none" data-bs-dismiss="offcanvas" data-bs-target="#admSidebar" aria-label="Cerrar"></button>
     </div>
 
     <div class="adm-user">
@@ -464,7 +432,7 @@
     <nav class="adm-nav">
         <div class="adm-nav-group">General</div>
 
-        <a href="{{ route('admin.productos.index') }}" class="adm-nav-link {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">
+        <a href="{{ route('admin.dashboard') }}" class="adm-nav-link {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">
             <span class="adm-nav-icon">⊞</span> Dashboard
         </a>
 
@@ -478,7 +446,7 @@
             @endif
         </a>
 
-        <a href="{{ route('admin.colaboradores.solicitudes.index') }}" class="adm-nav-link {{ request()->routeIs('admin.colaboradores.index') ? 'active' : '' }}">
+        <a href="{{ route('admin.colaboradores.index') }}" class="adm-nav-link {{ request()->routeIs('admin.colaboradores.index') || request()->routeIs('admin.colaboradores.show') || request()->routeIs('admin.colaboradores.edit') || request()->routeIs('admin.colaboradores.create') ? 'active' : '' }}">
             <span class="adm-nav-icon">👥</span> Colaboradores 
         </a>
 
@@ -489,7 +457,7 @@
         </a>
 
         <a href="{{ route('admin.pedidos.index') }}" class="adm-nav-link {{ request()->routeIs('admin.pedidos*') ? 'active' : '' }}">
-            <span class="adm-nav-icon">📦</span> Pedidos
+            <span class="adm-nav-icon">🛒</span> Pedidos
         </a>
 
         <a href="{{ route('admin.pagos.index') }}" class="adm-nav-link {{ request()->routeIs('admin.pagos*') ? 'active' : '' }}">
@@ -500,25 +468,44 @@
             @endif
         </a>
 
+        <a href="{{ route('admin.metodos-pago.index') }}" class="adm-nav-link {{ request()->routeIs('admin.metodos-pago*') ? 'active' : '' }}">
+            <span class="adm-nav-icon">💳</span> Métodos de Pago
+        </a>
     </nav>
 
     <div class="adm-sidebar-footer">
         <form action="{{ route('logout') }}" method="POST">
             @csrf
-            <button type="submit" class="adm-logout" style="background:none;border:none;cursor:pointer;width:100%;font-family:inherit;">
+            <button type="submit" class="adm-logout-btn">
                 <span>⎋</span> Cerrar sesión
             </button>
         </form>
     </div>
 </aside>
 
-{{-- TOPBAR --}}
+{{-- TOPBAR (NAVBAR) --}}
 <header class="adm-topbar">
+    <button class="adm-sidebar-toggle" id="admSidebarToggle" type="button" data-bs-toggle="offcanvas" data-bs-target="#admSidebar" aria-controls="admSidebar" aria-label="Abrir menú">
+        <svg viewBox="0 0 24 24" fill="currentColor">
+            <path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/>
+        </svg>
+    </button>
+    
     <nav class="adm-breadcrumb">
-        <a href="{{ route('admin.productos.index') }}">Panel Admin</a>
+        <a href="{{ route('admin.dashboard') }}">Panel Admin</a>
         <span class="adm-breadcrumb-sep">/</span>
         @yield('breadcrumb', '<span class="adm-breadcrumb-current">Inicio</span>')
     </nav>
+
+    <!-- Usuario en Navbar -->
+    <div class="d-flex align-items-center gap-2">
+        <div class="adm-avatar" style="width: 32px; height: 32px; font-size: 0.75rem;">
+            {{ strtoupper(substr(auth()->user()->name ?? 'A', 0, 2)) }}
+        </div>
+        <span class="d-none d-sm-inline" style="font-size: 0.8rem; font-weight: 600; color: var(--text);">
+            {{ auth()->user()->name ?? 'Administrador' }}
+        </span>
+    </div>
 </header>
 
 {{-- MAIN --}}
@@ -528,6 +515,44 @@
     </div>
 </main>
 
+<!-- Bootstrap 5 Bundle with Popper -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const sidebarEl = document.getElementById('admSidebar');
+    if (!sidebarEl) return;
+    
+    let bsOffcanvas = null;
+    if (window.bootstrap && window.bootstrap.Offcanvas) {
+        bsOffcanvas = window.bootstrap.Offcanvas.getOrCreateInstance(sidebarEl);
+    }
+    
+    // 1. Cerrar automáticamente al seleccionar una opción del menú
+    const links = sidebarEl.querySelectorAll('.adm-nav-link, .adm-logout-btn, button[type="submit"]');
+    links.forEach(link => {
+        link.addEventListener('click', function() {
+            if (window.innerWidth < 992 && bsOffcanvas) {
+                bsOffcanvas.hide();
+            }
+        });
+    });
+    
+    // 2. Cerrar al cambiar el tamaño de la pantalla
+    window.addEventListener('resize', function() {
+        if (window.innerWidth >= 992 && bsOffcanvas) {
+            bsOffcanvas.hide();
+            // Limpieza de restos del backdrop de Bootstrap en transiciones rápidas
+            const backdrop = document.querySelector('.offcanvas-backdrop');
+            if (backdrop) {
+                backdrop.remove();
+            }
+            document.body.style.overflow = '';
+            document.body.style.paddingRight = '';
+        }
+    });
+});
+</script>
 @stack('scripts')
 </body>
 </html>

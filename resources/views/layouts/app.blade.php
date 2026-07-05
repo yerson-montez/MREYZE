@@ -375,7 +375,12 @@
             <div class="nav-mobile-divider"></div>
             <div class="nav-mobile-actions">
                 @auth
+                    <a href="{{ route('profile.edit') }}" class="nav-mobile-action">Mi perfil</a>
                     <a href="{{ url('/welcome') }}" class="nav-mobile-action primary">Mi Dashboard</a>
+                    <form method="POST" action="{{ route('logout') }}" class="nav-mobile-action" style="padding:0;">
+                        @csrf
+                        <button type="submit" style="all: unset; width:100%; height:100%; display:flex; align-items:center; justify-content:center; cursor:pointer;">Cerrar sesión</button>
+                    </form>
                 @else
                     <a href="{{ route('auth.google') }}" class="nav-mobile-action google">
                         <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google">

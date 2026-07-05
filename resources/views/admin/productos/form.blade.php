@@ -4,90 +4,85 @@
 
 @push('styles')
 <style>
-:root {
-    --adm-bg:      #07111e;
-    --adm-surface: #0d1f33;
-    --adm-card:    #0f2540;
-    --adm-border:  rgba(0,212,255,0.13);
-    --adm-accent:  #00d4ff;
-    --adm-text:    #e2f0fb;
-    --adm-muted:   #7a9ab8;
-    --adm-danger:  #f43f5e;
-    --adm-font:    'Exo 2', sans-serif;
-}
-.adm-wrapper { min-height:100vh; background:var(--adm-bg); font-family:var(--adm-font); color:var(--adm-text); }
-
-.adm-topbar {
-    background: var(--adm-surface);
-    border-bottom: 1px solid var(--adm-border);
-    padding: 1rem 2rem;
-    display: flex; align-items: center; justify-content: space-between;
-    position: sticky; top: 0; z-index: 50;
-}
-.adm-topbar-brand { display:flex;align-items:center;gap:.75rem;font-size:1.05rem;font-weight:700;color:var(--adm-accent); }
-.adm-back {
-    display:inline-flex;align-items:center;gap:.4rem;color:var(--adm-muted);
-    font-size:.85rem;text-decoration:none;
-    padding:.4rem .9rem;border:1px solid var(--adm-border);border-radius:8px;transition:all .18s;
-}
-.adm-back:hover { color:var(--adm-accent); border-color:var(--adm-accent); }
-
-.adm-main { max-width:780px; margin:0 auto; padding:2.5rem 1.5rem; }
-
-.adm-form-title { font-size:1.55rem; font-weight:800; margin-bottom:2rem; }
-.adm-form-title span { color:var(--adm-accent); }
+/* ── Estilos específicos del formulario ── */
 
 .adm-form-card {
-    background: var(--adm-card);
-    border: 1px solid var(--adm-border);
+    background: var(--card);
+    border: 1px solid var(--border);
     border-radius: 18px;
     padding: 2rem;
+    box-shadow: 0 10px 25px rgba(4, 9, 17, 0.25);
 }
 
-.adm-form-group { margin-bottom: 1.4rem; }
-.adm-form-row { display:grid; grid-template-columns:1fr 1fr; gap:1rem; }
-.adm-label {
-    display: block; font-size: .8rem; font-weight:700;
-    letter-spacing:.06em; text-transform:uppercase;
-    color: var(--adm-muted); margin-bottom:.45rem;
+.adm-form-group { 
+    margin-bottom: 1.4rem; 
 }
-.adm-input, .adm-textarea, .adm-select-field {
-    width: 100%; box-sizing: border-box;
-    background: rgba(0,212,255,.04);
-    border: 1px solid var(--adm-border);
+
+.adm-form-row { 
+    display: grid; 
+    grid-template-columns: 1fr 1fr; 
+    gap: 1.25rem; 
+}
+
+.adm-select-field {
+    width: 100%;
+    background: rgba(0, 212, 255, 0.03);
+    border: 1px solid var(--border);
     border-radius: 10px;
-    color: var(--adm-text);
+    color: var(--text);
     padding: .65rem 1rem;
-    font-family: var(--adm-font);
+    font-family: inherit;
     font-size: .9rem;
     outline: none;
-    transition: border-color .18s;
+    transition: border-color .18s, box-shadow .18s;
+    cursor: pointer;
+    box-sizing: border-box;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%237a9ab8'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 1rem center;
+    background-size: 1.25rem;
+    padding-right: 2.5rem;
 }
-.adm-input:focus, .adm-textarea:focus, .adm-select-field:focus {
-    border-color: rgba(0,212,255,.55);
+.adm-select-field:focus {
+    border-color: rgba(0, 212, 255, 0.5);
+    box-shadow: 0 0 10px rgba(0, 212, 255, 0.15);
 }
-.adm-textarea { resize: vertical; min-height: 90px; }
-.adm-select-field { cursor: pointer; }
-.adm-input-hint { font-size:.75rem; color:var(--adm-muted); margin-top:.3rem; }
-.adm-error { color: var(--adm-danger); font-size:.78rem; margin-top:.3rem; }
-.adm-divider { border: none; border-top: 1px solid var(--adm-border); margin: 1.8rem 0; }
+
+.adm-input-hint { 
+    font-size: .75rem; 
+    color: var(--muted); 
+    margin-top: .3rem; 
+}
+
+.adm-error { 
+    color: var(--dash-red, #ef4444); 
+    font-size: .78rem; 
+    margin-top: .3rem; 
+}
+
+.adm-divider { 
+    border: none; 
+    border-top: 1px solid var(--border); 
+    margin: 1.8rem 0; 
+}
+
 .adm-section-label {
-    font-size:.72rem; font-weight:700; letter-spacing:.1em;
-    text-transform:uppercase; color:var(--adm-accent);
-    margin-bottom:1rem; margin-top:1.6rem;
+    font-size: .72rem; 
+    font-weight: 700; 
+    letter-spacing: .1em;
+    text-transform: uppercase; 
+    color: var(--accent);
+    margin-bottom: 1.2rem; 
+    margin-top: 0.5rem;
 }
+
 .adm-form-actions {
-    display: flex; justify-content: flex-end; gap: .8rem; margin-top: 1.8rem;
+    display: flex; 
+    justify-content: flex-end; 
+    gap: .8rem; 
+    margin-top: 1.8rem;
 }
-.adm-btn {
-    display:inline-flex;align-items:center;gap:.4rem;padding:.6rem 1.4rem;border-radius:10px;
-    font-family:var(--adm-font);font-size:.9rem;font-weight:600;cursor:pointer;border:none;
-    text-decoration:none;transition:all .18s;
-}
-.adm-btn-primary { background:var(--adm-accent); color:#07111e; }
-.adm-btn-primary:hover { background:#00bce0; transform:translateY(-1px); }
-.adm-btn-ghost { background:transparent;color:var(--adm-muted);border:1px solid var(--adm-border); }
-.adm-btn-ghost:hover { border-color:var(--adm-accent); color:var(--adm-accent); }
 
 .adm-img-preview {
     display: block;
@@ -96,45 +91,47 @@
     height: 80px;
     object-fit: cover;
     border-radius: 10px;
-    border: 1px solid var(--adm-border);
+    border: 1px solid var(--border);
 }
 
-@media(max-width:600px) {
-    .adm-form-row { grid-template-columns:1fr; }
-    .adm-topbar { padding:.8rem 1rem; }
+@media(max-width: 600px) {
+    .adm-form-row { grid-template-columns: 1fr; }
+    .adm-form-card { padding: 1.25rem; }
 }
 </style>
 @endpush
 
+@section('breadcrumb')
+    <a href="{{ route('admin.dashboard') }}" class="adm-breadcrumb-link">Inicio</a>
+    <span class="adm-breadcrumb-sep">/</span>
+    <a href="{{ route('admin.productos.index') }}" class="adm-breadcrumb-link">Productos</a>
+    <span class="adm-breadcrumb-sep">/</span>
+    <span class="adm-breadcrumb-current">{{ isset($producto) ? 'Editar' : 'Nuevo' }}</span>
+@endsection
+
 @section('content')
-<div class="adm-wrapper">
 
-    {{-- Top Bar --}}
-    <div class="adm-topbar">
-        <div class="adm-topbar-brand">
-            <svg viewBox="0 0 24 24" fill="currentColor" style="width:20px;height:20px">
-                <path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/>
-            </svg>
-            Panel Admin
+    <div style="max-width: 800px; margin: 0 auto;">
+        <div class="adm-page-header">
+            <div>
+                <h1 class="adm-page-title">
+                    @isset($producto)
+                        Editar <span>Producto</span>
+                    @else
+                        Nuevo <span>Producto</span>
+                    @endisset
+                </h1>
+                <p class="adm-page-sub">Completa los campos para configurar el catálogo.</p>
+            </div>
+            <a href="{{ route('admin.productos.index') }}" class="adm-btn adm-btn-ghost">
+                <svg viewBox="0 0 24 24" fill="currentColor" style="width:14px;height:14px">
+                    <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/>
+                </svg>
+                Volver
+            </a>
         </div>
-        <a href="{{ route('admin.productos.index') }}" class="adm-back">
-            <svg viewBox="0 0 24 24" fill="currentColor" style="width:14px;height:14px">
-                <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/>
-            </svg>
-            Volver
-        </a>
-    </div>
 
-    <div class="adm-main">
-        <h1 class="adm-form-title">
-            @isset($producto)
-                Editar <span>producto</span>
-            @else
-                Nuevo <span>producto</span>
-            @endisset
-        </h1>
-
-        {{-- ✅ UN SOLO FORM --}}
+        {{-- Formulario --}}
         <form
             method="POST"
             action="{{ isset($producto)
@@ -242,7 +239,7 @@
                                accept="image/jpeg,image/png,image/webp"
                                onchange="previewImagen(event)">
 
-                        {{-- Preview: muestra la existente o la recién seleccionada --}}
+                        {{-- Preview --}}
                         @if(isset($producto) && $producto->icono_imagen)
                             <img id="previewImg"
                                  src="{{ asset('storage/' . $producto->icono_imagen) }}"
@@ -269,7 +266,7 @@
                     <input type="hidden" name="activo" value="0">
                     <input id="activo" name="activo" type="checkbox" value="1"
                            {{ old('activo', $producto->activo ?? true) ? 'checked' : '' }}
-                           style="width:18px;height:18px;accent-color:var(--adm-accent);cursor:pointer">
+                           style="width:18px;height:18px;accent-color:var(--accent);cursor:pointer">
                     <label for="activo" style="cursor:pointer;font-size:.9rem">
                         Mostrar este producto en la tienda
                     </label>
@@ -288,11 +285,9 @@
                     </button>
                 </div>
 
-            </div>{{-- /adm-form-card --}}
-        </form>{{-- ✅ Cierre del único form --}}
-
+            </div>
+        </form>
     </div>
-</div>
 
 <script>
 function previewImagen(event) {

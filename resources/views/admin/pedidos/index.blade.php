@@ -6,13 +6,13 @@
 
 @section('content')
 
-<div class="adm-page-header" style="margin-bottom: 1rem;">
+<div class="adm-page-header" style="margin-bottom: 1.5rem;">
     <div>
-        <div class="adm-page-title">Pedidos</div>
+        <h1 class="adm-page-title">Pedidos</h1>
         <div class="adm-page-sub">{{ $ventasHoy }} pedidos hoy</div>
     </div>
-    <div class="flex items-center gap-3 text-sm">
-        <span class="text-muted font-medium">Estado:</span>
+    <div style="display: flex; align-items: center; gap: 0.75rem; font-size: 0.875rem; flex-wrap: wrap;">
+        <span style="color: var(--muted); font-weight: 500;">Estado:</span>
         <a href="{{ route('admin.pedidos.index') }}" class="adm-pill {{ !request('estado') ? 'adm-pill-approved' : '' }}"
            style="{{ request('estado') ? 'background: rgba(0,212,255,.05); color: var(--muted); border: 1px solid var(--border);' : '' }}">Todos</a>
         <a href="{{ route('admin.pedidos.index', ['estado' => 'pendiente_pago']) }}" class="adm-pill {{ request('estado') === 'pendiente_pago' ? 'adm-pill-pending' : '' }}"
@@ -27,25 +27,25 @@
 </div>
 
 {{-- Tarjetas resumen --}}
-<div class="adm-stats" style="grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));">
+<div class="adm-stats" style="grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));">
     @foreach ([
         'pendiente_pago' => ['label' => 'Por pagar', 'color' => '#f59e0b'],
         'pendiente_aprobacion' => ['label' => 'Por aprobar', 'color' => '#f59e0b'],
-        'pagado_parcial' => ['label' => 'Pag. parcial', 'color' => '#8b5cf6'],
-        'preparando' => ['label' => 'Preparando', 'color' => '#3b82f6'],
+        'pagado_parcial' => ['label' => 'Pag. parcial', 'color' => '#a78bfa'],
+        'preparando' => ['label' => 'Preparando', 'color' => '#00d4ff'],
         'enviado' => ['label' => 'Enviados', 'color' => '#3b82f6'],
         'entregado' => ['label' => 'Entregados', 'color' => '#10b981'],
         'cancelado' => ['label' => 'Cancelados', 'color' => '#f43f5e'],
     ] as $key => $info)
-    <div class="adm-stat">
-        <div class="adm-stat-label">{{ $info['label'] }}</div>
-        <div class="adm-stat-value" style="color: {{ $info['color'] }};">{{ $totales[$key] }}</div>
+    <div class="adm-card" style="padding: 1rem; text-align: center;">
+        <div style="font-size: .72rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; margin-bottom: .35rem;">{{ $info['label'] }}</div>
+        <div style="font-size: 1.6rem; font-weight: 800; color: {{ $info['color'] }};">{{ $totales[$key] }}</div>
     </div>
     @endforeach
 </div>
 
 {{-- Tabla --}}
-<div class="adm-card" style="padding: 0; overflow: hidden;">
+<div class="adm-table-container">
     <table class="adm-table">
         <thead>
             <tr>
@@ -62,12 +62,12 @@
         <tbody>
             @forelse ($pedidos as $pedido)
             <tr>
-                <td style="color: var(--muted); font-size: .78rem;">{{ $pedido->numero_pedido ?? '#' . $pedido->id }}</td>
+                <td style="color: var(--muted); font-size: .78rem; font-weight: 600;">{{ $pedido->numero_pedido ?? '#' . $pedido->id }}</td>
                 <td>
                     <div style="font-weight: 600;">{{ $pedido->cliente_nombre }}</div>
-                    <div style="font-size: .75rem; color: var(--muted);">{{ $pedido->cliente_telefono }}</div>
+                    <div style="font-size: .75rem; color: var(--muted); margin-top: 0.15rem;">{{ $pedido->cliente_telefono }}</div>
                 </td>
-                <td style="color: var(--muted); font-size: .82rem;">{{ $pedido->producto->nombre }}</td>
+                <td style="color: var(--text); font-size: .82rem; font-weight: 500;">{{ $pedido->producto->nombre }}</td>
                 <td>
                     @if($pedido->colaborador)
                         <span class="adm-pill" style="background: rgba(139,92,246,.12); color: #a78bfa; border: 1px solid rgba(139,92,246,.22);">
@@ -77,7 +77,7 @@
                         <span style="color: var(--border-md);">—</span>
                     @endif
                 </td>
-                <td style="text-align: right; font-weight: 700;">
+                <td style="text-align: right; font-weight: 700; color: var(--text);">
                     S/ {{ number_format($pedido->total, 2) }}
                 </td>
                 <td style="text-align: center;">
@@ -97,9 +97,9 @@
                 </td>
                 <td style="color: var(--muted); font-size: .78rem;">
                     {{ $pedido->created_at->format('d/m/Y') }}<br>
-                    {{ $pedido->created_at->format('H:i') }}
+                    <span style="opacity: .6;">{{ $pedido->created_at->format('H:i') }}</span>
                 </td>
-                <td>
+                <td style="text-align: center;">
                     <a href="{{ route('admin.pedidos.show', $pedido) }}" class="adm-btn adm-btn-ghost" style="padding: .35rem .75rem; font-size: .78rem;">
                         Ver →
                     </a>
@@ -120,18 +120,14 @@
     </table>
 </div>
 
-<div style="margin-top: 1.25rem;">
+@if($pedidos->hasPages())
+<div class="adm-pagination">
+    <span class="adm-pagination-info">
+        Mostrando {{ $pedidos->firstItem() }}–{{ $pedidos->lastItem() }}
+        de {{ $pedidos->total() }} pedidos
+    </span>
     {{ $pedidos->links() }}
 </div>
-
-<style>
-    .flex { display: flex; }
-    .items-center { align-items: center; }
-    .gap-3 { gap: 0.75rem; }
-    .text-sm { font-size: 0.875rem; }
-    .font-medium { font-weight: 500; }
-    .text-muted { color: var(--muted); }
-    .mb-1 { margin-bottom: 0.25rem; }
-</style>
+@endif
 
 @endsection
