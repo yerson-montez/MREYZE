@@ -316,6 +316,76 @@
     @media (max-width: 1100px) { .tienda-grid { grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); } }
     @media (max-width: 768px)  { .tienda-grid { grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); } }
     @media (max-width: 480px)  { .tienda-grid { grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); } }
+
+    /* Buscador */
+    .tienda-search { margin-bottom: 1.5rem; }
+    .search-wrapper {
+        position: relative;
+        display: flex;
+        align-items: center;
+        width: 100%;
+    }
+    .search-icon {
+        position: absolute;
+        left: 14px;
+        width: 18px;
+        height: 18px;
+        color: var(--ice-300);
+        pointer-events: none;
+        flex-shrink: 0;
+    }
+    .search-input {
+        width: 100%;
+        padding: 0.7rem 2.8rem 0.7rem 2.6rem;
+        border-radius: 12px;
+        font-size: 0.9rem;
+        background: rgba(10, 22, 40, 0.7);
+        border: 1px solid rgba(74, 144, 217, 0.2);
+        color: #fff;
+        outline: none;
+        transition: border-color 0.22s, box-shadow 0.22s;
+    }
+    .search-input::placeholder { color: var(--ice-300); }
+    .search-input:focus {
+        border-color: rgba(0, 212, 255, 0.45);
+        box-shadow: 0 0 0 3px rgba(0, 212, 255, 0.08);
+    }
+    .search-spinner {
+        position: absolute;
+        right: 12px;
+        width: 18px;
+        height: 18px;
+        border: 2px solid rgba(74, 144, 217, 0.2);
+        border-top-color: var(--accent);
+        border-radius: 50%;
+        opacity: 0;
+        transition: opacity 0.2s;
+        pointer-events: none;
+    }
+    .search-spinner.active { opacity: 1; animation: spin 0.6s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .search-clear {
+        position: absolute;
+        right: 12px;
+        width: 20px;
+        height: 20px;
+        border: none;
+        background: none;
+        color: var(--ice-300);
+        cursor: pointer;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        padding: 0;
+        font-size: 1.1rem;
+        line-height: 1;
+        transition: color 0.2s;
+    }
+    .search-clear:hover { color: #fff; }
+    .search-clear.visible { display: flex; }
+    .search-has-text .search-spinner { display: none; }
+    .tienda-grid.searching { opacity: 0.4; transition: opacity 0.2s; }
+    .tienda-empty { grid-column: 1 / -1; }
 </style>
 
 {{--
@@ -361,6 +431,18 @@
             </div>
         </div>
 
+        {{-- Buscador --}}
+        <div class="tienda-search reveal">
+            <div class="search-wrapper">
+                <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+                </svg>
+                <input type="text" id="tiendaSearch" class="search-input" placeholder="Buscar productos…" autocomplete="off">
+                <div class="search-spinner" id="searchSpinner"></div>
+                <button class="search-clear" id="searchClear" aria-label="Limpiar búsqueda">&times;</button>
+            </div>
+        </div>
+
         {{-- Categorías --}}
         <div class="tienda-cats reveal">
             <button class="cat-btn active" onclick="filtrarCat('todos', this)">Todos</button>
@@ -370,63 +452,10 @@
         </div>
 
         {{-- Productos dinámicos desde DB --}}
-        <div class="tienda-grid">
+        <div class="tienda-grid" id="tiendaGrid">
 
-            @forelse($productos as $p)
-            <div class="producto-card reveal" data-cat="{{ $p->categoria }}">
-                
-                <div class="producto-img">
-
-                @if($p->icono_imagen)
-                    <img src="{{ asset('storage/' . $p->icono_imagen) }}" 
-                    alt="{{ $p->nombre }}"
-                    class="producto-img-full">
-                @else
-                    <div class="producto-img-bg">
-                        <span style="font-size:12px;color:#7a9ab8">Sin imagen</span>
-                    </div>
-                @endif
-
-                {{-- Badge estado --}}
-                <span class="producto-stock {{ $p->estado }}">{{ ucfirst($p->estado) }}</span>
-
-                {{-- Badge descuento --}}
-                @if($p->tieneDescuento())
-                <span class="producto-descuento">-{{ $p->porcentaje_descuento }}%</span>
-                @endif
-
-        </div>
-
-                <div class="producto-body">
-                    <div class="producto-cat">{{ strtoupper($p->categoria) }}</div>
-                    <div class="producto-nombre">{{ $p->nombre }}</div>
-                    <p class="producto-desc">{{ $p->descripcion }}</p>
-                    <div class="producto-footer">
-                        <div class="producto-precio">
-                            <div class="producto-precio-actual">
-                                S/ {{ number_format($p->precio, 0) }}<span>.{{ substr(number_format($p->precio, 2), -2) }}</span>
-                            </div>
-                            @if($p->precio_anterior)
-                            <div class="producto-precio-anterior">S/ {{ number_format($p->precio_anterior, 2) }}</div>
-                            @endif
-                        </div>
-
-                        @if($p->estado !== 'agotado')
-                        <a href="{{ route('pedidos.create', $p->slug) }}" class="producto-btn">
-                            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zM1 2v2h2l3.6 7.59-1.35 2.45c-.16.28-.25.61-.25.96C5 16.1 6.9 18 9 18h12v-2H9.42c-.14 0-.25-.11-.25-.25l.03-.12.9-1.63H19c.75 0 1.41-.41 1.75-1.03l3.58-6.49c.08-.14.12-.31.12-.48 0-.55-.45-1-1-1H5.21l-.94-2H1zm16 16c-1.1 0-1.99.9-1.99 2s.89 2 1.99 2 2-.9 2-2-.9-2-2-2z"/></svg>
-                            Comprar
-                        </a>
-                        @else
-                        <button class="producto-btn agotado-btn" disabled>Agotado</button>
-                        @endif
-                    </div>
-                </div>
-            </div>
-            @empty
-            <div style="grid-column:1/-1;text-align:center;padding:3rem;color:#7a9ab8">
-                No hay productos disponibles en este momento.
-            </div>
-            @endforelse
+            @php($emptyMessage = 'No hay productos disponibles en este momento.')
+            @include('tienda._productos')
 
         </div>
 
@@ -446,12 +475,92 @@
 </section>
 
 <script>
+// ── Filtro por categoría ──
+let currentCat = 'todos';
 function filtrarCat(cat, btn) {
+    currentCat = cat;
     document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
     document.querySelectorAll('.producto-card').forEach(card => {
         card.style.display = (cat === 'todos' || card.dataset.cat === cat) ? '' : 'none';
     });
+}
+
+// ── Buscador en tiempo real ──
+(function() {
+    const input  = document.getElementById('tiendaSearch');
+    const grid   = document.getElementById('tiendaGrid');
+    const spin   = document.getElementById('searchSpinner');
+    const clear  = document.getElementById('searchClear');
+    let debounceTimer;
+
+    if (!input) return;
+
+    function doSearch(term) {
+        term = term.trim();
+
+        clear.classList.toggle('visible', term.length > 0);
+
+        const params = new URLSearchParams({ ajax: '1', cat: currentCat });
+        if (term) params.set('search', term);
+
+        spin.classList.add('active');
+        grid.classList.add('searching');
+
+        fetch('/tienda?' + params.toString())
+            .then(r => r.json())
+            .then(data => {
+                grid.innerHTML = data.html;
+                grid.classList.remove('searching');
+                spin.classList.remove('active');
+                // Re-observar elementos reveal
+                document.querySelectorAll('.reveal').forEach(el => {
+                    if (typeof observerReveal === 'function') observerReveal(el);
+                });
+            })
+            .catch(() => {
+                grid.classList.remove('searching');
+                spin.classList.remove('active');
+            });
+    }
+
+    input.addEventListener('input', function() {
+        clearTimeout(debounceTimer);
+        const term = this.value;
+        if (term === '') {
+            // Al borrar todo, recargar sin search
+            clearTimeout(debounceTimer);
+            doSearch('');
+            return;
+        }
+        debounceTimer = setTimeout(() => doSearch(term), 300);
+    });
+
+    input.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') {
+            clearTimeout(debounceTimer);
+            doSearch(this.value);
+        }
+    });
+
+    clear.addEventListener('click', function() {
+        input.value = '';
+        clear.classList.remove('visible');
+        clearTimeout(debounceTimer);
+        doSearch('');
+        input.focus();
+    });
+})();
+
+// Re-inicializar reveal en elementos cargados vía AJAX
+function observerReveal(el) {
+    if (el.classList.contains('observed')) return;
+    el.classList.add('observed');
+    new IntersectionObserver(function(entries) {
+        entries.forEach(function(e) {
+            if (e.isIntersecting) e.target.classList.add('visible');
+        });
+    }, { threshold: 0.12 }).observe(el);
 }
 </script>
 @endsection 

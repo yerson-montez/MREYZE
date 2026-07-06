@@ -11,11 +11,32 @@ class TiendaController extends Controller
     // Página principal de la tienda
     public function index(Request $request)
     {
-        $cat = $request->query('cat', 'todos');
+        $cat    = $request->query('cat', 'todos');
+        $search = $request->query('search');
 
         $query = Producto::activos();
+
         if ($cat !== 'todos') {
             $query->categoria($cat);
+        }
+
+        if ($search) {
+            $term = '%' . $search . '%';
+            $query->where(function ($q) use ($term) {
+                $q->where('nombre', 'LIKE', $term)
+                  ->orWhere('descripcion', 'LIKE', $term)
+                  ->orWhere('categoria', 'LIKE', $term);
+            });
+        }
+
+        // AJAX: devolver JSON con HTML renderizado
+        if ($request->ajax() || $request->wantsJson() || $request->query('ajax')) {
+            $productos = $query->get();
+            $html = view('tienda._productos', compact('productos'))->render();
+            return response()->json([
+                'html'  => $html,
+                'count' => $productos->count(),
+            ]);
         }
 
         $productos = $query->paginate(99999999999);
