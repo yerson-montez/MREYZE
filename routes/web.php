@@ -60,6 +60,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/pedidos/crear/{producto:slug}',  [PedidoController::class, 'create'])->name('pedidos.create');
     Route::post('/pedidos/crear/{producto:slug}', [PedidoController::class, 'store'])->name('pedidos.store');
     Route::get('/mis-pedidos', [PedidoController::class, 'misPedidos'])->name('pedidos.mis');
+    Route::get('/mis-pedidos/{pedido}', [PedidoController::class, 'show'])->name('pedidos.show');
 
     // Pago con Yape
     Route::get('/pedido/{pedido}/pago',        [PagoController::class, 'show'])->name('pedidos.pago');

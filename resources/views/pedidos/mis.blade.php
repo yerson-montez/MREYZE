@@ -103,7 +103,7 @@
             Pagar ahora — S/ {{ number_format($pedido->adelanto, 2) }}
           </a>
         @else
-          <a href="{{ route('pedidos.pago', $pedido) }}" class="btn-ver">Ver detalle</a>
+          <a href="{{ route('pedidos.show', $pedido) }}" class="btn-ver">Ver detalle</a>
         @endif
       </div>
     </div>

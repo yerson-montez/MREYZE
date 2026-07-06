@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Support\Str;
 
 class Pedido extends Model
@@ -70,6 +71,11 @@ class Pedido extends Model
         return $this->hasOne(Pago::class)->latestOfMany();
     }
 
+    public function estados(): HasMany
+    {
+        return $this->hasMany(PedidoEstado::class)->latest('created_at');
+    }
+
     public function calcularPagos(): void
     {
         $this->adelanto = round($this->total * 0.5, 2);
@@ -96,28 +102,30 @@ class Pedido extends Model
     public function getEstadoColorAttribute(): string
     {
         return match ($this->estado) {
-            'pendiente_pago'     => 'bg-amber-100 text-amber-700',
+            'pendiente_pago'       => 'bg-amber-100 text-amber-700',
             'pendiente_aprobacion' => 'bg-blue-100 text-blue-700',
-            'pagado_parcial'     => 'bg-indigo-100 text-indigo-700',
-            'preparando'         => 'bg-purple-100 text-purple-700',
-            'enviado'            => 'bg-cyan-100 text-cyan-700',
-            'entregado'          => 'bg-green-100 text-green-700',
-            'cancelado'          => 'bg-red-100 text-red-700',
-            default              => 'bg-gray-100 text-gray-700',
+            'pagado_parcial'       => 'bg-indigo-100 text-indigo-700',
+            'preparando'           => 'bg-purple-100 text-purple-700',
+            'en_proceso_envio'     => 'bg-orange-100 text-orange-700',
+            'enviado'              => 'bg-cyan-100 text-cyan-700',
+            'entregado'            => 'bg-green-100 text-green-700',
+            'cancelado'            => 'bg-red-100 text-red-700',
+            default                => 'bg-gray-100 text-gray-700',
         };
     }
 
     public function getEstadoLabelAttribute(): string
     {
         return match ($this->estado) {
-            'pendiente_pago'     => 'Pendiente de pago',
+            'pendiente_pago'       => 'Pendiente de pago',
             'pendiente_aprobacion' => 'Pendiente de aprobación',
-            'pagado_parcial'     => 'Pago aprobado',
-            'preparando'         => 'Preparando pedido',
-            'enviado'            => 'Enviado',
-            'entregado'          => 'Entregado',
-            'cancelado'          => 'Cancelado',
-            default              => $this->estado,
+            'pagado_parcial'       => 'Pago aprobado',
+            'preparando'           => 'Preparando pedido',
+            'en_proceso_envio'     => 'En proceso de envío',
+            'enviado'              => 'Enviado',
+            'entregado'            => 'Entregado',
+            'cancelado'            => 'Cancelado',
+            default                => $this->estado,
         };
     }
 

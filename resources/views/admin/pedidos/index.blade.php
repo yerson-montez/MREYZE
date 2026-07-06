@@ -21,6 +21,8 @@
            style="{{ request('estado') !== 'pendiente_aprobacion' ? 'background: rgba(0,212,255,.05); color: var(--muted); border: 1px solid var(--border);' : '' }}">Por aprobar</a>
         <a href="{{ route('admin.pedidos.index', ['estado' => 'preparando']) }}" class="adm-pill {{ request('estado') === 'preparando' ? 'adm-pill-pending' : '' }}"
            style="{{ request('estado') !== 'preparando' ? 'background: rgba(0,212,255,.05); color: var(--muted); border: 1px solid var(--border);' : '' }}">Preparando</a>
+        <a href="{{ route('admin.pedidos.index', ['estado' => 'en_proceso_envio']) }}" class="adm-pill {{ request('estado') === 'en_proceso_envio' ? 'adm-pill-pending' : '' }}"
+           style="{{ request('estado') !== 'en_proceso_envio' ? 'background: rgba(0,212,255,.05); color: var(--muted); border: 1px solid var(--border);' : '' }}">En envío</a>
         <a href="{{ route('admin.pedidos.index', ['estado' => 'entregado']) }}" class="adm-pill {{ request('estado') === 'entregado' ? 'adm-pill-approved' : '' }}"
            style="{{ request('estado') !== 'entregado' ? 'background: rgba(0,212,255,.05); color: var(--muted); border: 1px solid var(--border);' : '' }}">Entregados</a>
     </div>
@@ -33,6 +35,7 @@
         'pendiente_aprobacion' => ['label' => 'Por aprobar', 'color' => '#f59e0b'],
         'pagado_parcial' => ['label' => 'Pag. parcial', 'color' => '#a78bfa'],
         'preparando' => ['label' => 'Preparando', 'color' => '#00d4ff'],
+        'en_proceso_envio' => ['label' => 'En envío', 'color' => '#fb923c'],
         'enviado' => ['label' => 'Enviados', 'color' => '#3b82f6'],
         'entregado' => ['label' => 'Entregados', 'color' => '#10b981'],
         'cancelado' => ['label' => 'Cancelados', 'color' => '#f43f5e'],
@@ -87,6 +90,7 @@
                             'pendiente_aprobacion' => 'adm-pill-pending',
                             'pagado_parcial' => 'adm-pill-pending',
                             'preparando' => 'adm-pill-pending',
+                            'en_proceso_envio' => 'adm-pill-pending',
                             'enviado' => 'adm-pill-pending',
                             'entregado' => 'adm-pill-approved',
                             'cancelado' => 'adm-pill-rejected',

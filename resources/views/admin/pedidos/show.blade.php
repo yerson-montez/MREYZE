@@ -122,24 +122,27 @@
         @endif
 
         {{-- Actualizar estado --}}
-        <div class="bg-white rounded-xl border p-5">
+        <div class="bg-white rounded-xl border p-5 mb-4">
             <h2 class="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-3">Actualizar estado</h2>
-            <form action="{{ route('admin.pedidos.estado', $pedido) }}" method="POST"
-                  class="flex gap-3 items-center">
+            <form action="{{ route('admin.pedidos.estado', $pedido) }}" method="POST">
                 @csrf
                 @method('PATCH')
-                <select name="estado"
-                    class="flex-1 border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500">
-                    @foreach (['pendiente_pago','pendiente_aprobacion','pagado_parcial','preparando','enviado','entregado','cancelado'] as $estado)
-                        <option value="{{ $estado }}" @selected($pedido->estado === $estado)>
-                            {{ ucfirst(str_replace('_', ' ', $estado)) }}
-                        </option>
-                    @endforeach
-                </select>
-                <button type="submit"
-                    class="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-lg text-sm font-medium transition whitespace-nowrap">
-                    Guardar cambio
-                </button>
+                <div class="flex gap-3 items-start mb-3">
+                    <select name="estado"
+                        class="flex-1 border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500">
+                        @foreach (['pendiente_pago','pendiente_aprobacion','pagado_parcial','preparando','en_proceso_envio','enviado','entregado','cancelado'] as $estado)
+                            <option value="{{ $estado }}" @selected($pedido->estado === $estado)>
+                                {{ ucfirst(str_replace('_', ' ', $estado)) }}
+                            </option>
+                        @endforeach
+                    </select>
+                    <button type="submit"
+                        class="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-lg text-sm font-medium transition whitespace-nowrap">
+                        Guardar cambio
+                    </button>
+                </div>
+                <textarea name="descripcion" rows="2" placeholder="Descripción del cambio (opcional)…"
+                    class="w-full border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500"></textarea>
             </form>
             @if ($pedido->estado === 'entregado' && $pedido->entregado_at)
             <p class="text-xs text-gray-400 mt-2">
@@ -147,6 +150,43 @@
             </p>
             @endif
         </div>
+
+        {{-- Historial de estados --}}
+        @php
+            $historial = $pedido->estados()->latest()->get();
+            $estadoLabels = [
+                'pendiente_pago' => 'Pendiente de pago',
+                'pendiente_aprobacion' => 'Pendiente de aprobación',
+                'pagado_parcial' => 'Pago aprobado',
+                'preparando' => 'Preparando pedido',
+                'en_proceso_envio' => 'En proceso de envío',
+                'enviado' => 'Enviado',
+                'entregado' => 'Entregado',
+                'cancelado' => 'Cancelado',
+            ];
+        @endphp
+        @if ($historial->count() > 0)
+        <div class="bg-white rounded-xl border p-5">
+            <h2 class="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-3">Historial de estados</h2>
+            <div class="space-y-2">
+                @foreach ($historial as $h)
+                <div class="flex items-start gap-3 text-sm border-b border-gray-100 pb-2 last:border-0">
+                    <div class="w-2 h-2 rounded-full mt-1.5 shrink-0
+                        {{ $h->estado === 'cancelado' ? 'bg-red-500' : 'bg-blue-500' }}"></div>
+                    <div class="flex-1">
+                        <div class="flex justify-between">
+                            <span class="font-medium text-gray-800">{{ $estadoLabels[$h->estado] ?? ucfirst(str_replace('_', ' ', $h->estado)) }}</span>
+                            <span class="text-xs text-gray-400">{{ $h->created_at->format('d/m/Y H:i') }}</span>
+                        </div>
+                        @if ($h->descripcion)
+                        <p class="text-gray-500 text-xs mt-0.5">{{ $h->descripcion }}</p>
+                        @endif
+                    </div>
+                </div>
+                @endforeach
+            </div>
+        </div>
+        @endif
 
     </div>
 </x-admin-layout>

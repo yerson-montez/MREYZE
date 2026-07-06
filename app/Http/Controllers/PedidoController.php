@@ -62,4 +62,19 @@ class PedidoController extends Controller
 
         return view('pedidos.mis', compact('pedidos'));
     }
+
+    public function show(Pedido $pedido)
+    {
+        if ($pedido->user_id !== auth()->id()) {
+            abort(403);
+        }
+
+        $pedido->load([
+            'producto',
+            'pagos' => fn ($q) => $q->latest(),
+            'estados',
+        ]);
+
+        return view('pedidos.show', compact('pedido'));
+    }
 }

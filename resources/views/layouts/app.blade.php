@@ -311,6 +311,7 @@
                         </div>
                         <div class="nav-user-dropdown" id="userDropdown">
                             <a href="{{ route('profile.edit') }}">Mi perfil</a>
+                            <a href="{{ route('pedidos.mis') }}">Mis pedidos</a>
                             <form method="POST" action="{{ route('logout') }}">
                                 @csrf
                                 <button type="submit">Cerrar sesión</button>
@@ -386,6 +387,7 @@
             <div class="nav-mobile-actions">
                 @auth
                     <a href="{{ route('profile.edit') }}" class="nav-mobile-action">Mi perfil</a>
+                    <a href="{{ route('pedidos.mis') }}" class="nav-mobile-action">Mis pedidos</a>
                     <a href="{{ url('/welcome') }}" class="nav-mobile-action primary">Mi Dashboard</a>
                     <form method="POST" action="{{ route('logout') }}" class="nav-mobile-action" style="padding:0;">
                         @csrf

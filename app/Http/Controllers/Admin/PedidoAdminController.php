@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Pedido;
+use App\Models\PedidoEstado;
 use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
@@ -23,13 +24,14 @@ class PedidoAdminController extends Controller
             ->withQueryString();
 
         $totales = [
-            'pendiente_pago'     => Pedido::where('estado', 'pendiente_pago')->count(),
+            'pendiente_pago'       => Pedido::where('estado', 'pendiente_pago')->count(),
             'pendiente_aprobacion' => Pedido::where('estado', 'pendiente_aprobacion')->count(),
-            'pagado_parcial'     => Pedido::where('estado', 'pagado_parcial')->count(),
-            'preparando'         => Pedido::where('estado', 'preparando')->count(),
-            'enviado'            => Pedido::where('estado', 'enviado')->count(),
-            'entregado'          => Pedido::where('estado', 'entregado')->count(),
-            'cancelado'          => Pedido::where('estado', 'cancelado')->count(),
+            'pagado_parcial'       => Pedido::where('estado', 'pagado_parcial')->count(),
+            'preparando'           => Pedido::where('estado', 'preparando')->count(),
+            'en_proceso_envio'     => Pedido::where('estado', 'en_proceso_envio')->count(),
+            'enviado'              => Pedido::where('estado', 'enviado')->count(),
+            'entregado'            => Pedido::where('estado', 'entregado')->count(),
+            'cancelado'            => Pedido::where('estado', 'cancelado')->count(),
         ];
 
         $ventasHoy = Pedido::whereDate('created_at', today())->count();
@@ -46,13 +48,22 @@ class PedidoAdminController extends Controller
     public function actualizarEstado(Request $request, Pedido $pedido): RedirectResponse
     {
         $request->validate([
-            'estado' => 'required|in:pendiente_pago,pendiente_aprobacion,pagado_parcial,preparando,enviado,entregado,cancelado',
+            'estado'      => 'required|in:pendiente_pago,pendiente_aprobacion,pagado_parcial,preparando,en_proceso_envio,enviado,entregado,cancelado',
+            'descripcion' => 'nullable|string|max:500',
         ]);
 
         $estadoAnterior = $pedido->estado;
-        $pedido->update(['estado' => $request->estado]);
+        $nuevoEstado    = $request->estado;
 
-        if ($estadoAnterior !== 'entregado' && $request->estado === 'entregado') {
+        $pedido->update(['estado' => $nuevoEstado]);
+
+        // Guardar en historial
+        $pedido->estados()->create([
+            'estado'      => $nuevoEstado,
+            'descripcion' => $request->descripcion,
+        ]);
+
+        if ($estadoAnterior !== 'entregado' && $nuevoEstado === 'entregado') {
             $pedido->procesarComision();
         }
 
