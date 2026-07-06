@@ -158,10 +158,17 @@
         <a href="{{ url('/tienda') }}">Tienda</a>
         <a href="{{ url('/blog') }}">Blog</a>
         <a href="{{ url('/contacto') }}">Contacto</a>
-
-        <div class="nav-mobile-divider"></div>
-
+        
         @auth
+            @php
+                $colaborador = \App\Models\Colaborador::where('email', auth()->user()->email)->first();
+            @endphp
+            @if($colaborador)
+                <a href="{{ route('colaborador.link') }}">🔗 Mi link</a>
+            @else
+                <a href="{{ route('colaboradores.solicitud') }}">Quiero ser colaborador</a>
+            @endif
+            <div class="nav-mobile-divider"></div>
             <a href="{{ url('/dashboard') }}">Mi Dashboard</a>
         @else
             <a href="{{ route('auth.google') }}">

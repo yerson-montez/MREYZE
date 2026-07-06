@@ -371,6 +371,16 @@
                     <span class="nav-mobile-icon"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg></span>
                     Contacto
                 </a>
+                @auth
+                    @php
+                        $colaborador = \App\Models\Colaborador::where('email', auth()->user()->email)->first();
+                    @endphp
+                    @if($colaborador)
+                        <a href="{{ route('colaborador.link') }}" class="nav-mobile-link">🔗 Mi link</a>
+                    @else
+                        <a href="{{ route('colaboradores.solicitud') }}" class="nav-mobile-link">Quiero ser colaborador</a>
+                    @endif
+                @endauth
             </div>
             <div class="nav-mobile-divider"></div>
             <div class="nav-mobile-actions">
