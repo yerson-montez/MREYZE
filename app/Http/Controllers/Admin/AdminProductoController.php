@@ -4,8 +4,10 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Producto;
+use App\Models\ProductoImagen;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 
 class AdminProductoController extends Controller
@@ -50,7 +52,19 @@ class AdminProductoController extends Controller
         $data['activo'] = $request->boolean('activo');
         $data['slug']   = Str::slug($data['nombre']);
 
-        Producto::create($data);
+        DB::transaction(function () use ($data, $request) {
+            $producto = Producto::create($data);
+
+            $this->guardarImagenes($producto, $request);
+
+            if ($request->hasFile('icono_imagen') && $producto->imagenes()->count() === 0) {
+                $producto->imagenes()->create([
+                    'ruta'        => $data['icono_imagen'],
+                    'orden'       => 0,
+                    'es_principal' => true,
+                ]);
+            }
+        });
 
         return redirect()
             ->route('admin.productos.index')
@@ -59,6 +73,7 @@ class AdminProductoController extends Controller
 
     public function edit(Producto $producto)
     {
+        $producto->load('imagenes');
         return view('admin.productos.form', compact('producto'));
     }
 
@@ -66,18 +81,53 @@ class AdminProductoController extends Controller
     {
         $data = $this->validar($request, $producto->id);
 
-        // ── Subida de imagen (también en update) ──────────────────────
         if ($request->hasFile('icono_imagen')) {
-            // Eliminar imagen anterior si existe
             if ($producto->icono_imagen) {
                 Storage::disk('public')->delete($producto->icono_imagen);
             }
             $data['icono_imagen'] = $request->file('icono_imagen')
                 ->store('productos', 'public');
         }
-        // Si NO se sube imagen nueva, conservamos la existente (no tocamos el campo)
 
-        $producto->update($data);
+        DB::transaction(function () use ($producto, $data, $request) {
+            $producto->update($data);
+
+            // Eliminar imágenes marcadas para borrar
+            if ($request->has('eliminar_imagenes')) {
+                foreach ($request->eliminar_imagenes as $imagenId) {
+                    $imagen = ProductoImagen::find($imagenId);
+                    if ($imagen && $imagen->producto_id === $producto->id) {
+                        Storage::disk('public')->delete($imagen->ruta);
+                        $imagen->delete();
+                    }
+                }
+            }
+
+            // Subir nuevas imágenes
+            $this->guardarImagenes($producto, $request);
+
+            // Actualizar orden
+            if ($request->has('orden_imagenes')) {
+                foreach ($request->orden_imagenes as $orden => $imagenId) {
+                    ProductoImagen::where('id', $imagenId)
+                        ->where('producto_id', $producto->id)
+                        ->update(['orden' => $orden]);
+                }
+            }
+
+            // Cambiar imagen principal
+            if ($request->filled('imagen_principal')) {
+                $producto->imagenes()->update(['es_principal' => false]);
+                ProductoImagen::where('id', $request->imagen_principal)
+                    ->where('producto_id', $producto->id)
+                    ->update(['es_principal' => true]);
+            }
+
+            // Si no hay ninguna imagen principal y existen imágenes, marcar la primera
+            if ($producto->imagenes()->count() > 0 && !$producto->imagenes()->where('es_principal', true)->exists()) {
+                $producto->imagenes()->orderBy('orden')->first()->update(['es_principal' => true]);
+            }
+        });
 
         return redirect()->route('admin.productos.index')
             ->with('exito', 'Producto actualizado correctamente.');
@@ -85,12 +135,18 @@ class AdminProductoController extends Controller
 
     public function destroy(Producto $producto)
     {
-        // Eliminar imagen del storage al borrar producto
-        if ($producto->icono_imagen) {
-            Storage::disk('public')->delete($producto->icono_imagen);
-        }
+        DB::transaction(function () use ($producto) {
+            foreach ($producto->imagenes as $imagen) {
+                Storage::disk('public')->delete($imagen->ruta);
+            }
+            $producto->imagenes()->delete();
 
-        $producto->delete();
+            if ($producto->icono_imagen) {
+                Storage::disk('public')->delete($producto->icono_imagen);
+            }
+
+            $producto->delete();
+        });
 
         return redirect()->route('admin.productos.index')
             ->with('exito', 'Producto eliminado.');
@@ -116,6 +172,49 @@ class AdminProductoController extends Controller
         return back()->with('exito', 'Stock actualizado.');
     }
 
+    public function setPrincipal(ProductoImagen $imagen)
+    {
+        $imagen->producto->imagenes()->update(['es_principal' => false]);
+        $imagen->update(['es_principal' => true]);
+
+        return response()->json(['ok' => true]);
+    }
+
+    public function eliminarImagen(ProductoImagen $imagen)
+    {
+        Storage::disk('public')->delete($imagen->ruta);
+
+        if ($imagen->es_principal) {
+            $imagen->delete();
+            $primera = $imagen->producto->imagenes()->orderBy('orden')->first();
+            if ($primera) {
+                $primera->update(['es_principal' => true]);
+            }
+        } else {
+            $imagen->delete();
+        }
+
+        return back()->with('exito', 'Imagen eliminada.');
+    }
+
+    private function guardarImagenes(Producto $producto, Request $request): void
+    {
+        if (!$request->hasFile('nuevas_imagenes')) {
+            return;
+        }
+
+        $ordenMax = (int) $producto->imagenes()->max('orden');
+
+        foreach ($request->file('nuevas_imagenes') as $index => $archivo) {
+            $ruta = $archivo->store('productos', 'public');
+            $producto->imagenes()->create([
+                'ruta'        => $ruta,
+                'orden'       => $ordenMax + $index + 1,
+                'es_principal' => false,
+            ]);
+        }
+    }
+
     private function validar(Request $request, ?int $ignoreId = null): array
     {
         return $request->validate([
@@ -126,9 +225,15 @@ class AdminProductoController extends Controller
             'stock'           => 'required|integer|min:0',
             'categoria'       => 'required|in:iot,software,kits',
             'estado'          => 'required|in:nuevo,disponible,agotado',
-            'icono_imagen'    => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
+            'icono_imagen'    => 'nullable|image|mimes:jpg,jpeg,png,webp|max:5120',
             'icono_color'     => 'nullable|string|max:80',
             'activo'          => 'boolean',
+            'nuevas_imagenes'       => 'nullable|array|max:10',
+            'nuevas_imagenes.*'     => 'image|mimes:jpg,jpeg,png,webp|max:5120',
+            'eliminar_imagenes'     => 'nullable|array',
+            'eliminar_imagenes.*'   => 'integer|exists:producto_imagenes,id',
+            'orden_imagenes'        => 'nullable|array',
+            'imagen_principal'      => 'nullable|integer|exists:producto_imagenes,id',
         ]);
     }
 }

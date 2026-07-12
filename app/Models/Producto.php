@@ -4,6 +4,8 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Support\Str;
 
 class Producto extends Model
@@ -22,7 +24,6 @@ class Producto extends Model
         'activo'          => 'boolean',
     ];
 
-    // Auto-genera slug desde el nombre si no se provee
     protected static function booted(): void
     {
         static::creating(function (Producto $producto) {
@@ -32,19 +33,57 @@ class Producto extends Model
         });
     }
 
-    // Scope: solo activos
+    // ── Relaciones ─────────────────────────────────────────────
+
+    public function imagenes(): HasMany
+    {
+        return $this->hasMany(ProductoImagen::class)->orderBy('orden');
+    }
+
+    public function imagenPrincipal(): HasOne
+    {
+        return $this->hasOne(ProductoImagen::class)->where('es_principal', true);
+    }
+
+    public function pedidos(): HasMany
+    {
+        return $this->hasMany(Pedido::class);
+    }
+
+    // ── Accessors ──────────────────────────────────────────────
+
+    public function getImagenPrincipalUrlAttribute(): ?string
+    {
+        $img = $this->imagenPrincipal()->first();
+        if ($img) {
+            return asset('storage/' . $img->ruta);
+        }
+        if ($this->icono_imagen) {
+            return asset('storage/' . $this->icono_imagen);
+        }
+        return null;
+    }
+
+    public function getRutaImagenPrincipalAttribute(): ?string
+    {
+        $img = $this->imagenPrincipal()->first();
+        return $img?->ruta ?? $this->icono_imagen;
+    }
+
+    // ── Scopes ─────────────────────────────────────────────────
+
     public function scopeActivos($query)
     {
         return $query->where('activo', true);
     }
 
-    // Scope: por categoría
     public function scopeCategoria($query, string $cat)
     {
         return $query->where('categoria', $cat);
     }
 
-    // Determina el estado automáticamente según el stock
+    // ── Lógica ─────────────────────────────────────────────────
+
     public function actualizarEstado(): void
     {
         if ($this->stock === 0) {
@@ -56,7 +95,8 @@ class Producto extends Model
         }
     }
 
-    // Helpers de presentación
+    // ── Helpers ────────────────────────────────────────────────
+
     public function getPrecioFormateadoAttribute(): string
     {
         return 'S/ ' . number_format($this->precio, 2);

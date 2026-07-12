@@ -12,6 +12,8 @@ use App\Http\Controllers\Admin\MetodoPagoController;
 use App\Http\Controllers\Admin\PedidoAdminController;
 use App\Http\Controllers\Admin\PagoAdminController;
 use App\Http\Controllers\Admin\ColaboradorAdminController;
+use App\Http\Controllers\Admin\AdminProyectoController;
+use App\Http\Controllers\ProyectoController;
 use App\Http\Controllers\SolicitudColaboradorController;
 
 // ─── HOME ────────────────────────────────────────────────────────
@@ -26,7 +28,8 @@ Route::get('/test-pedidos', function () {
 // ─── PÁGINAS ESTÁTICAS ──────────────────────────────────────────
 Route::get('/nosotros',  fn() => view('sections.nosotros'))->name('nosotros');
 Route::get('/servicios', fn() => view('sections.servicios'))->name('servicios');
-Route::get('/proyectos', fn() => view('sections.proyectos'))->name('proyectos');
+Route::get('/proyectos', [ProyectoController::class, 'index'])->name('proyectos');
+Route::get('/proyectos/{proyecto:slug}', [ProyectoController::class, 'show'])->name('proyectos.show');
 Route::get('/blog',      fn() => view('sections.blog'))->name('blog');
 Route::get('/contacto',  fn() => view('sections.contacto'))->name('contacto');
 
@@ -94,6 +97,9 @@ Route::prefix('admin')
         Route::patch('/productos/{producto}/toggle',  [AdminProductoController::class, 'toggleActivo'])->name('productos.toggle');
         Route::patch('/productos/{producto}/stock',   [AdminProductoController::class, 'actualizarStock'])->name('productos.stock');
 
+        Route::patch('/productos/imagenes/{imagen}/principal', [AdminProductoController::class, 'setPrincipal'])->name('productos.imagenes.principal');
+        Route::delete('/productos/imagenes/{imagen}',         [AdminProductoController::class, 'eliminarImagen'])->name('productos.imagenes.destroy');
+
         Route::get('pedidos',                    [PedidoAdminController::class, 'index'])->name('pedidos.index');
         Route::get('pedidos/{pedido}',           [PedidoAdminController::class, 'show'])->name('pedidos.show');
         Route::patch('pedidos/{pedido}/estado',  [PedidoAdminController::class, 'actualizarEstado'])->name('pedidos.estado');
@@ -111,6 +117,16 @@ Route::prefix('admin')
         Route::put('colaboradores/{colaborador}',            [ColaboradorAdminController::class, 'update'])->name('colaboradores.update');
         Route::patch('colaboradores/{colaborador}/aprobar',  [ColaboradorAdminController::class, 'aprobar'])->name('colaboradores.aprobar');
         Route::patch('colaboradores/{colaborador}/rechazar', [ColaboradorAdminController::class, 'rechazar'])->name('colaboradores.rechazar');
+
+        Route::get('/proyectos',                      [AdminProyectoController::class, 'index'])->name('proyectos.index');
+        Route::get('/proyectos/crear',                [AdminProyectoController::class, 'create'])->name('proyectos.create');
+        Route::post('/proyectos',                     [AdminProyectoController::class, 'store'])->name('proyectos.store');
+        Route::get('/proyectos/{proyecto}/editar',    [AdminProyectoController::class, 'edit'])->name('proyectos.edit');
+        Route::put('/proyectos/{proyecto}',           [AdminProyectoController::class, 'update'])->name('proyectos.update');
+        Route::delete('/proyectos/{proyecto}',        [AdminProyectoController::class, 'destroy'])->name('proyectos.destroy');
+        Route::patch('/proyectos/{proyecto}/toggle',  [AdminProyectoController::class, 'toggleVisibilidad'])->name('proyectos.toggle');
+        Route::patch('/proyectos/imagenes/{imagen}/principal', [AdminProyectoController::class, 'setPrincipal'])->name('proyectos.imagenes.principal');
+        Route::delete('/proyectos/imagenes/{imagen}',         [AdminProyectoController::class, 'eliminarImagen'])->name('proyectos.imagenes.destroy');
     });
 
 Route::get('/dashboard', fn() => view('dashboard'))->middleware('auth')->name('dashboard');

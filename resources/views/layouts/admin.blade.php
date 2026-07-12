@@ -468,6 +468,12 @@
             @endif
         </a>
 
+        <div class="adm-nav-group">Contenido</div>
+
+        <a href="{{ route('admin.proyectos.index') }}" class="adm-nav-link {{ request()->routeIs('admin.proyectos*') ? 'active' : '' }}">
+            <span class="adm-nav-icon">📁</span> Proyectos
+        </a>
+
         <a href="{{ route('admin.metodos-pago.index') }}" class="adm-nav-link {{ request()->routeIs('admin.metodos-pago*') ? 'active' : '' }}">
             <span class="adm-nav-icon">💳</span> Métodos de Pago
         </a>

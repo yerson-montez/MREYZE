@@ -121,18 +121,12 @@
       $datosYape = $yape?->datos ?? [];
       // Datos fijos de Yape (usados como respaldo si no vienen configurados en BD)
       $numeroYape  = $datosYape['numero']  ?? '930910949';
-      $titularYape = $datosYape['titular'] ?? 'Yerson Montez Quispe';
+      $titularYape = $datosYape['titular'] ?? 'MREYZE AUOTOMATISACION Y SISTEMAS SAC';
     @endphp
     <div class="pago-card">
       <h2>Paga con Yape</h2>
       <div class="qr-wrap">
-        @if (!empty($datosYape['qr']))
-          <img src="{{ asset( $datosYape['qr'] ) }}" alt="Código QR Yape">
-        @else
-          <div style="width:200px;height:200px;border-radius:16px;background:rgba(74,144,217,.1);border:2px dashed rgba(74,144,217,.3);display:flex;align-items:center;justify-content:center;margin:0 auto 12px;font-size:.8rem;color:var(--ice-300);">
-            QR no configurado
-          </div>
-        @endif
+        <img src="{{ asset('img/Empresa.png') }}" alt="Código QR Yape">
         <div class="qr-num">{{ $numeroYape }}</div>
         <div class="qr-label">{{ $titularYape }}</div>
       </div>

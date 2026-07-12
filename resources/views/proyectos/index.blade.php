@@ -55,7 +55,7 @@
         font-size: 0.85rem;
         font-weight: 600;
         color: var(--accent);
-        border: 1px solid rgba(0,212,255,0.3);
+        border: 1px solid rgba(12, 142, 168, 0.3);
         text-decoration: none;
         transition: all 0.25s;
         white-space: nowrap;
@@ -96,8 +96,6 @@
         gap: 1.5rem;
     }
 
-    .proyecto-card.destacado { grid-column: span 2; }
-
     .proyecto-card {
         position: relative;
         background: rgba(13,31,60,0.6);
@@ -123,8 +121,6 @@
         align-items: center;
         justify-content: center;
     }
-
-    .proyecto-card.destacado .proyecto-preview { height: 220px; }
 
     .proyecto-preview-bg {
         position: absolute;
@@ -209,8 +205,6 @@
         margin-bottom: 0.5rem;
         letter-spacing: -0.01em;
     }
-
-    .proyecto-card.destacado .proyecto-nombre { font-size: 1.15rem; }
 
     .proyecto-desc {
         font-size: 0.83rem;
@@ -678,6 +672,24 @@
 
     .trust-item svg { width: 15px; height: 15px; color: #4ade80; flex-shrink: 0; }
 
+    .proyecto-preview-img {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        z-index: 1;
+    }
+
+    .inversion-card-header-img {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        z-index: 0;
+    }
+
     @keyframes pulse {
         0%, 100% { opacity: 1; }
         50%       { opacity: 0.4; }
@@ -685,19 +697,72 @@
 
     @media (max-width: 1024px) {
         .proyectos-grid { grid-template-columns: repeat(2, 1fr); }
-        .proyecto-card.destacado { grid-column: span 2; }
         .inversion-grid { grid-template-columns: repeat(2, 1fr); }
     }
 
     @media (max-width: 640px) {
         .proyectos-grid { grid-template-columns: 1fr; }
-        .proyecto-card.destacado { grid-column: span 1; }
         .proyectos-header { flex-direction: column; align-items: flex-start; }
         .inversion-grid { grid-template-columns: 1fr; }
         .invertir-cta-titulo { font-size: 1.4rem; }
         .invertir-trust { gap: 1rem; }
     }
 </style>
+
+@php
+    $catLabels = [
+        'automatizacion' => 'Automatización',
+        'iot'            => 'IoT',
+        'software'       => 'Software',
+    ];
+    $catCssClasses = [
+        'automatizacion' => 'auto',
+        'iot'            => 'iot',
+        'software'       => 'web',
+    ];
+    $catEmojis = [
+        'automatizacion' => '⚙️',
+        'iot'            => '📡',
+        'software'       => '💻',
+    ];
+    $catIconStyles = [
+        'automatizacion' => 'background:rgba(37,99,199,0.3);border:1px solid rgba(37,99,199,0.4)',
+        'iot'            => 'background:rgba(0,212,255,0.1);border:1px solid rgba(0,212,255,0.3)',
+        'software'       => 'background:rgba(20,184,166,0.1);border:1px solid rgba(20,184,166,0.3)',
+    ];
+    $catIconFills = [
+        'automatizacion' => 'rgba(122,184,245,0.9)',
+        'iot'            => 'rgba(0,212,255,0.9)',
+        'software'       => 'rgba(45,212,191,0.9)',
+    ];
+
+    $catInversionStyles = [
+        'automatizacion' => [
+            'header'  => 'background:linear-gradient(135deg, rgba(10,22,40,0.95) 0%, rgba(20,50,100,0.8) 100%)',
+            'bg'      => 'background:radial-gradient(ellipse at 50% 120%, rgba(37,99,199,0.4) 0%, transparent 60%)',
+            'icon'    => 'background:rgba(37,99,199,0.2);border:1px solid rgba(37,99,199,0.5)',
+            'cat'     => 'background:rgba(37,99,199,0.2);color:var(--ice-200);border:1px solid rgba(37,99,199,0.4)',
+            'fill'    => 'linear-gradient(90deg,#2563c7,#00d4ff)',
+            'fillName'=> 'Automatización Industrial',
+        ],
+        'iot' => [
+            'header'  => 'background:linear-gradient(135deg, rgba(10,22,40,0.95) 0%, rgba(0,50,40,0.8) 100%)',
+            'bg'      => 'background:radial-gradient(ellipse at 50% 120%, rgba(20,184,166,0.35) 0%, transparent 60%)',
+            'icon'    => 'background:rgba(20,184,166,0.15);border:1px solid rgba(20,184,166,0.4)',
+            'cat'     => 'background:rgba(20,184,166,0.15);color:#2dd4bf;border:1px solid rgba(20,184,166,0.3)',
+            'fill'    => 'linear-gradient(90deg,#0d9488,#2dd4bf)',
+            'fillName'=> 'IoT / Agro',
+        ],
+        'software' => [
+            'header'  => 'background:linear-gradient(135deg, rgba(10,22,40,0.95) 0%, rgba(40,20,80,0.8) 100%)',
+            'bg'      => 'background:radial-gradient(ellipse at 50% 120%, rgba(99,102,241,0.35) 0%, transparent 60%)',
+            'icon'    => 'background:rgba(99,102,241,0.15);border:1px solid rgba(99,102,241,0.4)',
+            'cat'     => 'background:rgba(99,102,241,0.15);color:#a5b4fc;border:1px solid rgba(99,102,241,0.3)',
+            'fill'    => 'linear-gradient(90deg,#6366f1,#a5b4fc)',
+            'fillName'=> 'Software / SaaS',
+        ],
+    ];
+@endphp
 
 <section class="proyectos" id="proyectos">
     <div class="proyectos-bg"></div>
@@ -720,121 +785,57 @@
 
         <div class="proyectos-filtros reveal">
             <button class="filtro-btn active" onclick="filtrarProyectos('todos', this)">Todos</button>
-            <button class="filtro-btn" onclick="filtrarProyectos('automatizacion', this)">Automatización</button>
-            <button class="filtro-btn" onclick="filtrarProyectos('iot', this)">IoT</button>
-            <button class="filtro-btn" onclick="filtrarProyectos('web', this)">Software</button>
+            @foreach($categorias as $cat)
+                @php
+                    $label = $catLabels[$cat] ?? ucfirst($cat);
+                    $cssClass = $catCssClasses[$cat] ?? 'web';
+                @endphp
+                <button class="filtro-btn" onclick="filtrarProyectos('{{ $cat }}', this)">{{ $label }}</button>
+            @endforeach
         </div>
 
         <div class="proyectos-grid" id="proyectosGrid">
 
-            <div class="proyecto-card destacado reveal" data-categoria="automatizacion">
-                <div class="proyecto-preview">
-                    <div class="proyecto-preview-bg">⚙️</div>
-                    <div class="proyecto-preview-icon" style="background:rgba(30,77,153,0.3);border:1px solid rgba(37,99,199,0.4)">
-                        <svg viewBox="0 0 24 24" fill="rgba(122,184,245,0.9)"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58z"/></svg>
+            @forelse($portafolio as $idx => $proyecto)
+                @php
+                    $cat = $proyecto->categoria;
+                    $tagClass = $catCssClasses[$cat] ?? 'web';
+                    $tagLabel = $catLabels[$cat] ?? ucfirst($cat);
+                    $emoji = $catEmojis[$cat] ?? '📁';
+                    $iconStyle = $catIconStyles[$cat] ?? 'background:rgba(74,144,217,0.1);border:1px solid rgba(74,144,217,0.3)';
+                    $iconFill = $catIconFills[$cat] ?? 'rgba(122,184,245,0.9)';
+                    $estadoClass = $proyecto->estado === 'completado' ? 'completado' : 'en-curso';
+                    $isDestacado = $idx === 0 && $proyecto->categoria === 'automatizacion';
+                    $revealClass = $idx <= 1 ? 'reveal' : ($idx === 2 ? 'reveal reveal-delay-1' : 'reveal reveal-delay-2');
+                @endphp
+                <a href="{{ route('proyectos.show', $proyecto->slug) }}" class="proyecto-card{{ $isDestacado ? ' destacado' : '' }} {{ $revealClass }}" data-categoria="{{ $cat }}" style="text-decoration:none;color:inherit">
+                    <div class="proyecto-preview">
+                        @if($proyecto->imagen_principal_url)
+                            <img src="{{ $proyecto->imagen_principal_url }}" alt="{{ $proyecto->titulo }}" class="proyecto-preview-img" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+                            <div class="proyecto-preview-bg" style="display:none">{{ $emoji }}</div>
+                        @else
+                            <div class="proyecto-preview-bg">{{ $emoji }}</div>
+                        @endif
+                        <div class="proyecto-preview-icon" style="{{ $iconStyle }}">
+                            <svg viewBox="0 0 24 24" fill="{{ $iconFill }}"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58z"/></svg>
+                        </div>
+                        <div class="proyecto-tags">
+                            <span class="proyecto-tag {{ $tagClass }}">{{ $tagLabel }}</span>
+                        </div>
+                        <div class="proyecto-status {{ $estadoClass }}">
+                            <span class="proyecto-status-dot"></span> {{ ucfirst($proyecto->estado) }}
+                        </div>
                     </div>
-                    <div class="proyecto-tags">
-                        <span class="proyecto-tag auto">Automatización</span>
-                        <span class="proyecto-tag iot">IoT</span>
+                    <div class="proyecto-body">
+                        <div class="proyecto-nombre">{{ $proyecto->titulo }}</div>
+                        <p class="proyecto-desc">{{ $proyecto->descripcion_corta }}</p>
                     </div>
-                    <div class="proyecto-status completado">
-                        <span class="proyecto-status-dot"></span> Completado
-                    </div>
+                </a>
+            @empty
+                <div style="grid-column:1/-1;text-align:center;padding:4rem 1rem;color:var(--ice-300)">
+                    <p style="font-size:1rem;">No hay proyectos en el portafolio por el momento.</p>
                 </div>
-                <div class="proyecto-body">
-                    <div class="proyecto-nombre">Sistema SCADA de Monitoreo Industrial</div>
-                    <p class="proyecto-desc">Implementación completa de un sistema SCADA para planta de manufactura. Integración de PLCs, sensores de temperatura, presión y flujo con visualización en tiempo real y alertas automáticas vía WhatsApp y correo.</p>
-                    <div class="proyecto-metrics">
-                        <div class="proyecto-metric">
-                            <div class="proyecto-metric-val">40<span>%</span></div>
-                            <div class="proyecto-metric-label">Reducción de paradas</div>
-                        </div>
-                        <div class="proyecto-metric">
-                            <div class="proyecto-metric-val">12<span> sen.</span></div>
-                            <div class="proyecto-metric-label">Sensores integrados</div>
-                        </div>
-                        <div class="proyecto-metric">
-                            <div class="proyecto-metric-val">24<span>/7</span></div>
-                            <div class="proyecto-metric-label">Monitoreo continuo</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="proyecto-card reveal reveal-delay-1" data-categoria="iot">
-                <div class="proyecto-preview">
-                    <div class="proyecto-preview-bg">📡</div>
-                    <div class="proyecto-preview-icon" style="background:rgba(0,212,255,0.1);border:1px solid rgba(0,212,255,0.3)">
-                        <svg viewBox="0 0 24 24" fill="rgba(0,212,255,0.9)"><path d="M1 9l2 2c4.97-4.97 13.03-4.97 18 0l2-2C16.93 2.93 7.08 2.93 1 9zm8 8l3 3 3-3c-1.65-1.66-4.34-1.66-6 0zm-4-4l2 2c2.76-2.76 7.24-2.76 10 0l2-2C15.14 9.14 8.87 9.14 5 13z"/></svg>
-                    </div>
-                    <div class="proyecto-tags"><span class="proyecto-tag iot">IoT</span></div>
-                    <div class="proyecto-status completado"><span class="proyecto-status-dot"></span> Completado</div>
-                </div>
-                <div class="proyecto-body">
-                    <div class="proyecto-nombre">Red de Sensores Agrícola con ESP32</div>
-                    <p class="proyecto-desc">Sistema de monitoreo de humedad, temperatura y pH del suelo para invernadero. Dashboard web en tiempo real con historial y alertas.</p>
-                    <div class="proyecto-metrics">
-                        <div class="proyecto-metric">
-                            <div class="proyecto-metric-val">8<span> nod.</span></div>
-                            <div class="proyecto-metric-label">Nodos inalámbricos</div>
-                        </div>
-                        <div class="proyecto-metric">
-                            <div class="proyecto-metric-val">30<span>%</span></div>
-                            <div class="proyecto-metric-label">Ahorro de agua</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="proyecto-card reveal reveal-delay-1" data-categoria="web">
-                <div class="proyecto-preview">
-                    <div class="proyecto-preview-bg">💻</div>
-                    <div class="proyecto-preview-icon" style="background:rgba(20,184,166,0.1);border:1px solid rgba(20,184,166,0.3)">
-                        <svg viewBox="0 0 24 24" fill="rgba(45,212,191,0.9)"><path d="M9.4 16.6L4.8 12l4.6-4.6L8 6l-6 6 6 6 1.4-1.4zm5.2 0l4.6-4.6-4.6-4.6L16 6l6 6-6 6-1.4-1.4z"/></svg>
-                    </div>
-                    <div class="proyecto-tags"><span class="proyecto-tag web">Software</span></div>
-                    <div class="proyecto-status en-curso"><span class="proyecto-status-dot"></span> En curso</div>
-                </div>
-                <div class="proyecto-body">
-                    <div class="proyecto-nombre">Sistema de Gestión Empresarial</div>
-                    <p class="proyecto-desc">ERP personalizado con módulos de inventario, ventas, facturación y reportes. Integración con SUNAT para factura electrónica.</p>
-                    <div class="proyecto-metrics">
-                        <div class="proyecto-metric">
-                            <div class="proyecto-metric-val">5<span> mod.</span></div>
-                            <div class="proyecto-metric-label">Módulos integrados</div>
-                        </div>
-                        <div class="proyecto-metric">
-                            <div class="proyecto-metric-val">60<span>%</span></div>
-                            <div class="proyecto-metric-label">Tiempo ahorrado</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="proyecto-card reveal reveal-delay-2" data-categoria="automatizacion">
-                <div class="proyecto-preview">
-                    <div class="proyecto-preview-bg">🏭</div>
-                    <div class="proyecto-preview-icon" style="background:rgba(99,102,241,0.1);border:1px solid rgba(99,102,241,0.3)">
-                        <svg viewBox="0 0 24 24" fill="rgba(165,180,252,0.9)"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4z"/></svg>
-                    </div>
-                    <div class="proyecto-tags"><span class="proyecto-tag auto">Automatización</span></div>
-                    <div class="proyecto-status completado"><span class="proyecto-status-dot"></span> Completado</div>
-                </div>
-                <div class="proyecto-body">
-                    <div class="proyecto-nombre">Control de Línea de Producción PLC</div>
-                    <p class="proyecto-desc">Automatización de línea de envasado con PLC Siemens S7-1200. Control de velocidad, conteo de productos y parada de emergencia.</p>
-                    <div class="proyecto-metrics">
-                        <div class="proyecto-metric">
-                            <div class="proyecto-metric-val">3<span>x</span></div>
-                            <div class="proyecto-metric-label">Mayor producción</div>
-                        </div>
-                        <div class="proyecto-metric">
-                            <div class="proyecto-metric-val">0<span> err.</span></div>
-                            <div class="proyecto-metric-label">Errores en 6 meses</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            @endforelse
 
         </div>{{-- /proyectos-grid --}}
 
@@ -842,6 +843,7 @@
         {{-- ══════════════════════════════════
              DIVISOR
         ══════════════════════════════════ --}}
+        @if($inversion->count())
         <div class="seccion-divisor reveal">
             <div class="seccion-divisor-line"></div>
             <div class="seccion-divisor-badge">
@@ -870,154 +872,88 @@
         {{-- Tarjetas de proyectos de inversión --}}
         <div class="inversion-grid">
 
-            {{-- Proyecto 1: SCADA Minero --}}
-            <div class="inversion-card destacada reveal">
-                <span class="inversion-badge-top destacado">⭐ Destacado</span>
-                <div class="inversion-card-header" style="background: linear-gradient(135deg, rgba(10,22,40,0.95) 0%, rgba(20,50,100,0.8) 100%);">
-                    <div class="inversion-card-header-bg" style="background: radial-gradient(ellipse at 50% 120%, rgba(37,99,199,0.4) 0%, transparent 60%);"></div>
-                    <div class="inversion-card-icon-wrap" style="background:rgba(37,99,199,0.2);border:1px solid rgba(37,99,199,0.5)">
-                        <svg viewBox="0 0 24 24" fill="rgba(122,184,245,0.95)"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58z"/></svg>
+            @foreach($inversion as $idx => $inv)
+                @php
+                    $cat = $inv->categoria;
+                    $invStyle = $catInversionStyles[$cat] ?? $catInversionStyles['software'];
+                    $emoji = $catEmojis[$cat] ?? '📁';
+                    $badgeClass = $inv->inversion_estado === 'abierto' ? 'abierto' : 'pronto';
+                    $badgeLabel = $inv->inversion_estado === 'abierto'
+                        ? '● Abierto'
+                        : ($inv->inversion_etiqueta ?: '◷ Próximamente');
+                    $esDestacada = $inv->inversion_estado === 'abierto' && $inv->inversion_porcentaje_financiado >= 50;
+                    $revealDelay = $idx === 0 ? 'reveal' : ($idx === 1 ? 'reveal reveal-delay-1' : 'reveal reveal-delay-2');
+                    $btnClass = $inv->inversion_estado === 'abierto' ? '' : ' pronto';
+                    $btnText = $inv->inversion_estado === 'abierto'
+                        ? 'Quiero invertir en este proyecto'
+                        : 'Notificarme cuando abra';
+                    $whatsappLink = $inv->whatsapp_link ?? '#';
+                @endphp
+                <div class="inversion-card{{ $esDestacada ? ' destacada' : '' }} {{ $revealDelay }}">
+                    <span class="inversion-badge-top {{ $badgeClass }}">{{ $badgeLabel }}</span>
+                    <div class="inversion-card-header" style="{{ $invStyle['header'] }}">
+                        <div class="inversion-card-header-bg" style="{{ $invStyle['bg'] }}"></div>
+                        @if($inv->imagen_principal_url)
+                            <img src="{{ $inv->imagen_principal_url }}" alt="{{ $inv->titulo }}" class="inversion-card-header-img" onerror="this.style.display='none'">
+                        @endif
+                        <div class="inversion-card-icon-wrap" style="{{ $invStyle['icon'] }}">
+                            <svg viewBox="0 0 24 24" fill="{{ $catIconFills[$cat] ?? 'rgba(122,184,245,0.95)' }}"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58z"/></svg>
+                        </div>
+                        <span class="inversion-card-categoria" style="{{ $invStyle['cat'] }}">{{ $invStyle['fillName'] }}</span>
                     </div>
-                    <span class="inversion-card-categoria" style="background:rgba(37,99,199,0.2);color:var(--ice-200);border:1px solid rgba(37,99,199,0.4)">Automatización Industrial</span>
-                </div>
-                <div class="inversion-card-body">
-                    <div class="inversion-card-nombre">SCADA para Planta Minera — Fase 2</div>
-                    <p class="inversion-card-desc">Expansión del sistema SCADA existente hacia una planta minera mediana. Incluye integración de 20+ sensores, dashboard en tiempo real, reportes automáticos y alertas críticas por SMS y WhatsApp.</p>
-                    <div class="inversion-financiamiento">
-                        <div class="inversion-financiamiento-header">
-                            <span>Financiado</span>
-                            <strong>65%</strong>
+                    <div class="inversion-card-body">
+                        <div class="inversion-card-nombre">{{ $inv->titulo }}</div>
+                        <p class="inversion-card-desc">{{ $inv->descripcion_corta }}</p>
+                        <div class="inversion-financiamiento">
+                            <div class="inversion-financiamiento-header">
+                                <span>Financiado</span>
+                                <strong>{{ $inv->inversion_porcentaje_financiado }}%</strong>
+                            </div>
+                            <div class="inversion-barra-bg">
+                                <div class="inversion-barra-fill" style="width:{{ $inv->inversion_porcentaje_financiado }}%;background:{{ $invStyle['fill'] }};"></div>
+                            </div>
                         </div>
-                        <div class="inversion-barra-bg">
-                            <div class="inversion-barra-fill" style="width:65%;background:linear-gradient(90deg,#2563c7,#00d4ff);"></div>
-                        </div>
-                    </div>
-                    <div class="inversion-datos">
-                        <div class="inversion-dato">
-                            <div class="inversion-dato-val amarillo">S/ 18<span>,000</span></div>
-                            <div class="inversion-dato-label">Inversión total</div>
-                        </div>
-                        <div class="inversion-dato">
-                            <div class="inversion-dato-val">S/ 6<span>,300</span></div>
-                            <div class="inversion-dato-label">Disponible aún</div>
-                        </div>
-                        <div class="inversion-dato">
-                            <div class="inversion-dato-val">5<span> meses</span></div>
-                            <div class="inversion-dato-label">Tiempo de ejecución</div>
-                        </div>
-                        <div class="inversion-dato">
-                            <div class="inversion-dato-val">ROI <span>~18%</span></div>
-                            <div class="inversion-dato-label">Retorno estimado</div>
-                        </div>
-                    </div>
-                </div>
-                <div class="inversion-card-footer">
-                    <a href="https://t.me/+6k2JGfEJzvY1ZWNh" target="_blank" rel="noopener noreferrer" class="btn-invertir">
-                        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/></svg>
-                        Quiero invertir en este proyecto
-                    </a>
-                </div>
-            </div>
-
-            {{-- Proyecto 2: App IoT Agrícola --}}
-            <div class="inversion-card reveal reveal-delay-1">
-                <span class="inversion-badge-top abierto">● Abierto</span>
-                <div class="inversion-card-header" style="background: linear-gradient(135deg, rgba(10,22,40,0.95) 0%, rgba(0,50,40,0.8) 100%);">
-                    <div class="inversion-card-header-bg" style="background: radial-gradient(ellipse at 50% 120%, rgba(20,184,166,0.35) 0%, transparent 60%);"></div>
-                    <div class="inversion-card-icon-wrap" style="background:rgba(20,184,166,0.15);border:1px solid rgba(20,184,166,0.4)">
-                        <svg viewBox="0 0 24 24" fill="rgba(45,212,191,0.95)"><path d="M17 8C8 10 5.9 16.17 3.82 21h2.13c1.03-2.17 2.23-4.17 3.72-5.67C10.6 17.9 12 19.9 12 22h2c0-3-1.63-5.68-3.49-7.8C11.77 13.4 14.08 12 17 12v3l4-4-4-4v3z"/></svg>
-                    </div>
-                    <span class="inversion-card-categoria" style="background:rgba(20,184,166,0.15);color:#2dd4bf;border:1px solid rgba(20,184,166,0.3)">IoT / Agro</span>
-                </div>
-                <div class="inversion-card-body">
-                    <div class="inversion-card-nombre">App Móvil de Monitoreo Agrícola IoT</div>
-                    <p class="inversion-card-desc">Aplicación móvil (Android/iOS) conectada a red de sensores ESP32 para agricultores. Control de riego automático, historial de cultivos y alertas de plagas. Escalable a múltiples fundos.</p>
-                    <div class="inversion-financiamiento">
-                        <div class="inversion-financiamiento-header">
-                            <span>Financiado</span>
-                            <strong>30%</strong>
-                        </div>
-                        <div class="inversion-barra-bg">
-                            <div class="inversion-barra-fill" style="width:30%;background:linear-gradient(90deg,#0d9488,#2dd4bf);"></div>
+                        <div class="inversion-datos">
+                            <div class="inversion-dato">
+                                <div class="inversion-dato-val amarillo">S/ <span>{{ number_format($inv->inversion_monto_total, 0, ',', ',') }}</span></div>
+                                <div class="inversion-dato-label">Inversión total</div>
+                            </div>
+                            <div class="inversion-dato">
+                                <div class="inversion-dato-val">S/ <span>{{ number_format($inv->inversion_monto_disponible, 0, ',', ',') }}</span></div>
+                                <div class="inversion-dato-label">Disponible aún</div>
+                            </div>
+                            <div class="inversion-dato">
+                                <div class="inversion-dato-val">{{ $inv->inversion_tiempo_estimado }}<span> meses</span></div>
+                                <div class="inversion-dato-label">Tiempo de ejecución</div>
+                            </div>
+                            <div class="inversion-dato">
+                                <div class="inversion-dato-val">ROI <span>~{{ $inv->inversion_roi }}%</span></div>
+                                <div class="inversion-dato-label">Retorno estimado</div>
+                            </div>
                         </div>
                     </div>
-                    <div class="inversion-datos">
-                        <div class="inversion-dato">
-                            <div class="inversion-dato-val amarillo">S/ 12<span>,500</span></div>
-                            <div class="inversion-dato-label">Inversión total</div>
-                        </div>
-                        <div class="inversion-dato">
-                            <div class="inversion-dato-val">S/ 8<span>,750</span></div>
-                            <div class="inversion-dato-label">Disponible aún</div>
-                        </div>
-                        <div class="inversion-dato">
-                            <div class="inversion-dato-val">4<span> meses</span></div>
-                            <div class="inversion-dato-label">Tiempo de ejecución</div>
-                        </div>
-                        <div class="inversion-dato">
-                            <div class="inversion-dato-val">ROI <span>~22%</span></div>
-                            <div class="inversion-dato-label">Retorno estimado</div>
-                        </div>
+                    <div class="inversion-card-footer">
+                        @if($inv->whatsapp_numero)
+                            <a href="{{ $inv->whatsapp_link }}" target="_blank" rel="noopener noreferrer" class="btn-invertir{{ $btnClass }}">
+                                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/></svg>
+                                {{ $btnText }}
+                            </a>
+                        @else
+                            <a href="https://t.me/+6k2JGfEJzvY1ZWNh" target="_blank" rel="noopener noreferrer" class="btn-invertir{{ $btnClass }}">
+                                @if($inv->inversion_estado === 'abierto')
+                                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/></svg>
+                                @else
+                                    <svg viewBox="0 0 24 24" fill="currentColor" style="width:16px;height:16px"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z"/></svg>
+                                @endif
+                                {{ $btnText }}
+                            </a>
+                        @endif
                     </div>
                 </div>
-                <div class="inversion-card-footer">
-                    <a href="https://t.me/+6k2JGfEJzvY1ZWNh" target="_blank" rel="noopener noreferrer" class="btn-invertir">
-                        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/></svg>
-                        Quiero invertir en este proyecto
-                    </a>
-                </div>
-            </div>
-
-            {{-- Proyecto 3: ERP SaaS --}}
-            <div class="inversion-card reveal reveal-delay-2">
-                <span class="inversion-badge-top pronto">◷ Próximamente</span>
-                <div class="inversion-card-header" style="background: linear-gradient(135deg, rgba(10,22,40,0.95) 0%, rgba(40,20,80,0.8) 100%);">
-                    <div class="inversion-card-header-bg" style="background: radial-gradient(ellipse at 50% 120%, rgba(99,102,241,0.35) 0%, transparent 60%);"></div>
-                    <div class="inversion-card-icon-wrap" style="background:rgba(99,102,241,0.15);border:1px solid rgba(99,102,241,0.4)">
-                        <svg viewBox="0 0 24 24" fill="rgba(165,180,252,0.95)"><path d="M9.4 16.6L4.8 12l4.6-4.6L8 6l-6 6 6 6 1.4-1.4zm5.2 0l4.6-4.6-4.6-4.6L16 6l6 6-6 6-1.4-1.4z"/></svg>
-                    </div>
-                    <span class="inversion-card-categoria" style="background:rgba(99,102,241,0.15);color:#a5b4fc;border:1px solid rgba(99,102,241,0.3)">Software / SaaS</span>
-                </div>
-                <div class="inversion-card-body">
-                    <div class="inversion-card-nombre">ERP SaaS para PYMEs Peruanas</div>
-                    <p class="inversion-card-desc">Plataforma de gestión empresarial en la nube con suscripción mensual. Módulos de ventas, inventario, RRHH y contabilidad. Integración nativa con SUNAT. Modelo de ingresos recurrentes escalable.</p>
-                    <div class="inversion-financiamiento">
-                        <div class="inversion-financiamiento-header">
-                            <span>Financiado</span>
-                            <strong>10%</strong>
-                        </div>
-                        <div class="inversion-barra-bg">
-                            <div class="inversion-barra-fill" style="width:10%;background:linear-gradient(90deg,#6366f1,#a5b4fc);"></div>
-                        </div>
-                    </div>
-                    <div class="inversion-datos">
-                        <div class="inversion-dato">
-                            <div class="inversion-dato-val amarillo">S/ 25<span>,000</span></div>
-                            <div class="inversion-dato-label">Inversión total</div>
-                        </div>
-                        <div class="inversion-dato">
-                            <div class="inversion-dato-val">S/ 22<span>,500</span></div>
-                            <div class="inversion-dato-label">Disponible aún</div>
-                        </div>
-                        <div class="inversion-dato">
-                            <div class="inversion-dato-val">8<span> meses</span></div>
-                            <div class="inversion-dato-label">Tiempo de ejecución</div>
-                        </div>
-                        <div class="inversion-dato">
-                            <div class="inversion-dato-val">ROI <span>~35%</span></div>
-                            <div class="inversion-dato-label">Retorno estimado</div>
-                        </div>
-                    </div>
-                </div>
-                <div class="inversion-card-footer">
-                    <a href="https://t.me/+6k2JGfEJzvY1ZWNh" target="_blank" rel="noopener noreferrer" class="btn-invertir pronto">
-                        <svg viewBox="0 0 24 24" fill="currentColor" style="width:16px;height:16px"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z"/></svg>
-                        Notificarme cuando abra
-                    </a>
-                </div>
-            </div>
+            @endforeach
 
         </div>{{-- /inversion-grid --}}
+        @endif
 
 
         {{-- CTA final Telegram --}}

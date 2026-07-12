@@ -13,7 +13,7 @@ class SolicitudColaborador extends Model
         'nombre',
         'email',
         'telefono',
-        'mensaje_solicitud',
+        'mensaje',
         'estado'
     ];
 }
