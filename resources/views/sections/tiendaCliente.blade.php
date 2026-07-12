@@ -433,9 +433,17 @@
 
     /* ── Responsive ── */
     @media (max-width: 1100px) { .tienda-grid { grid-template-columns: repeat(3, 1fr); } }
-    @media (max-width: 768px)  { .tienda-grid { grid-template-columns: repeat(2, 1fr); } }
-    @media (max-width: 520px)  { .tienda-grid { grid-template-columns: repeat(2, 1fr); } }
-    @media (max-width: 360px)  { .tienda-grid { grid-template-columns: 1fr; } }
+    @media (max-width: 768px)  { .tienda-grid { grid-template-columns: repeat(2, 1fr); gap: 0.5rem; } }
+    @media (max-width: 520px)  {
+        .tienda-grid { grid-template-columns: repeat(2, 1fr); gap: 0.4rem; }
+        .tienda { padding: 4rem 0.5rem; }
+        .producto-body { padding: 0.7rem; }
+        .producto-nombre { font-size: 0.78rem; }
+        .producto-desc { font-size: 0.68rem; }
+        .producto-precio-actual { font-size: 0.9rem; }
+        .producto-btn { padding: 0.4rem 0.6rem; font-size: 0.7rem; }
+        .producto-img { height: 130px; }
+    }
 </style>
 
 {{-- ═══════════════════════════════════════════════

@@ -3,8 +3,6 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use App\Models\SolicitudColaborador;
-
 class SolicitudColaborador extends Model
 {
     protected $table = 'solicitud_colaboradores';
@@ -13,7 +11,7 @@ class SolicitudColaborador extends Model
         'nombre',
         'email',
         'telefono',
-        'mensaje',
-        'estado'
+        'mensaje_solicitud',
+        'estado',
     ];
 }
