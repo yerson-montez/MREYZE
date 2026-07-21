@@ -37,6 +37,9 @@
   @if (session('success'))
     <div class="alert">{{ session('success') }}</div>
   @endif
+  @if (session('error'))
+    <div style="background:#fee2e2;border:1px solid #fecaca;color:#991b1b;border-radius:8px;padding:12px;margin-bottom:16px;font-size:.85rem;">{{ session('error') }}</div>
+  @endif
 
   <div class="card">
     <h2>Información del pago</h2>
@@ -101,6 +104,35 @@
     <div class="card">
       <h2>Observaciones del admin</h2>
       <p style="font-size:.875rem;color:#374151;">{{ $pago->observaciones_admin }}</p>
+    </div>
+  @endif
+
+  @php $boleta = $pago->pedido->boletas()->first(); @endphp
+  @if ($boleta)
+    <div class="card">
+      <h2>Boleta interna</h2>
+      <div class="row">
+        <span class="label">Número</span>
+        <span class="value">{{ $boleta->numero_boleta }}</span>
+      </div>
+      <div class="row">
+        <span class="label">Total</span>
+        <span class="value">S/ {{ number_format($boleta->total, 2) }}</span>
+      </div>
+      <div class="row">
+        <span class="label">Estado</span>
+        <span class="value"><span class="badge badge-{{ $boleta->estado === 'emitida' ? 'aprobado' : 'rechazado' }}">{{ ucfirst($boleta->estado) }}</span></span>
+      </div>
+      <div class="acciones" style="margin-top:12px">
+        <a href="{{ route('admin.boletas.show', $boleta) }}" class="btn btn-secondary">
+          <svg viewBox="0 0 24 24" fill="currentColor" style="width:16px;height:16px"><path d="M12 6a2 2 0 1 0 0 4 2 2 0 0 0 0-4zm0 6a2 2 0 1 0 0 4 2 2 0 0 0 0-4zm0 6a2 2 0 1 0 0 4 2 2 0 0 0 0-4z"/></svg>
+          Ver boleta
+        </a>
+        <a href="{{ route('admin.boletas.pdf', $boleta) }}" class="btn btn-success" target="_blank">
+          <svg viewBox="0 0 24 24" fill="currentColor" style="width:16px;height:16px"><path d="M20 2H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-8.5 7.5c0 .83-.67 1.5-1.5 1.5H9v2H7.5V7H10c.83 0 1.5.67 1.5 1.5v1zm5 2c0 .83-.67 1.5-1.5 1.5h-2.5V7H15c.83 0 1.5.67 1.5 1.5v3zm4-3H19v1h1.5V11H19v2h-1.5V7h3v1.5zM9 9.5h1v-1H9v1zM4 6H2v14c0 1.1.9 2 2 2h14v-2H4V6zm10 5.5h1v-3h-1v3z"/></svg>
+          Descargar PDF
+        </a>
+      </div>
     </div>
   @endif
 </div>

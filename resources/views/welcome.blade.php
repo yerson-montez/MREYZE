@@ -51,9 +51,10 @@
             min-height: 100vh;
             overflow-x: hidden;  
             width: 100%;
-            overflow-y: auto;  
+            overflow-y: auto;
             scrollbar-width: none;      
         }
+        body { padding-top: 70px; }
 
         html::-webkit-scrollbar,
         body::-webkit-scrollbar {
@@ -63,7 +64,7 @@
 
         /* ── NAVBAR ── */
         .nav-wrapper {
-            position: sticky; top: 0; z-index: 1000;
+            position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
             padding: 0 2rem;
             background: rgba(10, 22, 40, 0.85);
             backdrop-filter: blur(18px) saturate(180%);
@@ -322,6 +323,7 @@
                         </div>
                         <div class="nav-user-dropdown" id="userDropdown">
                             <a href="{{ route('profile.edit') }}">Mi perfil</a>
+                            <a href="{{ route('pedidos.mis') }}">Mis pedidos</a>
                             <form method="POST" action="{{ route('logout') }}">
                                 @csrf
                                 <button type="submit">Cerrar sesión</button>
@@ -397,6 +399,7 @@
             <div class="nav-mobile-actions">
                 @auth
                     <a href="{{ route('profile.edit') }}" class="nav-mobile-action">Mi perfil</a>
+                    <a href="{{ route('pedidos.mis') }}" class="nav-mobile-action">Mis pedidos</a>
                     <form method="POST" action="{{ route('logout') }}" class="nav-mobile-action" style="padding:0;">
                         @csrf
                         <button type="submit" style="all: unset; width:100%; height:100%; display:flex; align-items:center; justify-content:center; cursor:pointer;">Cerrar sesión</button>
@@ -436,38 +439,40 @@
                             <span class="nav-logo-sub">Automatización y Sistemas S.A.C</span>
                         </div>
                     </a>
-                    <p>Soluciones de automatización industrial, IoT y desarrollo de software a medida para la industria moderna en Trujillo, Perú.</p>
+                    <p>MreyZe Automatización y Sistemas S.A.C. desarrolla soluciones tecnológicas para empresas e industrias, ofreciendo servicios de desarrollo de software, automatización, sistemas IoT, integración tecnológica, soporte técnico y consultoría especializada.</p>
                 </div>
 
                 <div class="footer-col">
-                    <h4>Servicios</h4>
-                    <a href="{{ url('/servicios/automatizacion') }}">Automatización Industrial</a>
-                    <a href="{{ url('/servicios/iot') }}">IoT &amp; Electrónica</a>
-                    <a href="{{ url('/servicios/desarrollo') }}">Desarrollo de Software</a>
-                    <a href="{{ url('/servicios/consultoria') }}">Consultoría</a>
+                    <h4>Enlaces rápidos</h4>
+                    <a href="{{ route('inicio') }}">Inicio</a>
+                    <a href="{{ route('nosotros') }}">Nosotros</a>
+                    <a href="{{ route('servicios') }}">Servicios</a>
+                    <a href="{{ route('proyectos') }}">Proyectos</a>
+                    <a href="{{ route('tienda.index') }}">Tienda</a>
+                    <a href="{{ route('blog') }}">Blog</a>
+                    <a href="{{ route('contacto') }}">Contacto</a>
                 </div>
 
                 <div class="footer-col">
-                    <h4>Empresa</h4>
-                    <a href="{{ url('/nosotros') }}">Nosotros</a>
-                    <a href="{{ url('/proyectos') }}">Proyectos & Invertir</a>
-                    <a href="{{ url('/tienda') }}">Tienda</a>
-                    <a href="{{ url('/blog') }}">Blog</a>
-                    <a href="{{ url('/contacto') }}">Contacto</a>
+                    <h4>Contacto</h4>
+                    <a href="tel:{{ config('empresa.telefono_corto') }}"><svg viewBox="0 0 24 24" fill="currentColor" style="width:14px;height:14px;margin-right:6px;vertical-align:middle"><path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/></svg>{{ config('empresa.telefono_corto') }}</a>
+                    <a href="mailto:{{ config('empresa.email') }}"><svg viewBox="0 0 24 24" fill="currentColor" style="width:14px;height:14px;margin-right:6px;vertical-align:middle"><path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>{{ config('empresa.email') }}</a>
+                    <a href="{{ config('empresa.whatsapp_url') }}" target="_blank" rel="noopener noreferrer" style="display:inline-flex;align-items:center;gap:6px;padding:6px 14px;background:#25D366;color:#fff;border-radius:6px;font-size:0.8rem;font-weight:600;text-decoration:none;margin-top:6px;width:fit-content"><svg viewBox="0 0 24 24" fill="currentColor" style="width:16px;height:16px"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-1.102-.984-1.847-2.2-2.063-2.572-.216-.373-.023-.575.163-.763.166-.167.373-.434.56-.651.187-.217.249-.373.373-.622.124-.248.062-.467-.031-.65-.093-.183-.67-1.618-.92-2.217-.242-.579-.487-.48-.67-.49-.173-.01-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 2C6.477 2 2 6.477 2 12c0 1.903.521 3.684 1.427 5.226L2 22l4.806-1.414A9.957 9.957 0 0012 22c5.523 0 10-4.477 10-10S17.523 2 12 2zm0 18c-1.653 0-3.198-.539-4.446-1.444l-.318-.213-3.052.898.898-3.052-.213-.318A7.94 7.94 0 014 12c0-4.411 3.589-8 8-8s8 3.589 8 8-3.589 8-8 8z"/></svg>WhatsApp</a>
+                    <h4 style="margin-top:1rem;">Horario</h4>
+                    <span style="font-size:0.875rem;color:var(--ice-200);display:block;line-height:1.6">{!! config('empresa.horario_html') !!}</span>
                 </div>
 
                 <div class="footer-col">
-                    <h4>Legal</h4>
-                    <a href="{{ url('/privacidad') }}">Política de privacidad</a>
-                    <a href="{{ url('/terminos') }}">Términos de uso</a>
-                    <h4 style="margin-top: 1.5rem;">Contacto</h4>
-                    <a href="mailto:contacto@mreyze.pe">contacto@mreyze.pe</a>
-                    <a href="tel:+51930930949">+51 930 930 949</a>
+                    <h4>Redes Sociales</h4>
+                    <a href="{{ config('empresa.whatsapp_url') }}" target="_blank" rel="noopener noreferrer"><svg viewBox="0 0 24 24" fill="currentColor" style="width:14px;height:14px;margin-right:6px;vertical-align:middle"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-1.102-.984-1.847-2.2-2.063-2.572-.216-.373-.023-.575.163-.763.166-.167.373-.434.56-.651.187-.217.249-.373.373-.622.124-.248.062-.467-.031-.65-.093-.183-.67-1.618-.92-2.217-.242-.579-.487-.48-.67-.49-.173-.01-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 2C6.477 2 2 6.477 2 12c0 1.903.521 3.684 1.427 5.226L2 22l4.806-1.414A9.957 9.957 0 0012 22c5.523 0 10-4.477 10-10S17.523 2 12 2zm0 18c-1.653 0-3.198-.539-4.446-1.444l-.318-.213-3.052.898.898-3.052-.213-.318A7.94 7.94 0 014 12c0-4.411 3.589-8 8-8s8 3.589 8 8-3.589 8-8 8z"/></svg>WhatsApp</a>
+                    <a href="{{ config('empresa.whatsapp_grupo') }}" target="_blank" rel="noopener noreferrer"><svg viewBox="0 0 24 24" fill="currentColor" style="width:14px;height:14px;margin-right:6px;vertical-align:middle"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>Grupo de WhatsApp</a>
+                    <a href="{{ config('empresa.redes.facebook') }}" target="_blank" rel="noopener noreferrer"><svg viewBox="0 0 24 24" fill="currentColor" style="width:14px;height:14px;margin-right:6px;vertical-align:middle"><path d="M22 12c0-5.52-4.48-10-10-10S2 6.48 2 12c0 4.84 3.44 8.87 8 9.8V15H8v-3h2V9.5C10 7.57 11.57 6 13.5 6H16v3h-2c-.55 0-1 .45-1 1v2h3v3h-3v6.95c5.05-.5 9-4.76 9-9.95z"/></svg>Facebook</a>
+                    <a href="{{ config('empresa.redes.tiktok') }}" target="_blank" rel="noopener noreferrer"><svg viewBox="0 0 24 24" fill="currentColor" style="width:14px;height:14px;margin-right:6px;vertical-align:middle"><path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.9 2.89 2.89 0 01-2.88-2.89 2.89 2.89 0 012.88-2.89c.3 0 .59.05.87.14v-3.5a6.37 6.37 0 00-.87-.05A6.33 6.33 0 103.9 15.8a6.33 6.33 0 005.69 3.7 6.33 6.33 0 006.33-6.33V8.96a8.27 8.27 0 004.78 1.49v-3.5a4.8 4.8 0 01-3.11-1.26z"/></svg>TikTok</a>
                 </div>
 
             </div>
             <div class="footer-bottom">
-                <span>© {{ date('Y') }} MREYZE. Todos los derechos reservados.</span>
+                <span>© {{ date('Y') }} MreyZe Automatización y Sistemas S.A.C. Todos los derechos reservados.</span>
                 <span>Hecho en Perú 🇵🇪</span>
             </div>
         </div>

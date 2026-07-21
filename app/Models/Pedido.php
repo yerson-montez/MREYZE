@@ -71,6 +71,11 @@ class Pedido extends Model
         return $this->hasOne(Pago::class)->latestOfMany();
     }
 
+    public function boletas(): HasMany
+    {
+        return $this->hasMany(Boleta::class);
+    }
+
     public function estados(): HasMany
     {
         return $this->hasMany(PedidoEstado::class)->latest('created_at');

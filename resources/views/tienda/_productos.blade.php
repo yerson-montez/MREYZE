@@ -10,7 +10,8 @@
         <img src="{{ $imgUrl }}"
              alt="{{ $p->nombre }}"
              class="producto-img-full"
-             loading="lazy">
+             loading="lazy"
+             data-original-src="{{ $imgUrl }}">
     @else
         <div class="producto-img-bg">
             <span style="font-size:12px;color:#7a9ab8">Sin imagen</span>
@@ -23,6 +24,19 @@
     <span class="producto-descuento">-{{ $p->porcentaje_descuento }}%</span>
     @endif
     </div>
+
+    @if($p->imagenes->count() > 1)
+    <div class="producto-thumbs">
+        @foreach($p->imagenes->sortBy('orden')->take(4) as $thumb)
+        <img src="{{ asset('storage/' . $thumb->ruta) }}"
+             class="producto-thumb"
+             alt=""
+             loading="lazy"
+             onmouseover="catalogHover(this)"
+             onmouseout="catalogUnhover(this)">
+        @endforeach
+    </div>
+    @endif
 
     <div class="producto-body">
         <div class="producto-cat">{{ strtoupper($p->categoria) }}</div>
@@ -54,3 +68,60 @@
         {{ $emptyMessage ?? 'No se encontraron productos.' }}
     </div>
 @endforelse
+
+@once
+@push('styles')
+<style>
+.producto-thumbs {
+    display: flex;
+    gap: 4px;
+    padding: 6px 8px;
+    background: rgba(13,31,60,0.5);
+    border-top: 1px solid rgba(74,144,217,0.08);
+    overflow-x: auto;
+}
+.producto-thumb {
+    width: 38px;
+    height: 38px;
+    border-radius: 6px;
+    object-fit: cover;
+    cursor: pointer;
+    border: 1px solid rgba(74,144,217,0.15);
+    transition: all 0.2s;
+    opacity: 0.75;
+    flex-shrink: 0;
+}
+.producto-thumb:hover {
+    opacity: 1;
+    border-color: rgba(0,212,255,0.4);
+    box-shadow: 0 0 8px rgba(0,212,255,0.15);
+}
+</style>
+@endpush
+@endonce
+
+@once
+<script>
+function catalogHover(el) {
+    var card = el.closest('.producto-card');
+    if (!card) return;
+    var mainImg = card.querySelector('.producto-img-full');
+    if (!mainImg) return;
+    if (!mainImg.hasAttribute('data-original-src')) {
+        mainImg.setAttribute('data-original-src', mainImg.src);
+    }
+    mainImg.src = el.src;
+}
+function catalogUnhover(el) {
+    var card = el.closest('.producto-card');
+    if (!card) return;
+    var mainImg = card.querySelector('.producto-img-full');
+    if (!mainImg) return;
+    var original = mainImg.getAttribute('data-original-src');
+    if (original) {
+        mainImg.src = original;
+        mainImg.removeAttribute('data-original-src');
+    }
+}
+</script>
+@endonce

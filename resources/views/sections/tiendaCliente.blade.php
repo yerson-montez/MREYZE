@@ -532,9 +532,11 @@
                         >
                         
                     @else
-                        {{-- Sin imagen: mostrar emoji + ícono SVG directamente --}}
+                        {{-- Sin imagen: mostrar ícono SVG directamente --}}
                         <div class="producto-img-fallback" style="display:flex">
-                            <div class="producto-img-bg">{{ $p->icono_emoji }}</div>
+                            <div class="producto-img-bg">
+                                <svg viewBox="0 0 24 24" fill="currentColor" style="width:28px;height:28px;opacity:0.15"><path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/></svg>
+                            </div>
                             <div class="producto-img-icon"
                                  style="background:{{ $p->icono_color }};border:1px solid {{ str_replace('0.12','0.3',$p->icono_color) }}">
                                 @if($p->categoria === 'iot')

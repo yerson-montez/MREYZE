@@ -109,74 +109,372 @@
     </div>
     <div class="info-row">
       <span class="info-label">Estado</span>
-      <span class="estado-badge {{ $pedido->estado === 'pendiente_pago' ? 'pendiente' : ($pedido->estado === 'pagado_parcial' ? 'aprobado' : '') }}">
+      <span id="pedido-estado-badge" class="estado-badge {{ $pedido->estado === 'pendiente_pago' ? 'pendiente' : ($pedido->estado === 'pagado_parcial' ? 'aprobado' : '') }}">
         {{ $pedido->estado_label }}
       </span>
     </div>
+    @if ($pago)
+    <div class="info-row">
+      <span class="info-label">Estado OCR</span>
+      <span id="ocr-estado-badge" class="estado-badge" style="
+        @php
+          $c = $pago->ocr_resultado;
+          $badgeStyle = match(true) {
+            $c === 'validado'       => 'background:rgba(0,212,170,.1);border:1px solid rgba(0,212,170,.3);color:var(--success)',
+            $c === 'procesando'     => 'background:rgba(0,212,255,.1);border:1px solid rgba(0,212,255,.3);color:var(--accent)',
+            $c === 'pendiente'      => 'background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.3);color:var(--warning)',
+            $c === 'error_ocr'      => 'background:rgba(255,107,107,.1);border:1px solid rgba(255,107,107,.3);color:var(--danger)',
+            $c === 'ocr_fallido'    => 'background:rgba(255,107,107,.1);border:1px solid rgba(255,107,107,.3);color:var(--danger)',
+            $c === 'rechazado'      => 'background:rgba(255,107,107,.1);border:1px solid rgba(255,107,107,.3);color:var(--danger)',
+            $c === 'confianza_baja' => 'background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.3);color:var(--warning)',
+            $c === 'sospechoso'     => 'background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.3);color:var(--warning)',
+            default                 => 'background:rgba(148,163,184,.1);border:1px solid rgba(148,163,184,.3);color:#94a3b8',
+          };
+        @endphp
+        {{ $badgeStyle }}">
+        {{ \App\Enums\EstadoValidacionOcr::tryFrom($pago->ocr_resultado)?->label() ?? 'Pendiente' }}
+      </span>
+    </div>
+    @endif
   </div>
 
+  <div id="pago-status-content">
   @if ($pedido->estado === 'pendiente_pago')
-    {{-- QR Yape --}}
     @php
-      $datosYape = $yape?->datos ?? [];
-      // Datos fijos de Yape (usados como respaldo si no vienen configurados en BD)
-      $numeroYape  = $datosYape['numero']  ?? '930910949';
-      $titularYape = $datosYape['titular'] ?? 'MREYZE AUOTOMATISACION Y SISTEMAS SAC';
+      $ultimoOcrError = $pago && in_array($pago->ocr_resultado, ['error_ocr', 'ocr_fallido', 'rechazado', 'confianza_baja', 'sospechoso']) ? $pago->ocr_resultado : null;
     @endphp
-    <div class="pago-card">
-      <h2>Paga con Yape</h2>
-      <div class="qr-wrap">
-        <img src="{{ asset('img/Empresa.png') }}" alt="Código QR Yape">
-        <div class="qr-num">{{ $numeroYape }}</div>
-        <div class="qr-label">{{ $titularYape }}</div>
-      </div>
-    </div>
 
-    {{-- Formulario comprobante --}}
-    <div class="pago-card">
-      <h2>Sube tu comprobante</h2>
-      <form action="{{ route('pedidos.comprobante', $pedido) }}" method="POST" enctype="multipart/form-data">
-        @csrf
-        <div class="form-group">
-          <label>Número de operación <span style="color:var(--danger);">*</span></label>
-          <input type="text" name="numero_operacion" placeholder="Ej: 123456789" value="{{ old('numero_operacion') }}" required>
+    @if ($ultimoOcrError)
+      @php
+        $motivoReintento = match ($ultimoOcrError) {
+          'error_ocr' => 'No pudimos validar el comprobante por un problema temporal del servicio.',
+          'ocr_fallido' => 'No fue posible leer el comprobante. Asegúrate de que la imagen sea clara y legible.',
+          'rechazado' => 'El monto del comprobante no coincide o el comprobante ya fue utilizado.',
+          'confianza_baja' => 'No se pudo leer el comprobante con suficiente claridad.',
+          'sospechoso' => 'Los datos del comprobante no coinciden con los ingresados.',
+          default => 'El comprobante no pudo ser validado automáticamente.',
+        };
+      @endphp
+      <div class="pago-card">
+        <div class="alert" style="border-left-color:var(--danger);text-align:center;">
+          <p style="font-size:1.1rem;font-weight:700;color:#fff;">
+            {{ match($ultimoOcrError) {
+              'error_ocr' => 'Error temporal',
+              'ocr_fallido' => 'No fue posible leer el comprobante',
+              default => 'No fue posible validar automáticamente el comprobante',
+            } }}
+          </p>
+          <p style="margin-top:6px;">{{ $motivoReintento }}</p>
+          <p style="margin-top:10px;font-size:.78rem;color:var(--ice-300);">Puedes intentar subir el comprobante nuevamente.</p>
+          @if ($pago)
+            <p style="font-size:.78rem;color:var(--ice-300);">Nro. operación anterior: <strong style="color:#fff;">{{ $pago->numero_operacion ?? '—' }}</strong></p>
+          @endif
         </div>
-        <div class="form-group">
-          <label>Comprobante (JPG, PNG o PDF — máx 5 MB)</label>
-          <input type="file" name="comprobante" accept=".jpg,.jpeg,.png,.pdf">
+      </div>
+      @include('pagos._form-comprobante', ['retry' => true])
+    @else
+      @php
+        $datosYape = $yape?->datos ?? [];
+        $numeroYape  = $datosYape['numero']  ?? config('empresa.whatsapp_numero');
+        $titularYape = $datosYape['titular'] ?? 'MREYZE AUOTOMATISACION Y SISTEMAS SAC';
+      @endphp
+      <div class="pago-card">
+        <h2>Paga con Yape</h2>
+        <div class="qr-wrap">
+          <img src="{{ asset('img/Empresa.png') }}" alt="Código QR Yape">
+          <div class="qr-num">{{ $numeroYape }}</div>
+          <div class="qr-label">{{ $titularYape }}</div>
         </div>
-        <button type="submit" class="btn-yape">
-          <svg viewBox="0 0 24 24" fill="currentColor" style="width:18px;height:18px;"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
-          Enviar comprobante
-        </button>
-      </form>
-    </div>
+      </div>
+      @include('pagos._form-comprobante')
+    @endif
   @elseif ($pedido->estado === 'pendiente_aprobacion')
-    <div class="pago-card">
-      <div class="success-box">
-        <p style="font-size:1.2rem;font-weight:700;">Comprobante recibido</p>
-        <p style="margin-top:8px;">Estamos revisando tu pago. Te notificaremos cuando sea aprobado.</p>
-        @if ($pago)
-          <p style="margin-top:12px;font-size:.82rem;color:var(--ice-200);">
-            Nro. operación: <strong style="color:#fff;">{{ $pago->numero_operacion ?? '—' }}</strong>
-          </p>
-          <p style="font-size:.82rem;color:var(--ice-200);">
-            Enviado: <strong style="color:#fff;">{{ $pago->created_at->format('d/m/Y H:i') }}</strong>
-          </p>
-        @endif
+    @php
+      $ocrEstado = $pago?->ocr_resultado ?? 'pendiente';
+    @endphp
+
+    <div id="pendiente-aprobacion-section">
+      <div id="status-pendiente" class="pago-card" data-ocr-state="pendiente" {{ $ocrEstado !== 'pendiente' ? 'style=display:none' : '' }}>
+        <div class="success-box">
+          <p style="font-size:1.2rem;font-weight:700;">Comprobante recibido</p>
+          <p style="margin-top:8px;">Hemos recibido tu comprobante y está en proceso de validación.</p>
+          @if ($pago)
+            <p style="margin-top:12px;font-size:.82rem;color:var(--ice-200);">
+              Nro. operación: <strong id="ocr-numero-operacion" style="color:#fff;">{{ $pago->numero_operacion ?? '—' }}</strong>
+            </p>
+            <p style="font-size:.82rem;color:var(--ice-200);">
+              Enviado: <strong style="color:#fff;">{{ $pago->created_at->format('d/m/Y H:i') }}</strong>
+            </p>
+          @endif
+        </div>
+      </div>
+
+      <div id="status-procesando" class="pago-card" data-ocr-state="procesando" {{ $ocrEstado !== 'procesando' ? 'style=display:none' : '' }}>
+        <div class="success-box">
+          <p style="font-size:1.2rem;font-weight:700;">Procesando</p>
+          <p style="margin-top:8px;">Estamos analizando automáticamente tu comprobante.</p>
+          @if ($pago)
+            <p style="margin-top:12px;font-size:.82rem;color:var(--ice-200);">
+              Nro. operación: <strong style="color:#fff;">{{ $pago->numero_operacion ?? '—' }}</strong>
+            </p>
+          @endif
+        </div>
+      </div>
+
+      <div id="status-validado" class="pago-card" data-ocr-state="validado" {{ $ocrEstado !== 'validado' ? 'style=display:none' : '' }}>
+        <div class="success-box">
+          <p style="font-size:1.2rem;font-weight:700;color:var(--success);">✓ Pago validado</p>
+          <p style="margin-top:8px;">Tu pago fue validado correctamente.</p>
+          @if ($pago && $pago->ocr_datos)
+            <div style="margin-top:16px;text-align:left;">
+              <div class="info-row">
+                <span class="info-label">Número de operación</span>
+                <span class="info-value">{{ $pago->ocr_datos['codigo_operacion'] ?? $pago->numero_operacion ?? '—' }}</span>
+              </div>
+              @if (!empty($pago->ocr_datos['monto']))
+              <div class="info-row">
+                <span class="info-label">Monto validado</span>
+                <span class="info-value" style="color:var(--success);">S/ {{ number_format((float) $pago->ocr_datos['monto'], 2) }}</span>
+              </div>
+              @endif
+              @if (!empty($pago->ocr_datos['fecha']))
+              <div class="info-row">
+                <span class="info-label">Fecha</span>
+                <span class="info-value">{{ $pago->ocr_datos['fecha'] }}</span>
+              </div>
+              @endif
+            </div>
+          @endif
+        </div>
+      </div>
+
+      <div id="status-error-ocr" class="pago-card" data-ocr-state="error_ocr" {{ $ocrEstado !== 'error_ocr' ? 'style=display:none' : '' }}>
+        <div class="alert" style="border-left-color:var(--danger);text-align:center;">
+          <p style="font-size:1.1rem;font-weight:700;color:#fff;">Error temporal</p>
+          <p style="margin-top:6px;">No pudimos validar el comprobante por un error del sistema.</p>
+          <p style="margin-top:10px;font-size:.78rem;color:var(--ice-300);">Puedes intentar subir el comprobante nuevamente.</p>
+          @if ($pago)
+            <p style="font-size:.78rem;color:var(--ice-300);">Nro. operación: <strong style="color:#fff;">{{ $pago->numero_operacion ?? '—' }}</strong></p>
+          @endif
+        </div>
+        @include('pagos._form-comprobante', ['retry' => true])
+      </div>
+
+      <div id="status-ocr-fallido" class="pago-card" data-ocr-state="ocr_fallido" {{ $ocrEstado !== 'ocr_fallido' ? 'style=display:none' : '' }}>
+        <div class="alert" style="border-left-color:var(--danger);text-align:center;">
+          <p style="font-size:1.1rem;font-weight:700;color:#fff;">No fue posible leer el comprobante</p>
+          <p style="margin-top:6px;">Asegúrate de que la imagen sea clara y legible, luego intenta nuevamente.</p>
+          <p style="margin-top:10px;font-size:.78rem;color:var(--ice-300);">Puedes intentar subir el comprobante nuevamente.</p>
+          @if ($pago)
+            <p style="font-size:.78rem;color:var(--ice-300);">Nro. operación: <strong style="color:#fff;">{{ $pago->numero_operacion ?? '—' }}</strong></p>
+          @endif
+        </div>
+        @include('pagos._form-comprobante', ['retry' => true])
+      </div>
+
+      <div id="status-rechazado" class="pago-card" data-ocr-state="rechazado" {{ !in_array($ocrEstado, ['rechazado', 'confianza_baja', 'sospechoso']) ? 'style=display:none' : '' }}>
+        @php
+          $motivo = match ($ocrEstado) {
+            'rechazado' => 'El monto del comprobante no coincide o el comprobante ya fue utilizado.',
+            'confianza_baja' => 'No se pudo leer el comprobante con suficiente claridad.',
+            'sospechoso' => 'Los datos del comprobante no coinciden con los ingresados.',
+            default => 'El comprobante no pudo ser validado automáticamente.',
+          };
+        @endphp
+        <div class="alert" style="border-left-color:var(--danger);text-align:center;">
+          <p style="font-size:1.1rem;font-weight:700;color:#fff;">No fue posible validar automáticamente el comprobante</p>
+          <p style="margin-top:6px;">{{ $motivo }}</p>
+          <p style="margin-top:10px;font-size:.78rem;color:var(--ice-300);">Si el problema persiste, puedes intentar subir un comprobante diferente.</p>
+          @if ($pago)
+            <p style="font-size:.78rem;color:var(--ice-300);">Nro. operación: <strong style="color:#fff;">{{ $pago->numero_operacion ?? '—' }}</strong></p>
+          @endif
+        </div>
+        @include('pagos._form-comprobante', ['retry' => true])
       </div>
     </div>
   @elseif ($pedido->estado === 'pagado_parcial')
-    <div class="pago-card">
+    <div id="status-pagado-parcial" class="pago-card">
       <div class="success-box">
         <p style="font-size:1.2rem;font-weight:700;">Pago aprobado</p>
         <p style="margin-top:8px;">Gracias por tu pago. Estamos preparando tu pedido.</p>
       </div>
     </div>
   @endif
+  </div>
+
+  <div id="boleta-section" style="{{ $boleta ? '' : 'display:none;' }}">
+    <div class="pago-card" id="boleta-card">
+      <h2>Boleta electrónica</h2>
+      <div class="info-row">
+        <span class="info-label">Serie</span>
+        <span class="info-value" id="boleta-serie">{{ $boleta?->serie ?? '' }}</span>
+      </div>
+      <div class="info-row">
+        <span class="info-label">Número</span>
+        <span class="info-value" id="boleta-numero">{{ $boleta?->numero_boleta ?? '' }}</span>
+      </div>
+      <div class="info-row">
+        <span class="info-label">Fecha de emisión</span>
+        <span class="info-value" id="boleta-fecha">{{ $boleta?->fecha_emision?->format('d/m/Y') ?? '' }}</span>
+      </div>
+      <div class="info-row">
+        <span class="info-label">Total</span>
+        <span class="info-value" id="boleta-total" style="color:var(--success);">{{ $boleta ? 'S/ '.number_format($boleta->total, 2) : '' }}</span>
+      </div>
+      <div style="margin-top:16px;display:flex;gap:10px;">
+        <a id="boleta-show-link" href="{{ $boleta ? route('pedidos.boleta', $pedido) : '#' }}" target="_blank" class="btn-yape" style="display:inline-flex;padding:10px 20px;font-size:.85rem;gap:6px;text-decoration:none;">
+          <svg viewBox="0 0 24 24" fill="currentColor" style="width:16px;height:16px"><path d="M12 6a2 2 0 1 0 0 4 2 2 0 0 0 0-4zm0 6a2 2 0 1 0 0 4 2 2 0 0 0 0-4zm0 6a2 2 0 1 0 0 4 2 2 0 0 0 0-4z"/></svg>
+          Ver boleta
+        </a>
+        <a id="boleta-pdf-link" href="{{ $boleta ? route('pedidos.boleta.pdf', $pedido) : '#' }}" target="_blank" style="display:inline-flex;padding:10px 20px;font-size:.85rem;gap:6px;text-decoration:none;border-radius:8px;background:#dc2626;color:#fff;font-weight:600;align-items:center;">
+          <svg viewBox="0 0 24 24" fill="currentColor" style="width:16px;height:16px"><path d="M20 2H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-8.5 7.5c0 .83-.67 1.5-1.5 1.5H9v2H7.5V7H10c.83 0 1.5.67 1.5 1.5v1zm5 2c0 .83-.67 1.5-1.5 1.5h-2.5V7H15c.83 0 1.5.67 1.5 1.5v3zm4-3H19v1h1.5V11H19v2h-1.5V7h3v1.5zM9 9.5h1v-1H9v1zM4 6H2v14c0 1.1.9 2 2 2h14v-2H4V6zm10 5.5h1v-3h-1v3z"/></svg>
+          Descargar PDF
+        </a>
+      </div>
+    </div>
+  </div>
 
   <div style="text-align:center;margin-top:8px;">
     <a href="{{ route('pedidos.mis') }}" style="color:var(--ice-300);font-size:.85rem;text-decoration:none;">← Volver a mis pedidos</a>
   </div>
 </div>
+
+@php
+  $pollUrl = route('pedidos.estado', $pedido);
+  $pedidoId = $pedido->id;
+@endphp
+<script>
+(function() {
+    var POLL_INTERVAL = 3000;
+    var pollUrl = '{{ $pollUrl }}';
+    var pedidoId = {{ $pedidoId }};
+    var pollTimer = null;
+    var currentEstado = @json($currentEstado);
+    var currentOcr = @json($currentOcr);
+
+    var badgeStyles = {
+        aprobado:   'background:rgba(0,212,170,.1);border:1px solid rgba(0,212,170,.3);color:var(--success)',
+        completado: 'background:rgba(0,212,170,.1);border:1px solid rgba(0,212,170,.3);color:var(--success)',
+        pendiente:  'background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.3);color:var(--warning)',
+        error:      'background:rgba(255,107,107,.1);border:1px solid rgba(255,107,107,.3);color:var(--danger)',
+        procesando: 'background:rgba(0,212,255,.1);border:1px solid rgba(0,212,255,.3);color:var(--accent)',
+    };
+
+    var badgeLabels = {
+        aprobado:   'Aprobado',
+        completado: 'Completado',
+        pendiente:  'Pendiente',
+        error:      'Error',
+        procesando: 'Procesando',
+    };
+
+    var ocrToDataState = {
+        completado: 'validado',
+        procesando: 'procesando',
+        pendiente:  'pendiente',
+        error:      'error_ocr',
+    };
+
+    function updateBadges(data) {
+        var badge = document.getElementById('pedido-estado-badge');
+        if (badge) {
+            badge.textContent = badgeLabels[data.estado] || data.estado;
+            badge.className = 'estado-badge';
+            if (data.estado === 'aprobado' || data.estado === 'completado') {
+                badge.classList.add('aprobado');
+            } else {
+                badge.classList.add('pendiente');
+            }
+        }
+
+        var ocrBadge = document.getElementById('ocr-estado-badge');
+        if (ocrBadge && data.estado_ocr) {
+            ocrBadge.textContent = badgeLabels[data.estado_ocr] || data.estado_ocr;
+            ocrBadge.setAttribute('style', badgeStyles[data.estado_ocr] || badgeStyles.pendiente);
+        }
+    }
+
+    function showStatusSection(ocrSimpleState) {
+        var dataState = ocrToDataState[ocrSimpleState] || ocrSimpleState;
+        document.querySelectorAll('#pendiente-aprobacion-section > [data-ocr-state]').forEach(function(el) {
+            el.style.display = 'none';
+        });
+        var target = document.querySelector('#pendiente-aprobacion-section > [data-ocr-state="' + dataState + '"]');
+        if (target) {
+            target.style.display = '';
+        }
+    }
+
+    function showPagadoParcial() {
+        var section = document.getElementById('pago-status-content');
+        if (section) {
+            section.innerHTML =
+                '<div class="pago-card"><div class="success-box">' +
+                '<p style="font-size:1.2rem;font-weight:700;">Pago aprobado</p>' +
+                '<p style="margin-top:8px;">Gracias por tu pago. Estamos preparando tu pedido.</p>' +
+                '</div></div>';
+        }
+    }
+
+    function showBoleta(data) {
+        var section = document.getElementById('boleta-section');
+        if (!section) return;
+        if (data.boleta && data.boleta.existe) {
+            section.style.display = '';
+            if (data.boleta.serie) document.getElementById('boleta-serie').textContent = data.boleta.serie;
+            if (data.boleta.numero) document.getElementById('boleta-numero').textContent = data.boleta.numero;
+            if (data.boleta.fecha) document.getElementById('boleta-fecha').textContent = data.boleta.fecha;
+            if (data.boleta.total) document.getElementById('boleta-total').textContent = 'S/ ' + parseFloat(data.boleta.total).toFixed(2);
+            if (data.boleta.show_url) document.getElementById('boleta-show-link').href = data.boleta.show_url;
+            if (data.boleta.pdf_url) document.getElementById('boleta-pdf-link').href = data.boleta.pdf_url;
+        } else {
+            section.style.display = 'none';
+        }
+    }
+
+    function poll() {
+        fetch(pollUrl, { headers: { 'Accept': 'application/json' } })
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+                updateBadges(data);
+                showBoleta(data);
+
+                var newEstado = data.estado;
+                var newOcr = data.estado_ocr || 'pendiente';
+
+                if (newEstado !== currentEstado) {
+                    currentEstado = newEstado;
+                    if (newEstado === 'aprobado' || newEstado === 'completado') {
+                        showPagadoParcial();
+                    } else if (newEstado !== 'pendiente') {
+                        return;
+                    }
+                }
+
+                if (currentEstado === 'pendiente' && newOcr !== currentOcr) {
+                    currentOcr = newOcr;
+                    showStatusSection(newOcr);
+                }
+
+                if (newEstado === 'aprobado' || newEstado === 'completado' || newOcr === 'completado') {
+                    if (pollTimer) {
+                        clearTimeout(pollTimer);
+                        pollTimer = null;
+                    }
+                }
+            })
+            .catch(function() {});
+    }
+
+    function startPolling() {
+        if (currentEstado === 'aprobado' || currentEstado === 'completado' || currentOcr === 'completado') {
+            poll();
+            return;
+        }
+        pollTimer = setInterval(poll, POLL_INTERVAL);
+    }
+
+    startPolling();
+})();
+</script>
 @endsection

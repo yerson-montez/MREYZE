@@ -11,6 +11,7 @@ use App\Http\Controllers\Admin\AdminProductoController;
 use App\Http\Controllers\Admin\MetodoPagoController;
 use App\Http\Controllers\Admin\PedidoAdminController;
 use App\Http\Controllers\Admin\PagoAdminController;
+use App\Http\Controllers\Admin\BoletaController;
 use App\Http\Controllers\Admin\ColaboradorAdminController;
 use App\Http\Controllers\Admin\AdminProyectoController;
 use App\Http\Controllers\ProyectoController;
@@ -18,7 +19,11 @@ use App\Http\Controllers\SolicitudColaboradorController;
 
 // ─── HOME ────────────────────────────────────────────────────────
 Route::get('/', function () {
-    return view('sections.inicio');
+    $productos = \App\Models\Producto::activos()
+        ->with(['imagenPrincipal', 'imagenes' => fn ($q) => $q->orderBy('orden')])
+        ->get();
+    $destacados = $productos->take(8);
+    return view('sections.inicio', compact('productos', 'destacados'));
 })->name('inicio');
 
 Route::get('/test-pedidos', function () {
@@ -66,8 +71,13 @@ Route::middleware('auth')->group(function () {
     Route::get('/mis-pedidos/{pedido}', [PedidoController::class, 'show'])->name('pedidos.show');
 
     // Pago con Yape
-    Route::get('/pedido/{pedido}/pago',        [PagoController::class, 'show'])->name('pedidos.pago');
-    Route::post('/pedido/{pedido}/comprobante', [PagoController::class, 'storeComprobante'])->name('pedidos.comprobante');
+    Route::get('/pedido/{pedido}/pago',             [PagoController::class, 'show'])->name('pedidos.pago');
+    Route::get('/pedido/{pedido}/pago/status',      [PagoController::class, 'status'])->name('pedidos.pago.status');
+    Route::get('/pedido/{pedido}/estado',           [PagoController::class, 'estado'])->name('pedidos.estado');
+    Route::post('/pedido/{pedido}/comprobante',      [PagoController::class, 'storeComprobante'])->name('pedidos.comprobante');
+
+    Route::get('/pedido/{pedido}/boleta',             [PagoController::class, 'showBoleta'])->name('pedidos.boleta');
+    Route::get('/pedido/{pedido}/boleta/pdf',          [PagoController::class, 'boletaPdf'])->name('pedidos.boleta.pdf');
 
     Route::get('/mi-link', [SolicitudColaboradorController::class, 'miLink'])->name('colaborador.link');
 });
@@ -108,6 +118,10 @@ Route::prefix('admin')
         Route::get('pagos',                    [PagoAdminController::class, 'index'])->name('pagos.index');
         Route::get('pagos/{pago}',             [PagoAdminController::class, 'show'])->name('pagos.show');
         Route::post('pagos/{pago}/aprobar',    [PagoAdminController::class, 'aprobar'])->name('pagos.aprobar');
+
+        // Boletas
+        Route::get('boletas/{boleta}',          [BoletaController::class, 'show'])->name('boletas.show');
+        Route::get('boletas/{boleta}/pdf',      [BoletaController::class, 'pdf'])->name('boletas.pdf');
 
         Route::get('colaboradores',                          [ColaboradorAdminController::class, 'index'])->name('colaboradores.index');
         Route::get('colaboradores/crear',                    [ColaboradorAdminController::class, 'create'])->name('colaboradores.create');

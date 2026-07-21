@@ -575,7 +575,6 @@
                 id="email"
                 class="form-input"
                 placeholder="tu@correo.com"
-                value="test@test.com"
                 required
             >
         </div>

@@ -262,11 +262,11 @@
                              alt="{{ $p->nombre }}"
                              onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
                         <div class="adm-prod-emoji-fallback" style="display:none">
-                            {{ $p->icono_emoji }}
+                            <svg viewBox="0 0 24 24" fill="currentColor" style="width:20px;height:20px;opacity:0.3"><path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/></svg>
                         </div>
                     @else
                         <div class="adm-prod-emoji-fallback">
-                            {{ $p->icono_emoji }}
+                            <svg viewBox="0 0 24 24" fill="currentColor" style="width:20px;height:20px;opacity:0.3"><path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/></svg>
                         </div>
                     @endif
                 </td>

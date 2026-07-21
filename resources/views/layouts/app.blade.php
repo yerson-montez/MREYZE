@@ -49,10 +49,11 @@
             color: #e2ecff;
             min-height: 100vh;
         }
+        body { padding-top: 70px; }
 
         /* ── NAVBAR ── */
         .nav-wrapper {
-            position: sticky; top: 0; z-index: 1000;
+            position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
             padding: 0 2rem;
             background: rgba(10, 22, 40, 0.85);
             backdrop-filter: blur(18px) saturate(180%);
@@ -453,8 +454,8 @@
                     <a href="{{ url('/privacidad') }}">Política de privacidad</a>
                     <a href="{{ url('/terminos') }}">Términos de uso</a>
                     <h4 style="margin-top: 1.5rem;">Contacto</h4>
-                    <a href="mailto:contacto@mreyze.pe">contacto@mreyze.pe</a>
-                    <a href="tel:+51999999999">+51 999 999 999</a>
+                    <a href="mailto:{{ config('empresa.email') }}">{{ config('empresa.email') }}</a>
+                    <a href="tel:{{ config('empresa.telefono_corto') }}">{{ config('empresa.telefono') }}</a>
                 </div>
 
             </div>

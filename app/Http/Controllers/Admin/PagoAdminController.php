@@ -4,10 +4,12 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Pago;
-use App\Models\Pedido;
 use App\Http\Requests\AprobarPagoRequest;
+use App\Services\BoletaService;
 use Illuminate\View\View;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class PagoAdminController extends Controller
 {
@@ -28,26 +30,47 @@ class PagoAdminController extends Controller
         return view('admin.pagos.show', compact('pago'));
     }
 
-    public function aprobar(Pago $pago, AprobarPagoRequest $request): RedirectResponse
+    public function aprobar(Pago $pago, AprobarPagoRequest $request, BoletaService $boletaService): RedirectResponse
     {
         $accion = $request->input('accion');
-        $nuevoEstado = $accion === 'aprobar' ? 'aprobado' : 'rechazado';
 
-        $pago->update([
-            'estado_pago'         => $nuevoEstado,
-            'observaciones_admin' => $request->input('observaciones_admin'),
-            'fecha_pago'          => $accion === 'aprobar' ? now() : null,
-            'aprobado_por'        => auth()->id(),
-        ]);
+        try {
+            DB::transaction(function () use ($pago, $accion, $request, $boletaService) {
+                $nuevoEstado = $accion === 'aprobar' ? 'aprobado' : 'rechazado';
 
-        if ($accion === 'aprobar') {
-            $pago->pedido->update(['estado' => 'pagado_parcial']);
+                $pago->update([
+                    'estado_pago'         => $nuevoEstado,
+                    'observaciones_admin' => $request->input('observaciones_admin'),
+                    'fecha_pago'          => $accion === 'aprobar' ? now() : null,
+                    'aprobado_por'        => auth()->id(),
+                ]);
+
+                if ($accion === 'aprobar') {
+                    $pago->pedido->update(['estado' => 'pagado_parcial']);
+
+                    $boleta = $boletaService->generar($pago->pedido, $pago);
+                    if (! $boleta) {
+                        throw new \RuntimeException('No se pudo generar la boleta automáticamente. Revise los logs para más detalles.');
+                    }
+                }
+            });
+
+            $mensaje = $accion === 'aprobar'
+                ? 'Pago aprobado y boleta generada correctamente.'
+                : 'Pago rechazado.';
+
+            return redirect()->route('admin.pagos.index')->with('success', $mensaje);
+        } catch (\Throwable $e) {
+            Log::error('Error al aprobar pago', [
+                'pago_id' => $pago->id,
+                'accion'  => $accion,
+                'error'   => $e->getMessage(),
+                'class'   => get_class($e),
+            ]);
+
+            return redirect()
+                ->route('admin.pagos.show', $pago)
+                ->with('error', 'Error al procesar: ' . $e->getMessage());
         }
-
-        $mensaje = $accion === 'aprobar'
-            ? 'Pago aprobado correctamente.'
-            : 'Pago rechazado.';
-
-        return redirect()->route('admin.pagos.index')->with('success', $mensaje);
     }
 }

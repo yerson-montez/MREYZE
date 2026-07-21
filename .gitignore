@@ -17,6 +17,8 @@
 /public/hot
 /public/storage
 /storage/*.key
+/storage/app/google/
+/empresa_ocr.json
 /storage/pail
 /vendor
 Homestead.json

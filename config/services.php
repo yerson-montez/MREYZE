@@ -36,15 +36,25 @@ return [
     ],
 
     'google' => [
-        'client_id' => env('GOOGLE_CLIENT_ID'),
-        'client_secret' => env('GOOGLE_CLIENT_SECRET'),
-        'redirect' => env('GOOGLE_REDIRECT_URI'),
-     ],
+        'client_id'          => env('GOOGLE_CLIENT_ID'),
+        'client_secret'      => env('GOOGLE_CLIENT_SECRET'),
+        'redirect'           => env('GOOGLE_REDIRECT_URI'),
+        'vision_credentials' => (function (): ?string {
+            $path = env('GOOGLE_APPLICATION_CREDENTIALS');
+            if ($path === null || $path === '') return null;
+            $esAbsoluto = str_starts_with($path, '/') || preg_match('/^[A-Za-z]:[\\\\\/]/', $path);
+            return $esAbsoluto ? $path : storage_path('app/google/'.$path);
+        })(),
+    ],
 
-     'mercado_pago' => [
-        
+    'mercado_pago' => [
+
         'token' => env('MERCADO_PAGO_ACCESS_TOKEN'),
         'public_key' => env('MERCADO_PAGO_PUBLIC_KEY'),
-     ],
+    ],
+
+    'tesseract' => [
+        'binary_path' => env('TESSERACT_BINARY_PATH', 'C:\Program Files\Tesseract-OCR\tesseract.exe'),
+    ],
 
 ];

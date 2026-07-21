@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Rules\ComprobanteValido;
 use Illuminate\Foundation\Http\FormRequest;
 
 class StoreComprobanteRequest extends FormRequest
@@ -15,14 +16,13 @@ class StoreComprobanteRequest extends FormRequest
     {
         return [
             'numero_operacion' => 'nullable|string|max:100',
-            'comprobante'      => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:5120',
+            'comprobante'      => ['nullable', 'file', new ComprobanteValido],
         ];
     }
 
     public function messages(): array
     {
         return [
-            'comprobante.mimes' => 'El comprobante debe ser JPG, PNG o PDF.',
             'comprobante.max'   => 'El comprobante no debe superar los 5 MB.',
         ];
     }
