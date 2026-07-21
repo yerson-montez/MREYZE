@@ -65,22 +65,21 @@
         /* ── NAVBAR ── */
         .nav-wrapper {
             position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
-            padding: 0 2rem;
             background: rgba(10, 22, 40, 0.85);
             backdrop-filter: blur(18px) saturate(180%);
             -webkit-backdrop-filter: blur(18px) saturate(180%);
             border-bottom: 1px solid rgba(74, 144, 217, 0.18);
             box-shadow: 0 4px 32px rgba(0, 90, 200, 0.12);
         }
-        .navbar { display: flex; align-items: center; justify-content: space-between; max-width: 1280px; margin: 0 auto; height: 68px; }
-        .nav-logo { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+        .navbar { display: flex; align-items: center; max-width: 1280px; margin: 0 auto; height: 68px; padding: 0 2rem; }
+        .nav-logo { display: flex; align-items: center; gap: 4px; text-decoration: none; }
         .nav-logo-icon { width: 78px; height: 70px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
         .nav-logo-icon img { width: 100%; height: 100%; object-fit: contain; }
         .nav-logo-text { font-family: 'Exo 2', sans-serif; font-weight: 700; font-size: 1.2rem; letter-spacing: 0.03em; color: #fff; line-height: 1; }
         .nav-logo-text span { color: var(--accent); }
         .nav-logo-sub { font-size: 0.58rem; font-weight: 300; color: var(--ice-200); letter-spacing: 0.15em; text-transform: uppercase; display: block; margin-top: 2px; }
-        .nav-links { display: flex; align-items: center; gap: 0.2rem; list-style: none; }
-        .nav-links a { display: flex; align-items: center; gap: 6px; padding: 0.45rem 0.9rem; border-radius: 8px; font-size: 0.875rem; font-weight: 500; color: var(--ice-100); text-decoration: none; letter-spacing: 0.02em; transition: all 0.22s ease; position: relative; white-space: nowrap; }
+        .nav-links { display: flex; align-items: center; justify-content: center; gap: 0; list-style: none; flex: 1; }
+        .nav-links a { display: flex; align-items: center; gap: 2px; padding: 0.35rem 0.45rem; border-radius: 8px; font-size: 0.875rem; font-weight: 500; color: var(--ice-100); text-decoration: none; letter-spacing: 0.02em; transition: all 0.22s ease; position: relative; white-space: nowrap; }
         .nav-links a svg { width: 15px; height: 15px; opacity: 0.7; transition: opacity 0.2s; }
         .nav-links a:hover { color: #fff; background: rgba(37, 99, 199, 0.25); }
         .nav-links a:hover svg { opacity: 1; }
@@ -95,20 +94,20 @@
         .dropdown a:hover { background: rgba(37, 99, 199, 0.3); color: #fff; padding-left: 1.1rem; }
         .dropdown-label { font-size: 0.7rem; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ice-300); padding: 0.5rem 0.85rem 0.25rem; }
         .dropdown-divider { height: 1px; background: rgba(74, 144, 217, 0.15); margin: 0.4rem 0; }
-        .nav-right { display: flex; align-items: center; gap: 0.75rem; }
-        .btn-login { display: flex; align-items: center; gap: 7px; padding: 0.45rem 1.1rem; border-radius: 8px; font-size: 0.85rem; font-weight: 500; color: var(--ice-100); background: rgba(37, 99, 199, 0.18); border: 1px solid rgba(74, 144, 217, 0.3); text-decoration: none; transition: all 0.22s; cursor: pointer; }
+        .nav-right { display: flex; align-items: center; gap: 0.4rem; }
+        .btn-login { display: flex; align-items: center; gap: 3px; padding: 0.35rem 0.7rem; border-radius: 8px; font-size: 0.85rem; font-weight: 500; color: var(--ice-100); background: rgba(37, 99, 199, 0.18); border: 1px solid rgba(74, 144, 217, 0.3); text-decoration: none; transition: all 0.22s; cursor: pointer; }
         .btn-login svg { width: 15px; height: 15px; }
         .btn-login:hover { background: rgba(37, 99, 199, 0.35); border-color: rgba(74, 144, 217, 0.6); color: #fff; }
-        .btn-cta { display: flex; align-items: center; gap: 7px; padding: 0.5rem 1.25rem; border-radius: 8px; font-size: 0.875rem; font-weight: 600; color: #fff; background: linear-gradient(135deg, var(--ice-500), var(--ice-400)); border: 1px solid rgba(74, 144, 217, 0.4); text-decoration: none; letter-spacing: 0.02em; transition: all 0.25s; box-shadow: 0 4px 16px rgba(30, 77, 153, 0.45); cursor: pointer; white-space: nowrap; }
+        .btn-cta { display: flex; align-items: center; gap: 3px; padding: 0.4rem 0.85rem; border-radius: 8px; font-size: 0.875rem; font-weight: 600; color: #fff; background: linear-gradient(135deg, var(--ice-500), var(--ice-400)); border: 1px solid rgba(74, 144, 217, 0.4); text-decoration: none; letter-spacing: 0.02em; transition: all 0.25s; box-shadow: 0 4px 16px rgba(30, 77, 153, 0.45); cursor: pointer; white-space: nowrap; }
         .btn-cta svg { width: 15px; height: 15px; }
         .btn-cta:hover { background: linear-gradient(135deg, var(--ice-400), var(--glow)); box-shadow: 0 6px 24px rgba(59, 130, 246, 0.55); transform: translateY(-1px); }
-        .btn-google { display: flex; align-items: center; gap: 8px; padding: 0.45rem 1rem; border-radius: 8px; font-size: 0.835rem; font-weight: 500; color: var(--ice-100); background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.12); text-decoration: none; transition: all 0.22s; cursor: pointer; }
+        .btn-google { display: flex; align-items: center; gap: 3px; padding: 0.35rem 0.6rem; border-radius: 8px; font-size: 0.835rem; font-weight: 500; color: var(--ice-100); background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.12); text-decoration: none; transition: all 0.22s; cursor: pointer; }
         .btn-google img { width: 16px; height: 16px; }
         .btn-google:hover { background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.25); color: #fff; }
         .nav-user { display: flex; align-items: center; gap: 8px; padding: 0.35rem 0.75rem 0.35rem 0.4rem; border-radius: 30px; background: rgba(37, 99, 199, 0.18); border: 1px solid rgba(74, 144, 217, 0.28); cursor: pointer; transition: all 0.22s; text-decoration: none; color: var(--ice-100); font-size: 0.85rem; font-weight: 500; }
         .nav-user:hover { background: rgba(37, 99, 199, 0.32); color: #fff; }
         .nav-user-avatar { width: 28px; height: 28px; border-radius: 50%; background: linear-gradient(135deg, var(--ice-500), var(--accent)); display: flex; align-items: center; justify-content: center; font-size: 0.7rem; font-weight: 700; color: #fff; letter-spacing: 0.02em; flex-shrink: 0; }
-        .nav-toggle { display: none !important; flex-direction: column; gap: 5px; background: none; border: none; cursor: pointer; padding: 8px; border-radius: 8px; transition: background 0.2s; }
+        .nav-toggle { display: none !important; margin-left: auto; flex-direction: column; gap: 5px; background: none; border: none; cursor: pointer; padding: 8px; border-radius: 8px; transition: background 0.2s; }
         .nav-toggle:hover { background: rgba(37, 99, 199, 0.2); }
         .nav-toggle span { display: block; width: 22px; height: 2px; background: var(--ice-200); border-radius: 2px; transition: all 0.3s; }
         .nav-toggle.open span:nth-child(1) { transform: rotate(45deg) translate(5px, 5px); }

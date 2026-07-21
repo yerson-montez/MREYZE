@@ -495,11 +495,13 @@
 }
 
 @media (max-width:768px) {
-    .hero-inner { grid-template-columns:1fr;gap:2rem;text-align:center; }
+    .hero-inner { grid-template-columns:1fr;gap:2rem;text-align:center; padding:3rem 1.5rem; }
     .hero-subtitle { margin:0 auto 2rem; }
     .hero-actions { justify-content:center; }
     .hero-stats { justify-content:center; }
-    .hero-right { display:none; }
+    .hero-right { display:flex; justify-content:center; }
+    .hero-showcase { max-width:420px; }
+    .hero-badge { padding:0.3rem 0.85rem; gap:6px; font-size:0.68rem; }
 
     .destacados-grid { grid-template-columns:repeat(2,1fr); }
     .porque-grid { grid-template-columns:1fr; }
@@ -507,6 +509,8 @@
 }
 
 @media (max-width:480px) {
+    .hero-inner { padding:2.5rem 1rem; }
+    .hero-badge { padding:0.25rem 0.65rem; gap:5px; font-size:0.62rem; white-space:normal; text-align:left; }
     .destacados-grid { grid-template-columns:1fr; }
     .hero-actions { flex-direction:column;align-items:center; }
     .carousel-card { width:160px; }
