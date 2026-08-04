@@ -5,10 +5,12 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Producto;
 use App\Models\ProductoImagen;
+use App\Imports\ProductosImport;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
+use Maatwebsite\Excel\Facades\Excel;
 
 class AdminProductoController extends Controller
 {
@@ -23,7 +25,7 @@ class AdminProductoController extends Controller
             $query->where('nombre', 'like', '%' . $request->buscar . '%');
         }
 
-        $productos = $query->latest()->paginate(10)->withQueryString();
+        $productos = $query->latest()->paginate(100)->withQueryString();
 
         $stats = [
             'total'    => Producto::count(),
@@ -215,7 +217,7 @@ class AdminProductoController extends Controller
         }
     }
 
-    private function validar(Request $request, ?int $ignoreId = null): array
+            private function validar(Request $request, $id = null)
     {
         return $request->validate([
             'nombre'          => 'required|string|max:120',
@@ -228,12 +230,39 @@ class AdminProductoController extends Controller
             'icono_imagen'    => 'nullable|image|mimes:jpg,jpeg,png,webp|max:5120',
             'icono_color'     => 'nullable|string|max:80',
             'activo'          => 'boolean',
-            'nuevas_imagenes'       => 'nullable|array|max:10',
-            'nuevas_imagenes.*'     => 'image|mimes:jpg,jpeg,png,webp|max:5120',
-            'eliminar_imagenes'     => 'nullable|array',
-            'eliminar_imagenes.*'   => 'integer|exists:producto_imagenes,id',
-            'orden_imagenes'        => 'nullable|array',
-            'imagen_principal'      => 'nullable|integer|exists:producto_imagenes,id',
+            'nuevas_imagenes' => 'nullable|array|max:10',
         ]);
+    }
+
+
+    /**
+     * Importar productos desde Excel
+     */
+    public function importar(Request $request)
+    {
+        $request->validate([
+            'archivo' => [
+                'required',
+                'file',
+                'mimes:xlsx,xls,csv'
+            ]
+        ]);
+
+        try {
+
+            Excel::import(
+                new ProductosImport,
+                $request->file('archivo')
+            );
+
+            return redirect()
+                ->route('admin.productos.index')
+                ->with('exito', 'Productos importados correctamente.');
+
+        } catch (\Exception $e) {
+
+            return back()
+                ->with('error', 'Error al importar: '.$e->getMessage());
+        }
     }
 }

@@ -130,11 +130,6 @@
     transform: translateY(-1px);
     color: #fff;
 }
-.gallery-thumb.active {
-    border-color: #00d4ff !important;
-    opacity: 1 !important;
-    box-shadow: 0 0 12px rgba(0,212,255,0.25) !important;
-}
 .producto-btn:disabled, .producto-btn.agotado-btn {
     background: rgba(74,144,217,0.15);
     cursor: not-allowed;
@@ -149,7 +144,7 @@
 <section class="py-10 px-4 md:px-8" style="background:var(--ice-800);min-height:calc(100vh - 70px);position:relative">
     <div style="position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(74,144,217,0.3),transparent)"></div>
 
-    <div class="max-w-6xl mx-auto relative z-10">
+    <div class="max-w-6xl mx-auto relative z-10" x-data="productoDetalle()">
 
         {{-- Breadcrumb --}}
         <nav class="flex items-center gap-2 text-sm mb-8 flex-wrap" style="color:var(--ice-300)">
@@ -176,16 +171,27 @@
                             'orden' => 0,
                         ]]);
                     }
-                    $displaySrc = $producto->imagen_principal_url;
+                    $imgPrincipal = $imgs->firstWhere('es_principal') ?? $imgs->first();
+                    $mainSrc = $imgPrincipal 
+    ? (str_starts_with($imgPrincipal->ruta, 'http') 
+        ? $imgPrincipal->ruta 
+        : asset('storage/' . $imgPrincipal->ruta))
+    : null;
+
+$fallbackSrc = $producto->icono_imagen 
+    ? (str_starts_with($producto->icono_imagen, 'http') 
+        ? $producto->icono_imagen 
+        : asset('storage/' . $producto->icono_imagen))
+    : null;
+                    $displaySrc = $mainSrc ?? $fallbackSrc;
                 @endphp
 
-                <div class="relative rounded-2xl overflow-hidden group"
-                     style="aspect-ratio:1;background:rgba(13,31,60,0.8);border:1px solid rgba(74,144,217,0.15);cursor:pointer"
-                     onclick="abrirLightbox()">
+                <div class="relative rounded-2xl overflow-hidden cursor-crosshair group"
+                     style="aspect-ratio:1;background:rgba(13,31,60,0.8);border:1px solid rgba(74,144,217,0.15)"
+                     @click="abrirLightbox()">
 
                     @if($displaySrc)
-                        <img id="main-image"
-                             src="{{ $displaySrc }}"
+                        <img :src="imagenActual"
                              alt="{{ addslashes($producto->nombre) }}"
                              class="w-full h-full block transition-transform duration-300"
                              style="object-fit:contain"
@@ -216,33 +222,47 @@
                         </span>
                     </div>
 
-                    @if($displaySrc)
-                    <div class="absolute bottom-3 right-3 p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-10"
-                         style="background:rgba(0,0,0,0.5);backdrop-filter:blur(8px)">
-                        <svg class="w-5 h-5 text-white" viewBox="0 0 24 24" fill="currentColor">
-                            <path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
-                        </svg>
-                    </div>
-                    @endif
+                   @if($displaySrc)
+<div class="absolute bottom-3 right-3 w-20 h-20 rounded-xl overflow-hidden z-10"
+     style="background:rgba(0,0,0,0.5);border:2px solid rgba(0,212,255,0.5)">
+    
+    <img src="{{ $displaySrc }}"
+         alt="{{ $producto->nombre }}"
+         style="width:100%;height:100%;object-fit:cover;">
+         
+</div>
+@endif
                 </div>
 
-                @if($imgs->count() > 1)
-                <div id="gallery-thumbs" class="flex gap-2.5 mt-3 overflow-x-auto pb-1">
+                @if($imgs->count() >= 1)
+                <div class="flex gap-2.5 mt-3 overflow-x-auto pb-1">
                     @foreach($imgs as $idx => $img)
                     <button type="button"
-                            class="gallery-thumb flex-shrink-0 w-16 h-16 md:w-[70px] md:h-[70px] rounded-xl overflow-hidden border-2 transition-all duration-200 cursor-pointer p-0{{ $idx === 0 ? ' active' : '' }}"
-                            data-src="{{ asset('storage/' . $img->ruta) }}"
-                            data-index="{{ $idx }}"
-                            onclick="seleccionarImagen(this)">
-                        <img src="{{ asset('storage/' . $img->ruta) }}"
-                             alt="Imagen {{ $idx + 1 }}"
-                             class="w-full h-full object-cover"
-                             loading="lazy">
+                            class="flex-shrink-0 w-16 h-16 md:w-[70px] md:h-[70px] rounded-xl overflow-hidden border-2 transition-all duration-200 cursor-pointer p-0"
+                            :class="imagenActual === '{{ asset('storage/' . $img->ruta) }}'
+                                ? 'border-cyan-400 opacity-100'
+                                : 'border-transparent opacity-50 hover:opacity-75'"
+                            :style="imagenActual === '{{ asset('storage/' . $img->ruta) }}'
+                                ? 'box-shadow:0 0 12px rgba(0,212,255,0.25)'
+                                : ''"
+                            @click="seleccionar({{ $idx }}, '{{ asset('storage/' . $img->ruta) }}')">
+                        @php
+    $rutaImagen = str_starts_with($img->ruta, 'http')
+        ? $img->ruta
+        : asset('storage/' . $img->ruta);
+@endphp
+
+<div @click="seleccionar({{ $idx }}, '{{ $rutaImagen }}')">
+    <img src="{{ $rutaImagen }}"
+         alt="Imagen {{ $idx + 1 }}"
+         class="w-full h-full object-cover"
+         loading="lazy">
+</div>
                     </button>
                     @endforeach
                 </div>
-                <p id="gallery-counter" class="text-center text-xs mt-2" style="color:var(--ice-300)">
-                    1 / {{ $imgs->count() }} imagenes
+                <p class="text-center text-xs mt-2" style="color:var(--ice-300)">
+                    <span x-text="indiceActual + 1">1</span> / {{ $imgs->count() }} imagenes
                 </p>
                 @endif
             </div>
@@ -335,7 +355,7 @@
                     @endif
 
                     <div class="flex gap-2.5">
-                        <a href="{{ config('empresa.whatsapp_url') }}?text={{ urlencode($producto->nombre . ' - S/ ' . number_format($producto->precio, 2) . ' | ' . route('tienda.show', $producto->slug)) }}"
+                        <a href="https://wa.me/?text={{ urlencode($producto->nombre . ' - S/ ' . number_format($producto->precio, 2) . ' | ' . route('tienda.show', $producto->slug)) }}"
                            target="_blank"
                            class="flex-1 flex items-center justify-center gap-2.5 py-3 px-6 rounded-xl text-sm font-semibold text-white no-underline transition-all duration-250"
                            style="background:rgba(37,211,102,0.15);border:1px solid rgba(37,211,102,0.35)">
@@ -370,50 +390,58 @@
 </section>
 
 {{-- LIGHTBOX --}}
-<div id="lightbox"
+<div x-show="lightboxAbierto"
+     x-transition:enter="transition ease-out duration-200"
+     x-transition:enter-start="opacity-0"
+     x-transition:enter-end="opacity-100"
+     x-transition:leave="transition ease-in duration-150"
+     x-transition:leave-start="opacity-100"
+     x-transition:leave-end="opacity-0"
      class="fixed inset-0 z-[9999] flex items-center justify-center p-4"
-     style="background:rgba(0,0,0,0.92);backdrop-filter:blur(12px);display:none"
-     onclick="if(event.target===this)cerrarLightbox()">
+     style="background:rgba(0,0,0,0.92);backdrop-filter:blur(12px)"
+     @click.self="cerrarLightbox()"
+     @keydown.escape.window="cerrarLightbox()"
+     @keydown.left.window="anterior()"
+     @keydown.right.window="siguiente()"
+     x-cloak>
 
-    <button onclick="cerrarLightbox()"
+    <button @click="cerrarLightbox()"
             class="absolute top-4 right-4 p-2 rounded-full transition-colors z-50"
             style="background:rgba(255,255,255,0.1);color:#fff">
         <svg class="w-6 h-6" viewBox="0 0 24 24" fill="currentColor"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
     </button>
 
     @if($imgs->count() > 1)
-    <button onclick="lightboxAnterior()"
+    <button @click="anterior()"
             class="absolute left-2 md:left-4 p-2 rounded-full transition-colors z-50"
             style="background:rgba(255,255,255,0.1);color:#fff">
         <svg class="w-7 h-7" viewBox="0 0 24 24" fill="currentColor"><path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/></svg>
     </button>
-    <button onclick="lightboxSiguiente()"
+    <button @click="siguiente()"
             class="absolute right-2 md:right-4 p-2 rounded-full transition-colors z-50"
             style="background:rgba(255,255,255,0.1);color:#fff">
         <svg class="w-7 h-7" viewBox="0 0 24 24" fill="currentColor"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg>
     </button>
     @endif
 
-    <img id="lightbox-image"
-         src="{{ $displaySrc }}"
-         alt="{{ addslashes($producto->nombre) }}"
+    <img :src="imagenActual"
+         :alt="nombreProducto"
          class="max-w-full max-h-[85vh] object-contain rounded-lg select-none"
-         onclick="event.stopPropagation()">
+         @click.stop>
 
     @if($imgs->count() > 1)
-    <div id="lightbox-dots" class="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2 px-3 py-2 rounded-full"
+    <div class="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2 px-3 py-2 rounded-full"
          style="background:rgba(0,0,0,0.6);backdrop-filter:blur(8px)">
         @foreach($imgs as $idx => $img)
-        <button data-index="{{ $idx }}"
-                data-src="{{ asset('storage/' . $img->ruta) }}"
-                onclick="lightboxSeleccionar(this)"
+        <button @click="seleccionar({{ $idx }}, '{{ asset('storage/' . $img->ruta) }}')"
                 class="w-2.5 h-2.5 rounded-full transition-all duration-200 p-0 border-0 cursor-pointer"
-                style="{{ $idx === 0 ? 'background:#00d4ff;box-shadow:0 0 8px rgba(0,212,255,0.5);transform:scale(1.25)' : 'background:#fff;opacity:0.5' }}">
+                :class="indiceActual === {{ $idx }} ? 'scale-125' : 'opacity-50 hover:opacity-75'"
+                :style="indiceActual === {{ $idx }} ? 'background:#00d4ff;box-shadow:0 0 8px rgba(0,212,255,0.5)' : 'background:#fff'">
         </button>
         @endforeach
     </div>
-    <p id="lightbox-counter" class="absolute bottom-14 left-1/2 -translate-x-1/2 text-xs text-white/60">
-        1 / {{ $imgs->count() }}
+    <p class="absolute bottom-14 left-1/2 -translate-x-1/2 text-xs text-white/60">
+        <span x-text="indiceActual + 1"></span> / <span x-text="todasLasImagenes.length"></span>
     </p>
     @endif
 </div>
@@ -422,116 +450,60 @@
 
 @push('scripts')
 <script>
-    const galleryImages = @js($imgs->values()->map(fn($img) => asset('storage/' . $img->ruta))->values()->all());
-    let currentIndex = 0;
+function productoDetalle() {
+    return {
+        imagenActual: @js($displaySrc),
+        indiceActual: 0,
+        lightboxAbierto: false,
+        nombreProducto: @js($producto->nombre),
+        todasLasImagenes: @js($imgs->values()->map(fn($img) => asset('storage/' . $img->ruta))->values()->all()),
 
-    function seleccionarImagen(btn) {
-        const src = btn.getAttribute('data-src');
-        const idx = parseInt(btn.getAttribute('data-index'));
-        document.getElementById('main-image').src = src;
-        document.querySelectorAll('.gallery-thumb').forEach(t => {
-            t.classList.remove('active');
-            t.style.borderColor = 'transparent';
-            t.style.opacity = '0.5';
-            t.style.boxShadow = 'none';
-        });
-        btn.classList.add('active');
-        btn.style.borderColor = '#00d4ff';
-        btn.style.opacity = '1';
-        btn.style.boxShadow = '0 0 12px rgba(0,212,255,0.25)';
-        currentIndex = idx;
-        const counter = document.getElementById('gallery-counter');
-        if (counter) counter.textContent = (idx + 1) + ' / ' + galleryImages.length + ' imagenes';
-    }
+        seleccionar(idx, src) {
+            this.imagenActual = src;
+            this.indiceActual = idx;
+        },
 
-    function abrirLightbox() {
-        const mainImg = document.getElementById('main-image');
-        if (!mainImg || !mainImg.src) return;
-        document.getElementById('lightbox-image').src = mainImg.src;
-        document.getElementById('lightbox').style.display = 'flex';
-        document.body.style.overflow = 'hidden';
-        actualizarLightboxUI();
-    }
+        abrirLightbox() {
+            if (!this.imagenActual) return;
+            this.lightboxAbierto = true;
+            document.body.style.overflow = 'hidden';
+        },
 
-    function cerrarLightbox() {
-        document.getElementById('lightbox').style.display = 'none';
-        document.body.style.overflow = '';
-    }
+        cerrarLightbox() {
+            this.lightboxAbierto = false;
+            document.body.style.overflow = '';
+        },
 
-    function lightboxAnterior() {
-        if (galleryImages.length <= 1) return;
-        currentIndex = currentIndex > 0 ? currentIndex - 1 : galleryImages.length - 1;
-        actualizarLightboxUI();
-    }
+        anterior() {
+            if (this.todasLasImagenes.length <= 1) return;
+            this.indiceActual = this.indiceActual > 0
+                ? this.indiceActual - 1
+                : this.todasLasImagenes.length - 1;
+            this.imagenActual = this.todasLasImagenes[this.indiceActual];
+        },
 
-    function lightboxSiguiente() {
-        if (galleryImages.length <= 1) return;
-        currentIndex = currentIndex < galleryImages.length - 1 ? currentIndex + 1 : 0;
-        actualizarLightboxUI();
-    }
-
-    function lightboxSeleccionar(dot) {
-        currentIndex = parseInt(dot.getAttribute('data-index'));
-        actualizarLightboxUI();
-    }
-
-    function actualizarLightboxUI() {
-        document.getElementById('lightbox-image').src = galleryImages[currentIndex];
-        const dots = document.querySelectorAll('#lightbox-dots button');
-        dots.forEach((d, i) => {
-            if (i === currentIndex) {
-                d.style.background = '#00d4ff';
-                d.style.boxShadow = '0 0 8px rgba(0,212,255,0.5)';
-                d.style.transform = 'scale(1.25)';
-                d.style.opacity = '1';
-            } else {
-                d.style.background = '#fff';
-                d.style.boxShadow = 'none';
-                d.style.transform = 'none';
-                d.style.opacity = '0.5';
-            }
-        });
-        document.getElementById('lightbox-counter').textContent = (currentIndex + 1) + ' / ' + galleryImages.length;
-        const mainImg = document.getElementById('main-image');
-        if (mainImg) mainImg.src = galleryImages[currentIndex];
-        document.querySelectorAll('.gallery-thumb').forEach(t => {
-            const idx = parseInt(t.getAttribute('data-index'));
-            if (idx === currentIndex) {
-                t.classList.add('active');
-                t.style.borderColor = '#00d4ff';
-                t.style.opacity = '1';
-                t.style.boxShadow = '0 0 12px rgba(0,212,255,0.25)';
-            } else {
-                t.classList.remove('active');
-                t.style.borderColor = 'transparent';
-                t.style.opacity = '0.5';
-                t.style.boxShadow = 'none';
-            }
-        });
-        const counter = document.getElementById('gallery-counter');
-        if (counter) counter.textContent = (currentIndex + 1) + ' / ' + galleryImages.length + ' imagenes';
-    }
-
-    document.addEventListener('keydown', function(e) {
-        const lb = document.getElementById('lightbox');
-        if (!lb || lb.style.display === 'none' || lb.style.display === '') return;
-        if (e.key === 'Escape') cerrarLightbox();
-        if (e.key === 'ArrowLeft') { e.preventDefault(); lightboxAnterior(); }
-        if (e.key === 'ArrowRight') { e.preventDefault(); lightboxSiguiente(); }
-    });
-
-    function compartirProducto() {
-        const url = @js(route('tienda.show', $producto->slug));
-        const title = @js($producto->nombre);
-        if (navigator.share) {
-            navigator.share({ title: title, url: url });
-        } else if (navigator.clipboard) {
-            navigator.clipboard.writeText(url).then(function() {
-                alert('Enlace copiado al portapapeles');
-            });
-        } else {
-            window.open('https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent(url), '_blank', 'width=600,height=400');
+        siguiente() {
+            if (this.todasLasImagenes.length <= 1) return;
+            this.indiceActual = this.indiceActual < this.todasLasImagenes.length - 1
+                ? this.indiceActual + 1
+                : 0;
+            this.imagenActual = this.todasLasImagenes[this.indiceActual];
         }
+    };
+}
+
+function compartirProducto() {
+    const url = @js(route('tienda.show', $producto->slug));
+    const title = @js($producto->nombre);
+    if (navigator.share) {
+        navigator.share({ title: title, url: url });
+    } else if (navigator.clipboard) {
+        navigator.clipboard.writeText(url).then(function() {
+            alert('Enlace copiado al portapapeles');
+        });
+    } else {
+        window.open('https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent(url), '_blank', 'width=600,height=400');
     }
+}
 </script>
 @endpush

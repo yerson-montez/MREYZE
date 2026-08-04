@@ -5,8 +5,18 @@
    style="text-decoration:none;color:inherit;display:block">
 
     <div class="producto-img">
-    @php $imgUrl = $p->imagen_principal_url; @endphp
-    @if($imgUrl)
+
+    @php
+        $imagenes = $p->imagenes;
+        $imgUrl = $p->imagen_principal_url;
+    @endphp
+
+    @if($imagenes->count())
+        <img src="{{ $imagenes->first()->ruta }}"
+             alt="{{ $p->nombre }}"
+             class="producto-img-full"
+             loading="lazy">
+    @elseif($imgUrl)
         <img src="{{ $imgUrl }}"
              alt="{{ $p->nombre }}"
              class="producto-img-full"

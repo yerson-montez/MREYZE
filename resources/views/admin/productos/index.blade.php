@@ -132,12 +132,20 @@
         <div>
             <div class="adm-page-sub">Gestión · Tienda</div>
             <h1 class="adm-page-title">Productos de la <span>Tienda</span></h1>
-        </div>
-        <a href="{{ route('admin.productos.create') }}" class="adm-btn adm-btn-primary">
-            <svg viewBox="0 0 24 24" fill="currentColor" style="width:15px;height:15px"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
-            Nuevo producto
-        </a>
-    </div>
+        <div style="display:flex; gap:.5rem;">
+
+    <a href="{{ route('admin.productos.importar') }}" class="adm-btn adm-btn-ghost">
+        📥 Importar Excel
+    </a>
+
+    <a href="{{ route('admin.productos.create') }}" class="adm-btn adm-btn-primary">
+        <svg viewBox="0 0 24 24" fill="currentColor" style="width:15px;height:15px">
+            <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
+        </svg>
+        Nuevo producto
+    </a>
+
+</div>
 
     {{-- Stats --}}
     <div class="adm-stats">

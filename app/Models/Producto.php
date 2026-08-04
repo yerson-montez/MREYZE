@@ -13,7 +13,7 @@ class Producto extends Model
     use HasFactory;
 
     protected $fillable = [
-        'nombre', 'descripcion', 'precio', 'precio_anterior',
+        'codigo','nombre', 'descripcion', 'precio', 'precio_anterior',
         'stock', 'categoria', 'estado', 'icono_imagen',
         'icono_color', 'slug', 'activo',
     ];
@@ -25,13 +25,24 @@ class Producto extends Model
     ];
 
     protected static function booted(): void
-    {
-        static::creating(function (Producto $producto) {
-            if (empty($producto->slug)) {
-                $producto->slug = Str::slug($producto->nombre);
+{
+    static::creating(function (Producto $producto) {
+
+        if (empty($producto->slug)) {
+
+            $base = Str::slug(($producto->codigo ?? uniqid()) . '-' . $producto->nombre);
+
+            $slug = $base;
+            $i = 1;
+
+            while (Producto::where('slug', $slug)->exists()) {
+                $slug = $base . '-' . $i++;
             }
-        });
-    }
+
+            $producto->slug = $slug;
+        }
+    });
+}
 
     // ── Relaciones ─────────────────────────────────────────────
 
@@ -53,16 +64,31 @@ class Producto extends Model
     // ── Accessors ──────────────────────────────────────────────
 
     public function getImagenPrincipalUrlAttribute(): ?string
-    {
-        $img = $this->imagenPrincipal()->first();
-        if ($img) {
-            return asset('storage/' . $img->ruta);
+{
+    $img = $this->imagenPrincipal()->first();
+
+    if ($img) {
+        // Imagen subida a tu servidor
+        if (str_starts_with($img->ruta, 'http')) {
+            return $img->ruta;
         }
-        if ($this->icono_imagen) {
-            return asset('storage/' . $this->icono_imagen);
-        }
-        return null;
+
+        return asset('storage/' . $img->ruta);
     }
+
+    if ($this->icono_imagen) {
+
+        // Imagen externa (Deltron)
+        if (str_starts_with($this->icono_imagen, 'http')) {
+            return $this->icono_imagen;
+        }
+
+        // Imagen local
+        return asset('storage/' . $this->icono_imagen);
+    }
+
+    return null;
+}
 
     public function getRutaImagenPrincipalAttribute(): ?string
     {

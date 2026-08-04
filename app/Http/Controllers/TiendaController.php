@@ -23,27 +23,37 @@ class TiendaController extends Controller
 
         if ($search) {
             $term = '%' . $search . '%';
+
             $query->where(function ($q) use ($term) {
                 $q->where('nombre', 'LIKE', $term)
-                  ->orWhere('descripcion', 'LIKE', $term)
-                  ->orWhere('categoria', 'LIKE', $term);
+                    ->orWhere('descripcion', 'LIKE', $term)
+                    ->orWhere('categoria', 'LIKE', $term);
             });
         }
 
+        // Carga por AJAX
         if ($request->ajax() || $request->wantsJson() || $request->query('ajax')) {
+
             $productos = $query->get();
+
             $html = view('tienda._productos', compact('productos'))->render();
+
             return response()->json([
                 'html'  => $html,
                 'count' => $productos->count(),
             ]);
         }
 
-        $productos = $query->paginate(99999999999);
+        $productos = $query->paginate(300);
+
         $metodosPago = MetodoPago::activos()->get();
 
-        return view('tienda.index', compact('productos'));
+        return view('tienda.index', compact(
+            'productos',
+            'metodosPago'
+        ));
     }
+
 
     public function show(Producto $producto)
     {
@@ -56,18 +66,24 @@ class TiendaController extends Controller
         $relacionados = Producto::activos()
             ->where('id', '!=', $producto->id)
             ->where('categoria', $producto->categoria)
-            ->with(['imagenes' => fn ($q) => $q->orderBy('orden')])
+            ->with([
+                'imagenes' => fn ($q) => $q->orderBy('orden')
+            ])
             ->limit(4)
             ->get();
 
         $metodosPago = MetodoPago::activos()->get();
 
-        return view('tienda.show', compact('producto', 'relacionados', 'metodosPago'));
+        return view('tienda.show', compact(
+            'producto',
+            'relacionados',
+            'metodosPago'
+        ));
     }
 
-    public function create($slug)
+
+    public function create(Producto $producto)
     {
-        $producto = Producto::where('slug', $slug)->firstOrFail();
         return view('pedidos.create', compact('producto'));
     }
 }

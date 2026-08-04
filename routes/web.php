@@ -11,24 +11,30 @@ use App\Http\Controllers\Admin\AdminProductoController;
 use App\Http\Controllers\Admin\MetodoPagoController;
 use App\Http\Controllers\Admin\PedidoAdminController;
 use App\Http\Controllers\Admin\PagoAdminController;
-use App\Http\Controllers\Admin\BoletaController;
 use App\Http\Controllers\Admin\ColaboradorAdminController;
 use App\Http\Controllers\Admin\AdminProyectoController;
 use App\Http\Controllers\ProyectoController;
 use App\Http\Controllers\SolicitudColaboradorController;
 
 // ─── HOME ────────────────────────────────────────────────────────
-Route::get('/', function () {
-    $productos = \App\Models\Producto::activos()
-        ->with(['imagenPrincipal', 'imagenes' => fn ($q) => $q->orderBy('orden')])
-        ->get();
-    $destacados = $productos->take(8);
-    return view('sections.inicio', compact('productos', 'destacados'));
-})->name('inicio');
+use App\Models\Producto;
+use App\Models\MetodoPago;
 
-Route::get('/test-pedidos', function () {
-    return view('pedidos.test');
-});
+Route::get('/', function () {
+
+    $productosHome = Producto::where('activo', true)
+        ->where('estado', 'disponible')
+        ->take(8)
+        ->get();
+
+    $metodosPago = MetodoPago::where('activo', true)->get();
+
+    return view('sections.inicio', compact(
+        'productosHome',
+        'metodosPago'
+    ));
+
+})->name('inicio');
 
 // ─── PÁGINAS ESTÁTICAS ──────────────────────────────────────────
 Route::get('/nosotros',  fn() => view('sections.nosotros'))->name('nosotros');
@@ -71,13 +77,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/mis-pedidos/{pedido}', [PedidoController::class, 'show'])->name('pedidos.show');
 
     // Pago con Yape
-    Route::get('/pedido/{pedido}/pago',             [PagoController::class, 'show'])->name('pedidos.pago');
-    Route::get('/pedido/{pedido}/pago/status',      [PagoController::class, 'status'])->name('pedidos.pago.status');
-    Route::get('/pedido/{pedido}/estado',           [PagoController::class, 'estado'])->name('pedidos.estado');
-    Route::post('/pedido/{pedido}/comprobante',      [PagoController::class, 'storeComprobante'])->name('pedidos.comprobante');
-
-    Route::get('/pedido/{pedido}/boleta',             [PagoController::class, 'showBoleta'])->name('pedidos.boleta');
-    Route::get('/pedido/{pedido}/boleta/pdf',          [PagoController::class, 'boletaPdf'])->name('pedidos.boleta.pdf');
+    Route::get('/pedido/{pedido}/pago',        [PagoController::class, 'show'])->name('pedidos.pago');
+    Route::post('/pedido/{pedido}/comprobante', [PagoController::class, 'storeComprobante'])->name('pedidos.comprobante');
 
     Route::get('/mi-link', [SolicitudColaboradorController::class, 'miLink'])->name('colaborador.link');
 });
@@ -98,9 +99,20 @@ Route::prefix('admin')
         Route::patch('/colaboradores/solicitudes/{solicitud}/aprobar',    [SolicitudColaboradorController::class, 'aprobar'])->name('colaboradores.solicitudes.aprobar');
         Route::patch('/colaboradores/solicitudes/{solicitud}/rechazar',   [SolicitudColaboradorController::class, 'rechazar'])->name('colaboradores.solicitudes.rechazar');
 
-        Route::get('/productos',                      [AdminProductoController::class, 'index'])->name('productos.index');
-        Route::get('/productos/crear',                [AdminProductoController::class, 'create'])->name('productos.create');
-        Route::post('/productos',                     [AdminProductoController::class, 'store'])->name('productos.store');
+Route::get('/productos',                      [AdminProductoController::class, 'index'])->name('productos.index');
+Route::get('/productos/crear',                [AdminProductoController::class, 'create'])->name('productos.create');
+Route::post('/productos',                     [AdminProductoController::class, 'store'])->name('productos.store');
+
+Route::get('/productos/importar',
+    function () {
+        return view('admin.productos.importar');
+    }
+)->name('productos.importar.form');
+
+
+Route::post('/productos/importar',
+    [AdminProductoController::class, 'importar']
+)->name('productos.importar');
         Route::get('/productos/{producto}/editar',    [AdminProductoController::class, 'edit'])->name('productos.edit');
         Route::put('/productos/{producto}',           [AdminProductoController::class, 'update'])->name('productos.update');
         Route::delete('/productos/{producto}',        [AdminProductoController::class, 'destroy'])->name('productos.destroy');
@@ -118,10 +130,6 @@ Route::prefix('admin')
         Route::get('pagos',                    [PagoAdminController::class, 'index'])->name('pagos.index');
         Route::get('pagos/{pago}',             [PagoAdminController::class, 'show'])->name('pagos.show');
         Route::post('pagos/{pago}/aprobar',    [PagoAdminController::class, 'aprobar'])->name('pagos.aprobar');
-
-        // Boletas
-        Route::get('boletas/{boleta}',          [BoletaController::class, 'show'])->name('boletas.show');
-        Route::get('boletas/{boleta}/pdf',      [BoletaController::class, 'pdf'])->name('boletas.pdf');
 
         Route::get('colaboradores',                          [ColaboradorAdminController::class, 'index'])->name('colaboradores.index');
         Route::get('colaboradores/crear',                    [ColaboradorAdminController::class, 'create'])->name('colaboradores.create');
