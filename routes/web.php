@@ -69,6 +69,11 @@ Route::get('/pedidos/crear/{producto:slug}',  [PedidoController::class, 'create'
 Route::post('/pedidos/crear/{producto:slug}', [PedidoController::class, 'store'])->name('pedidos.store');
 
 
+// ─── PEDIDOS PÚBLICOS (sin login) ─────────────────────────────────
+
+Route::get('/pedidos/crear/{producto:slug}',  [PedidoController::class, 'create'])->name('pedidos.create');
+Route::post('/pedidos/crear/{producto:slug}', [PedidoController::class, 'store'])->name('pedidos.store');
+
 // ─── RUTAS AUTENTICADAS (usuarios normales) ───────────────────────
 Route::middleware('auth')->group(function () {
 
