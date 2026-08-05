@@ -63,6 +63,12 @@ Route::get('/unete/gracias',[SolicitudColaboradorController::class, 'gracias'])-
 Route::get('/auth/google',          [SocialController::class, 'redirect'])->name('auth.google');
 Route::get('/auth/google/callback', [SocialController::class, 'callback'])->name('auth.google.callback');
 
+// ─── PEDIDOS PÚBLICOS (sin login) ─────────────────────────────────
+
+Route::get('/pedidos/crear/{producto:slug}',  [PedidoController::class, 'create'])->name('pedidos.create');
+Route::post('/pedidos/crear/{producto:slug}', [PedidoController::class, 'store'])->name('pedidos.store');
+
+
 // ─── RUTAS AUTENTICADAS (usuarios normales) ───────────────────────
 Route::middleware('auth')->group(function () {
 
@@ -70,9 +76,6 @@ Route::middleware('auth')->group(function () {
     Route::patch('/profile',  [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
-    // Pedidos
-    Route::get('/pedidos/crear/{producto:slug}',  [PedidoController::class, 'create'])->name('pedidos.create');
-    Route::post('/pedidos/crear/{producto:slug}', [PedidoController::class, 'store'])->name('pedidos.store');
     Route::get('/mis-pedidos', [PedidoController::class, 'misPedidos'])->name('pedidos.mis');
     Route::get('/mis-pedidos/{pedido}', [PedidoController::class, 'show'])->name('pedidos.show');
 
