@@ -281,13 +281,25 @@ textarea{resize:vertical;min-height:88px;padding-left:36px;padding-top:11px;line
     </div>
 
     {{-- ── RESUMEN DEL PRODUCTO ── --}}
-    <div class="product-card">
-      <div class="product-top">
-        <div class="product-img">
-          <img src="{{ asset('storage/' . $producto->icono_imagen) }}"
-               alt="{{ $producto->nombre }}"
-               onerror="this.style.display='none'">
-        </div>
+   <div class="product-img">
+
+@php
+    $imagenProducto = $producto->icono_imagen;
+
+    if ($imagenProducto && str_starts_with($imagenProducto, 'http')) {
+        $imagenUrl = $imagenProducto;
+    } else {
+        $imagenUrl = $imagenProducto
+            ? asset('storage/' . $imagenProducto)
+            : asset('images/no-image.png');
+    }
+@endphp
+
+<img src="{{ $imagenUrl }}"
+     alt="{{ $producto->nombre }}"
+     onerror="this.src='{{ asset('images/no-image.png') }}'">
+
+</div>
         <div style="flex:1;">
           <p class="product-name">{{ $producto->nombre }}</p>
           <p class="product-meta">Ref: #PRD-{{ str_pad($producto->id, 3, '0', STR_PAD_LEFT) }} · Envío a todo el Perú</p>

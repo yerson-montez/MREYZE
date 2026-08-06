@@ -57,7 +57,7 @@ class TesseractOcrService
             $tesseract = new TesseractOCR($tempPath);
             $tesseract->lang('spa');
             $tesseract->psm(3);
-            $tesseract->withoutTempFiles();
+            // $tesseract->withoutTempFiles();
 
             $binaryPath = config('services.tesseract.binary_path');
             if ($binaryPath) {

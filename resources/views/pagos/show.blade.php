@@ -340,7 +340,7 @@
 </div>
 
 @php
-  $pollUrl = route('pedidos.estado', $pedido);
+  $pollUrl = url('/pedido/' . $pedido->id . '/estado');
   $pedidoId = $pedido->id;
 @endphp
 <script>

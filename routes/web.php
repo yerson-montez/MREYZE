@@ -82,7 +82,7 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
     Route::get('/mis-pedidos', [PedidoController::class, 'misPedidos'])->name('pedidos.mis');
-    Route::get('/mis-pedidos/{pedido}', [PedidoController::class, 'show'])->name('pedidos.show');
+    Route::get('/mis-pedidos/{pedido}', [PedidoController::class, 'show'])->name('pedidos.show'); 
 
     // Pago con Yape
     Route::get('/pedido/{pedido}/pago',        [PagoController::class, 'show'])->name('pedidos.pago');
