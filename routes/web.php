@@ -11,9 +11,14 @@ use App\Http\Controllers\Admin\AdminProductoController;
 use App\Http\Controllers\Admin\MetodoPagoController;
 use App\Http\Controllers\Admin\PedidoAdminController;
 use App\Http\Controllers\Admin\PagoAdminController;
+use App\Http\Controllers\Admin\BoletaController;
 use App\Http\Controllers\Admin\ColaboradorAdminController;
 use App\Http\Controllers\Admin\AdminProyectoController;
+use App\Http\Controllers\Admin\AdminProyectoInversionController;
+use App\Http\Controllers\Admin\AdminInversionController;
 use App\Http\Controllers\ProyectoController;
+use App\Http\Controllers\ProyectoInversionController;
+use App\Http\Controllers\InversionController;
 use App\Http\Controllers\SolicitudColaboradorController;
 
 // ─── HOME ────────────────────────────────────────────────────────
@@ -41,6 +46,10 @@ Route::get('/nosotros',  fn() => view('sections.nosotros'))->name('nosotros');
 Route::get('/servicios', fn() => view('sections.servicios'))->name('servicios');
 Route::get('/proyectos', [ProyectoController::class, 'index'])->name('proyectos');
 Route::get('/proyectos/{proyecto:slug}', [ProyectoController::class, 'show'])->name('proyectos.show');
+Route::get('/proyectos-de-inversion', [ProyectoInversionController::class, 'index'])->name('proyectos.inversion');
+Route::get('/proyectos/{proyecto:slug}/invertir', [InversionController::class, 'create'])->name('inversiones.create');
+Route::post('/proyectos/{proyecto:slug}/invertir', [InversionController::class, 'store'])->name('inversiones.store');
+Route::get('/proyectos/{proyecto:slug}/invertir/gracias', [InversionController::class, 'gracias'])->name('inversiones.gracias');
 Route::get('/blog',      fn() => view('sections.blog'))->name('blog');
 Route::get('/contacto',  fn() => view('sections.contacto'))->name('contacto');
 
@@ -63,17 +72,6 @@ Route::get('/unete/gracias',[SolicitudColaboradorController::class, 'gracias'])-
 Route::get('/auth/google',          [SocialController::class, 'redirect'])->name('auth.google');
 Route::get('/auth/google/callback', [SocialController::class, 'callback'])->name('auth.google.callback');
 
-// ─── PEDIDOS PÚBLICOS (sin login) ─────────────────────────────────
-
-Route::get('/pedidos/crear/{producto:slug}',  [PedidoController::class, 'create'])->name('pedidos.create');
-Route::post('/pedidos/crear/{producto:slug}', [PedidoController::class, 'store'])->name('pedidos.store');
-
-
-// ─── PEDIDOS PÚBLICOS (sin login) ─────────────────────────────────
-
-Route::get('/pedidos/crear/{producto:slug}',  [PedidoController::class, 'create'])->name('pedidos.create');
-Route::post('/pedidos/crear/{producto:slug}', [PedidoController::class, 'store'])->name('pedidos.store');
-
 // ─── RUTAS AUTENTICADAS (usuarios normales) ───────────────────────
 Route::middleware('auth')->group(function () {
 
@@ -81,12 +79,20 @@ Route::middleware('auth')->group(function () {
     Route::patch('/profile',  [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
+    Route::get('/pedidos/crear/{producto:slug}',  [PedidoController::class, 'create'])->name('pedidos.create');
+    Route::post('/pedidos/crear/{producto:slug}', [PedidoController::class, 'store'])->name('pedidos.store');
+
     Route::get('/mis-pedidos', [PedidoController::class, 'misPedidos'])->name('pedidos.mis');
     Route::get('/mis-pedidos/{pedido}', [PedidoController::class, 'show'])->name('pedidos.show'); 
+
+    Route::get('/mis-inversiones', [InversionController::class, 'misInversiones'])->name('inversiones.mis');
 
     // Pago con Yape
     Route::get('/pedido/{pedido}/pago',        [PagoController::class, 'show'])->name('pedidos.pago');
     Route::post('/pedido/{pedido}/comprobante', [PagoController::class, 'storeComprobante'])->name('pedidos.comprobante');
+    Route::get('/pedido/{pedido}/estado',      [PagoController::class, 'estado'])->name('pedidos.estado');
+    Route::get('/pedido/{pedido}/boleta',      [PagoController::class, 'showBoleta'])->name('pedidos.boleta');
+    Route::get('/pedido/{pedido}/boleta.pdf',  [PagoController::class, 'boletaPdf'])->name('pedidos.boleta.pdf');
 
     Route::get('/mi-link', [SolicitudColaboradorController::class, 'miLink'])->name('colaborador.link');
 });
@@ -139,6 +145,10 @@ Route::post('/productos/importar',
         Route::get('pagos/{pago}',             [PagoAdminController::class, 'show'])->name('pagos.show');
         Route::post('pagos/{pago}/aprobar',    [PagoAdminController::class, 'aprobar'])->name('pagos.aprobar');
 
+        // Boletas admin
+        Route::get('boletas/{boleta}',         [BoletaController::class, 'show'])->name('boletas.show');
+        Route::get('boletas/{boleta}/pdf',     [BoletaController::class, 'pdf'])->name('boletas.pdf');
+
         Route::get('colaboradores',                          [ColaboradorAdminController::class, 'index'])->name('colaboradores.index');
         Route::get('colaboradores/crear',                    [ColaboradorAdminController::class, 'create'])->name('colaboradores.create');
         Route::post('colaboradores',                         [ColaboradorAdminController::class, 'store'])->name('colaboradores.store');
@@ -157,6 +167,23 @@ Route::post('/productos/importar',
         Route::patch('/proyectos/{proyecto}/toggle',  [AdminProyectoController::class, 'toggleVisibilidad'])->name('proyectos.toggle');
         Route::patch('/proyectos/imagenes/{imagen}/principal', [AdminProyectoController::class, 'setPrincipal'])->name('proyectos.imagenes.principal');
         Route::delete('/proyectos/imagenes/{imagen}',         [AdminProyectoController::class, 'eliminarImagen'])->name('proyectos.imagenes.destroy');
+
+        Route::post('/proyectos/{proyecto}/contrato',       [AdminProyectoController::class, 'subirContrato'])->name('proyectos.contrato');
+        Route::delete('/proyectos/{proyecto}/contrato',     [AdminProyectoController::class, 'eliminarContrato'])->name('proyectos.contrato.eliminar');
+
+        Route::get('/proyectos-inversion',                             [AdminProyectoInversionController::class, 'index'])->name('proyectos-inversion.index');
+        Route::get('/proyectos-inversion/crear',                       [AdminProyectoInversionController::class, 'create'])->name('proyectos-inversion.create');
+        Route::post('/proyectos-inversion',                            [AdminProyectoInversionController::class, 'store'])->name('proyectos-inversion.store');
+        Route::get('/proyectos-inversion/{proyectoInversion}/editar',  [AdminProyectoInversionController::class, 'edit'])->name('proyectos-inversion.edit');
+        Route::put('/proyectos-inversion/{proyectoInversion}',         [AdminProyectoInversionController::class, 'update'])->name('proyectos-inversion.update');
+        Route::delete('/proyectos-inversion/{proyectoInversion}',      [AdminProyectoInversionController::class, 'destroy'])->name('proyectos-inversion.destroy');
+        Route::patch('/proyectos-inversion/{proyectoInversion}/toggle',[AdminProyectoInversionController::class, 'toggleVisibilidad'])->name('proyectos-inversion.toggle');
+
+        Route::get('/inversiones',                          [AdminInversionController::class, 'index'])->name('inversiones.index');
+        Route::get('/inversiones/{inversion}',              [AdminInversionController::class, 'show'])->name('inversiones.show');
+        Route::post('/inversiones/{inversion}/aprobar',     [AdminInversionController::class, 'aprobar'])->name('inversiones.aprobar');
+        Route::post('/inversiones/{inversion}/rechazar',    [AdminInversionController::class, 'rechazar'])->name('inversiones.rechazar');
+        Route::get('/inversiones/{inversion}/comprobante',  [AdminInversionController::class, 'descargarComprobante'])->name('inversiones.comprobante');
     });
 
 Route::get('/dashboard', fn() => view('dashboard'))->middleware('auth')->name('dashboard');

@@ -78,13 +78,13 @@
       </h1>
     </div>
     <span class="pd-badge
-      {{ $pedido->estado === 'pendiente_pago' ? 'amber' : '' }}
-      {{ $pedido->estado === 'pendiente_aprobacion' ? 'blue' : '' }}
-      {{ $pedido->estado === 'pagado_parcial' ? 'indigo' : '' }}
+      {{ $pedido->estado === 'pendiente' ? 'amber' : '' }}
+      {{ $pedido->estado === 'pago_confirmado' ? 'indigo' : '' }}
       {{ $pedido->estado === 'preparando' ? 'purple' : '' }}
-      {{ $pedido->estado === 'en_proceso_envio' ? 'orange' : '' }}
       {{ $pedido->estado === 'enviado' ? 'cyan' : '' }}
-      {{ $pedido->estado === 'entregado' ? 'green' : '' }}
+      {{ $pedido->estado === 'en_camino' ? 'orange' : '' }}
+      {{ $pedido->estado === 'listo_recojo' ? 'blue' : '' }}
+      {{ $pedido->estado === 'completado' ? 'green' : '' }}
       {{ $pedido->estado === 'cancelado' ? 'red' : '' }}">
       <svg viewBox="0 0 24 24" fill="currentColor" style="width:12px;height:12px;">
         <circle cx="12" cy="12" r="10"/>
@@ -96,23 +96,19 @@
   {{-- Timeline --}}
   @php
     $timelineSteps = [
-      ['key' => 'recibido',     'label' => 'Pedido recibido',     'desc' => 'Hemos recibido tu pedido y está pendiente de pago.',                    'svg' => '<path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>'],
-      ['key' => 'pagado',       'label' => 'Pago confirmado',     'desc' => 'Tu pago ha sido confirmado. Estamos revisando los datos.',             'svg' => '<path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>'],
-      ['key' => 'preparando',   'label' => 'Preparando pedido',   'desc' => 'Estamos preparando tu producto para el envío.',                         'svg' => '<path d="M22.7 19l-9.1-9.1c.9-2.3.4-5-1.5-6.9-2-2-5-2.4-7.4-1.3L9 6 6 9 1.6 4.7C.4 7.1.9 10.1 2.9 12.1c1.9 1.9 4.6 2.4 6.9 1.5l9.1 9.1c.4.4 1 .4 1.4 0l2.3-2.3c.5-.4.5-1.1.1-1.4z"/>'],
-      ['key' => 'proceso_envio','label' => 'En proceso de envío', 'desc' => 'Tu pedido está siendo trasladado para su entrega.',                     'svg' => '<path d="M20 8h-3V4H3c-1.1 0-2 .9-2 2v11h2c0 1.66 1.34 3 3 3s3-1.34 3-3h6c0 1.66 1.34 3 3 3s3-1.34 3-3h2v-5l-3-4zM6 18.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm13.5-9l1.96 2.5H17V9.5h2.5zm-1.5 9c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/>'],
-      ['key' => 'enviado',      'label' => 'Enviado',             'desc' => 'Tu pedido ha sido enviado y está en camino.',                           'svg' => '<path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 14l-5-5 1.41-1.41L12 14.17l7.59-7.59L21 8l-9 9z"/>'],
-      ['key' => 'entregado',    'label' => 'Entregado',           'desc' => 'Tu pedido ha sido entregado. ¡Gracias por tu compra!',                  'svg' => '<path d="M9 16.2L4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4L9 16.2z"/>'],
+      ['key' => 'pendiente',       'label' => 'Pedido recibido',     'desc' => 'Hemos recibido tu pedido. Realiza el pago para confirmarlo.',              'svg' => '<path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>'],
+      ['key' => 'pago_confirmado', 'label' => 'Pago confirmado',     'desc' => 'Tu pago fue confirmado. Estamos preparando tu pedido.',                     'svg' => '<path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>'],
+      ['key' => 'preparando',      'label' => 'Preparando pedido',   'desc' => 'Estamos preparando tu producto para la entrega.',                           'svg' => '<path d="M22.7 19l-9.1-9.1c.9-2.3.4-5-1.5-6.9-2-2-5-2.4-7.4-1.3L9 6 6 9 1.6 4.7C.4 7.1.9 10.1 2.9 12.1c1.9 1.9 4.6 2.4 6.9 1.5l9.1 9.1c.4.4 1 .4 1.4 0l2.3-2.3c.5-.4.5-1.1.1-1.4z"/>'],
+      ['key' => 'enviado',         'label' => 'Enviado',             'desc' => 'Tu pedido ha sido despachado.',                                                'svg' => '<path d="M20 8h-3V4H3c-1.1 0-2 .9-2 2v11h2c0 1.66 1.34 3 3 3s3-1.34 3-3h6c0 1.66 1.34 3 3 3s3-1.34 3-3h2v-5l-3-4zM6 18.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm13.5-9l1.96 2.5H17V9.5h2.5zm-1.5 9c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/>'],
+      ['key' => 'en_camino',       'label' => 'En camino',           'desc' => 'Tu pedido está en camino hacia su destino.',                                 'svg' => '<path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 14l-5-5 1.41-1.41L12 14.17l7.59-7.59L21 8l-9 9z"/>'],
+      ['key' => 'listo_recojo',    'label' => 'Listo para recojo',   'desc' => 'Tu pedido está listo para recoger en el punto de entrega.',                 'svg' => '<path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96z"/>'],
+      ['key' => 'completado',      'label' => 'Completado',          'desc' => 'Tu pedido fue completado. ¡Gracias por tu compra!',                           'svg' => '<path d="M9 16.2L4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4L9 16.2z"/>'],
     ];
 
     $currentEstado = $pedido->estado;
     $currentIdx = null;
     foreach ($timelineSteps as $i => $step) {
-        if (in_array($currentEstado, ['pendiente_pago', 'pendiente_aprobacion']) && $i === 0) { $currentIdx = 0; break; }
-        if ($currentEstado === 'pagado_parcial' && $step['key'] === 'pagado') { $currentIdx = $i; break; }
-        if ($currentEstado === 'preparando' && $step['key'] === 'preparando') { $currentIdx = $i; break; }
-        if ($currentEstado === 'en_proceso_envio' && $step['key'] === 'proceso_envio') { $currentIdx = $i; break; }
-        if ($currentEstado === 'enviado' && $step['key'] === 'enviado') { $currentIdx = $i; break; }
-        if ($currentEstado === 'entregado' && $step['key'] === 'entregado') { $currentIdx = $i; break; }
+        if ($step['key'] === $currentEstado) { $currentIdx = $i; break; }
     }
 
     $esCancelado = $currentEstado === 'cancelado';
@@ -136,20 +132,15 @@
           // Buscar fecha en historial
           $estadoFecha = null;
           $estadoDesc  = $step['desc'];
-          foreach (['pendiente_pago', 'pendiente_aprobacion', 'pagado_parcial', 'preparando', 'en_proceso_envio', 'enviado', 'entregado'] as $eKey) {
-              if (isset($estadosMap[$eKey])) {
-                  $h = $estadosMap[$eKey];
-                  if ($step['key'] === 'recibido' && in_array($eKey, ['pendiente_pago', 'pendiente_aprobacion'])) {
-                      $estadoFecha = $h->created_at;
-                      if ($h->descripcion) $estadoDesc = $h->descripcion;
-                  } elseif ($eKey === 'pagado_parcial' && $step['key'] === 'pagado') {
-                      $estadoFecha = $h->created_at;
-                      if ($h->descripcion) $estadoDesc = $h->descripcion;
-                  } elseif ($eKey === $step['key']) {
-                      $estadoFecha = $h->created_at;
-                      if ($h->descripcion) $estadoDesc = $h->descripcion;
-                  }
+          if ($step['key'] === 'pendiente') {
+              $estadoFecha = $pedido->created_at;
+              if (isset($estadosMap['pendiente']) && $estadosMap['pendiente']->descripcion) {
+                  $estadoDesc = $estadosMap['pendiente']->descripcion;
               }
+          } elseif (isset($estadosMap[$step['key']])) {
+              $h = $estadosMap[$step['key']];
+              $estadoFecha = $h->created_at;
+              if ($h->descripcion) $estadoDesc = $h->descripcion;
           }
           if (!$estadoFecha) {
               $estadoFecha = $pedido->created_at;
@@ -300,6 +291,32 @@
   </div>
   @endif
 
+  {{-- Boleta --}}
+  @if ($boleta = $pedido->boletas->first())
+  <div class="pd-card">
+    <h2 class="pd-card-title">Boleta electrónica</h2>
+    <div class="pd-grid">
+      <div class="pd-field">
+        <div class="pd-label">Número</div>
+        <div class="pd-value">{{ $boleta->numero_boleta }}</div>
+      </div>
+      <div class="pd-field">
+        <div class="pd-label">Total</div>
+        <div class="pd-value" style="color:var(--success);">S/ {{ number_format($boleta->total, 2) }}</div>
+      </div>
+    </div>
+    <div style="margin-top:16px;">
+      <a href="{{ route('pedidos.boleta.pdf', $pedido) }}" target="_blank"
+         style="display:inline-flex;align-items:center;gap:6px;padding:12px 24px;border-radius:10px;font-size:.85rem;font-weight:600;background:linear-gradient(135deg,var(--ice-500),var(--ice-400));color:#fff;text-decoration:none;transition:all .2s;">
+        <svg viewBox="0 0 24 24" fill="currentColor" style="width:16px;height:16px;">
+          <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 14l-5-5 1.41-1.41L12 14.17l7.59-7.59L21 8l-9 9z"/>
+        </svg>
+        Ver boleta PDF
+      </a>
+    </div>
+  </div>
+  @endif
+
   {{-- Volver --}}
   <div style="text-align:center;margin-top:8px;">
     <a href="{{ route('pedidos.mis') }}" style="display:inline-flex;align-items:center;gap:6px;padding:12px 24px;border-radius:10px;font-size:.85rem;font-weight:600;color:var(--ice-200);border:1px solid rgba(74,144,217,.2);text-decoration:none;transition:all .2s;"
@@ -313,4 +330,31 @@
   </div>
 
 </div>
+
+@php
+  $pollUrl = url('/pedido/' . $pedido->id . '/estado');
+  $estadoActual = $pedido->estado;
+@endphp
+<script>
+(function() {
+    var pollUrl = '{{ $pollUrl }}';
+    var estadoActual = '{{ $estadoActual }}';
+    var timer = null;
+
+    function poll() {
+        fetch(pollUrl, { headers: { 'Accept': 'application/json' } })
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+                if (data.estado_raw && data.estado_raw !== estadoActual) {
+                    window.location.reload();
+                }
+            })
+            .catch(function() {});
+    }
+
+    if (estadoActual !== 'completado') {
+        timer = setInterval(poll, 8000);
+    }
+})();
+</script>
 @endsection

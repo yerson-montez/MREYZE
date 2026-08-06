@@ -57,7 +57,7 @@
                     <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
                 @enderror
                 <p class="text-xs text-gray-400 mt-1">
-                    Se aplica sobre el total del pedido al marcarlo como "entregado".
+                    Se aplica sobre el total del pedido al marcarlo como "completado".
                 </p>
             </div>
 

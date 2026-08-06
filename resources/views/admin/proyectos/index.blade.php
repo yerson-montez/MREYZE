@@ -84,6 +84,10 @@
 .adm-estado-abierto        { background: rgba(16,185,129,.12); color:#10b981; border:1px solid rgba(16,185,129,.3); }
 .adm-estado-cerrado        { background: rgba(244,63,94,.12);  color:#f43f5e; border:1px solid rgba(244,63,94,.3); }
 
+.adm-inv-disponible   { background: rgba(16,185,129,.12); color:#10b981; border:1px solid rgba(16,185,129,.3); }
+.adm-inv-en_ejecucion { background: rgba(245,158,11,.12); color:#f59e0b; border:1px solid rgba(245,158,11,.3); }
+.adm-inv-completado   { background: rgba(0,212,255,.12);  color:#00d4ff; border:1px solid rgba(0,212,255,.3); }
+
 @media (max-width: 768px) {
     .adm-table colgroup col:nth-child(4),
     .adm-table colgroup col:nth-child(5) { display: none; }
@@ -274,6 +278,11 @@
                     <span class="adm-badge adm-estado-{{ $p->estado }}">
                         {{ str_replace('_', ' ', ucfirst($p->estado)) }}
                     </span>
+                    @if($p->tipo === 'inversion' && $p->inversion_estado)
+                        <span class="adm-badge adm-inv-{{ $p->inversion_estado }}" style="margin-top:.3rem;">
+                            {{ $p->inversion_estado_label }}
+                        </span>
+                    @endif
                 </td>
 
                 <td style="text-align:center">

@@ -60,7 +60,7 @@
             </div>
         </div>
 
-        {{── Pagos del pedido ──}}
+        {{-- Pagos del pedido --}}
         @if ($pedido->pagos->count() > 0)
         <div class="bg-white rounded-xl border p-5 mb-4">
             <h2 class="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-3">Pagos recibidos</h2>
@@ -114,7 +114,7 @@
                             <span class="text-xs text-amber-600 font-medium">Pendiente de pago</span>
                         @endif
                     @else
-                        <p class="text-xs text-gray-400 italic">Se calculará al entregar</p>
+                        <p class="text-xs text-gray-400 italic">Se calculará al completar</p>
                     @endif
                 </div>
             </div>
@@ -130,9 +130,9 @@
                 <div class="flex gap-3 items-start mb-3">
                     <select name="estado"
                         class="flex-1 border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500">
-                        @foreach (['pendiente_pago','pendiente_aprobacion','pagado_parcial','preparando','en_proceso_envio','enviado','entregado','cancelado'] as $estado)
+                        @foreach (\App\Models\Pedido::ESTADOS as $estado => $estadoLabel)
                             <option value="{{ $estado }}" @selected($pedido->estado === $estado)>
-                                {{ ucfirst(str_replace('_', ' ', $estado)) }}
+                                {{ $estadoLabel }}
                             </option>
                         @endforeach
                     </select>
@@ -144,9 +144,9 @@
                 <textarea name="descripcion" rows="2" placeholder="Descripción del cambio (opcional)…"
                     class="w-full border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500"></textarea>
             </form>
-            @if ($pedido->estado === 'entregado' && $pedido->entregado_at)
+            @if ($pedido->estado === 'completado' && $pedido->entregado_at)
             <p class="text-xs text-gray-400 mt-2">
-                Entregado el {{ $pedido->entregado_at->format('d/m/Y H:i') }}
+                Completado el {{ $pedido->entregado_at->format('d/m/Y H:i') }}
             </p>
             @endif
         </div>
@@ -155,13 +155,13 @@
         @php
             $historial = $pedido->estados()->latest()->get();
             $estadoLabels = [
-                'pendiente_pago' => 'Pendiente de pago',
-                'pendiente_aprobacion' => 'Pendiente de aprobación',
-                'pagado_parcial' => 'Pago aprobado',
+                'pendiente' => 'Pendiente de pago',
+                'pago_confirmado' => 'Pago confirmado',
                 'preparando' => 'Preparando pedido',
-                'en_proceso_envio' => 'En proceso de envío',
                 'enviado' => 'Enviado',
-                'entregado' => 'Entregado',
+                'en_camino' => 'En camino',
+                'listo_recojo' => 'Listo para recojo',
+                'completado' => 'Completado',
                 'cancelado' => 'Cancelado',
             ];
         @endphp

@@ -530,8 +530,8 @@
             <span class="comision-lbl">comisión</span>
         </div>
         <div class="comision-desc">
-            <h3>Ganas el {{ $colaborador->comision_porcentaje ?? 0 }}% por cada venta entregada</h3>
-            <p>Cada vez que un cliente compra usando tu enlace y el pedido es entregado, recibes automáticamente tu comisión sobre el total de la venta.</p>
+            <h3>Ganas el {{ $colaborador->comision_porcentaje ?? 0 }}% por cada venta completada</h3>
+            <p>Cada vez que un cliente compra usando tu enlace y el pedido es completado, recibes automáticamente tu comisión sobre el total de la venta.</p>
         </div>
     </div>
 
@@ -597,13 +597,14 @@
                         <td class="td-center">
                             @php
                                 $badges = [
-                                    'pendiente_pago'     => 'badge-pendiente',
-                                    'pendiente_aprobacion' => 'badge-pendiente',
-                                    'pagado_parcial'     => 'badge-confirmado',
-                                    'preparando'         => 'badge-confirmado',
-                                    'enviado'            => 'badge-confirmado',
-                                    'entregado'          => 'badge-entregado',
-                                    'cancelado'          => 'badge-cancelado',
+                                    'pendiente'      => 'badge-pendiente',
+                                    'pago_confirmado' => 'badge-confirmado',
+                                    'preparando'     => 'badge-confirmado',
+                                    'enviado'        => 'badge-confirmado',
+                                    'en_camino'      => 'badge-confirmado',
+                                    'listo_recojo'   => 'badge-confirmado',
+                                    'completado'     => 'badge-entregado',
+                                    'cancelado'      => 'badge-cancelado',
                                 ];
                                 $badgeClass = $badges[$pedido->estado] ?? 'badge-pendiente';
                             @endphp

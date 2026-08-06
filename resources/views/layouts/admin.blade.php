@@ -404,6 +404,101 @@
                 padding: 1.25rem 0.75rem;
             }
         }
+
+        /* ── UTILIDADES ADMIN (alertas, botones, tablas, badges, paginación) ── */
+        .adm-alert {
+            display: flex; align-items: center; gap: .5rem;
+            padding: .9rem 1.1rem; border-radius: 12px;
+            font-size: .85rem; font-weight: 500; margin-bottom: 1.25rem;
+        }
+        .adm-alert-success { background: rgba(16,185,129,.1); border: 1px solid rgba(16,185,129,.3); color: #34d399; }
+        .adm-alert-error   { background: rgba(244,63,94,.1);  border: 1px solid rgba(244,63,94,.3);  color: #fb7185; }
+        .adm-alert svg { width: 17px; height: 17px; flex-shrink: 0; }
+
+        .adm-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 1rem; margin-bottom: 1.5rem; }
+        .adm-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 1.1rem 1.3rem;
+        }
+
+        .adm-btn {
+            display: inline-flex; align-items: center; justify-content: center; gap: .45rem;
+            padding: .55rem 1.1rem; border-radius: 10px;
+            font-size: .83rem; font-weight: 600; cursor: pointer;
+            border: 1px solid transparent; text-decoration: none;
+            transition: all .18s; font-family: inherit; white-space: nowrap;
+        }
+        .adm-btn-primary { background: linear-gradient(135deg, var(--ice-500), var(--ice-400)); color: #fff; border-color: rgba(74,144,217,.4); }
+        .adm-btn-primary:hover { background: linear-gradient(135deg, var(--ice-400), var(--glow)); box-shadow: 0 6px 20px rgba(59,130,246,.4); }
+        .adm-btn-ghost { background: rgba(37,99,199,.15); color: var(--ice-200); border: 1px solid rgba(74,144,217,.2); }
+        .adm-btn-ghost:hover { background: rgba(37,99,199,.3); color: #fff; }
+        .adm-btn-danger { background: rgba(244,63,94,.12); color: #f43f5e; border: 1px solid rgba(244,63,94,.3); }
+        .adm-btn-danger:hover { background: rgba(244,63,94,.25); }
+        .adm-btn-success { background: rgba(16,185,129,.12); color: #10b981; border: 1px solid rgba(16,185,129,.3); }
+        .adm-btn-success:hover { background: rgba(16,185,129,.25); }
+
+        .adm-input, .adm-select {
+            background: rgba(7,26,46,.6);
+            border: 1px solid var(--border-md);
+            border-radius: 10px;
+            padding: .6rem .95rem;
+            color: var(--text);
+            font-size: .85rem;
+            outline: none;
+            font-family: inherit;
+            transition: border-color .2s, box-shadow .2s;
+        }
+        .adm-input:focus, .adm-select:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(0,212,255,.12); }
+
+        .adm-table-container {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            overflow-x: auto;
+        }
+        table.adm-table { width: 100%; border-collapse: collapse; min-width: 680px; }
+        table.adm-table th {
+            text-align: left; padding: .85rem 1rem;
+            font-size: .7rem; font-weight: 700; color: var(--muted);
+            text-transform: uppercase; letter-spacing: .07em;
+            border-bottom: 1px solid var(--border);
+            white-space: nowrap;
+        }
+        table.adm-table td {
+            padding: .8rem 1rem; font-size: .83rem;
+            color: var(--muted); border-bottom: 1px solid rgba(0,212,255,.06);
+            vertical-align: middle;
+        }
+        table.adm-table tbody tr:hover { background: rgba(0,212,255,.03); }
+
+        .adm-badge {
+            display: inline-flex; align-items: center; gap: 5px;
+            padding: .3rem .75rem; border-radius: 20px;
+            font-size: .7rem; font-weight: 600; white-space: nowrap;
+        }
+        .adm-pill {
+            display: inline-flex; align-items: center; gap: 4px;
+            padding: .28rem .7rem; border-radius: 20px;
+            font-size: .7rem; font-weight: 600; text-decoration: none; white-space: nowrap;
+        }
+        .adm-pill-pending { background: rgba(245,158,11,.1);  border: 1px solid rgba(245,158,11,.3);  color: #f59e0b; }
+        .adm-pill-approved { background: rgba(16,185,129,.1); border: 1px solid rgba(16,185,129,.3); color: #10b981; }
+        .adm-pill-rejected { background: rgba(244,63,94,.1);  border: 1px solid rgba(244,63,94,.3);  color: #f43f5e; }
+
+        .adm-pagination {
+            display: flex; align-items: center; justify-content: space-between;
+            flex-wrap: wrap; gap: .75rem; padding: 1rem;
+            border-top: 1px solid var(--border);
+        }
+        .adm-pagination-info { font-size: .78rem; color: var(--muted); }
+        .adm-pagination nav { display: flex; }
+        .adm-pagination .pagination { --bs-pagination-bg: var(--card); --bs-pagination-color: var(--muted); --bs-pagination-border-color: var(--border); --bs-pagination-hover-bg: rgba(0,212,255,.1); --bs-pagination-hover-color: var(--accent); --bs-pagination-active-bg: var(--accent-dim); --bs-pagination-active-border-color: var(--accent-dim); --bs-pagination-disabled-bg: var(--bg); --bs-pagination-disabled-color: var(--muted); margin: 0; }
+
+        .adm-empty { text-align: center; padding: 56px 20px; }
+        .adm-empty-icon { font-size: 2.8rem; margin-bottom: 14px; opacity: .7; }
+        .adm-empty p { color: var(--muted); margin-bottom: 0; }
     </style>
     @stack('styles')
 </head>
@@ -472,6 +567,14 @@
 
         <a href="{{ route('admin.proyectos.index') }}" class="adm-nav-link {{ request()->routeIs('admin.proyectos*') ? 'active' : '' }}">
             <span class="adm-nav-icon">📁</span> Proyectos
+        </a>
+
+        <a href="{{ route('admin.inversiones.index') }}" class="adm-nav-link {{ request()->routeIs('admin.inversiones*') ? 'active' : '' }}">
+            <span class="adm-nav-icon">📈</span> Inversiones
+            @php $invPendientes = \App\Models\Inversion::where('estado','pendiente')->count() @endphp
+            @if($invPendientes > 0)
+                <span class="adm-badge">{{ $invPendientes }}</span>
+            @endif
         </a>
 
         <a href="{{ route('admin.metodos-pago.index') }}" class="adm-nav-link {{ request()->routeIs('admin.metodos-pago*') ? 'active' : '' }}">

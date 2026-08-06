@@ -47,7 +47,7 @@ class PedidoController extends Controller
             'total'            => $total,
             'adelanto'         => $adelanto,
             'saldo'            => $saldo,
-            'estado'           => 'pendiente_pago',
+            'estado'           => 'pendiente',
         ]);
 
         return redirect()->route('pedidos.pago', $pedido);
@@ -56,7 +56,11 @@ class PedidoController extends Controller
     public function misPedidos()
     {
         $pedidos = Pedido::where('user_id', auth()->id())
-            ->with('producto', 'ultimoPago')
+            ->with([
+                'producto',
+                'pagos'  => fn ($q) => $q->latest(),
+                'boletas',
+            ])
             ->latest()
             ->get();
 
@@ -73,6 +77,7 @@ class PedidoController extends Controller
             'producto',
             'pagos' => fn ($q) => $q->latest(),
             'estados',
+            'boletas',
         ]);
 
         return view('pedidos.show', compact('pedido'));

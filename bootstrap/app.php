@@ -11,22 +11,23 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+
         $middleware->alias([
             'es_admin' => \App\Http\Middleware\EsAdmin::class,
         ]);
 
+        // Si el cliente no tiene sesión, enviarlo a Google Login
+        $middleware->redirectGuestsTo('/auth/google');
+
         // Confiar en todos los proxies (Railway, Cloudflare, etc.)
         $middleware->trustProxies(at: '*');
-    })
-    ->withExceptions(function (Exceptions $exceptions): void {
-        //
-    })
 
-    ->withMiddleware(function (Middleware $middleware) {
-        // ... tu middleware existente ...
+        // Capturar referidos
         $middleware->web(append: [
             \App\Http\Middleware\CapturarReferido::class,
         ]);
     })
-    
+    ->withExceptions(function (Exceptions $exceptions): void {
+        //
+    })
     ->create();

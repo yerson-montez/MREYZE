@@ -331,8 +331,11 @@
     }
 
     .inversion-badge-top.abierto    { background: rgba(34,197,94,0.2);  border: 1px solid rgba(34,197,94,0.4);  color: #4ade80; }
+    .inversion-badge-top.disponible { background: rgba(34,197,94,0.2);  border: 1px solid rgba(34,197,94,0.4);  color: #4ade80; }
+    .inversion-badge-top.en_ejecucion { background: rgba(251,191,36,0.2); border: 1px solid rgba(251,191,36,0.4); color: #fbbf24; }
     .inversion-badge-top.pronto     { background: rgba(251,191,36,0.2); border: 1px solid rgba(251,191,36,0.4); color: #fbbf24; }
     .inversion-badge-top.destacado  { background: rgba(0,212,255,0.15); border: 1px solid rgba(0,212,255,0.4);  color: var(--accent); }
+    .inversion-badge-top.completado { background: rgba(34,197,94,0.2); border: 1px solid rgba(34,197,94,0.4); color: #4ade80; }
 
     /* Cabecera visual de la tarjeta */
     .inversion-card-header {
@@ -456,6 +459,7 @@
 
     .inversion-dato-val span { color: var(--accent); }
     .inversion-dato-val.amarillo span { color: #fbbf24; }
+    .inversion-dato-val.verde { color: #4ade80; }
 
     .inversion-dato-label {
         font-size: 0.7rem;
@@ -466,6 +470,9 @@
     /* Footer de la tarjeta */
     .inversion-card-footer {
         padding: 1rem 1.4rem 1.4rem;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
     }
 
     .btn-invertir {
@@ -507,6 +514,94 @@
         background: rgba(251,191,36,0.25);
         box-shadow: 0 6px 18px rgba(251,191,36,0.15);
         transform: translateY(-2px);
+    }
+
+    .btn-invertir-whatsapp {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        width: 100%;
+        padding: 0.7rem 1rem;
+        border-radius: 10px;
+        font-size: 0.82rem;
+        font-weight: 700;
+        text-decoration: none;
+        color: var(--ice-200);
+        border: 1px solid rgba(74,144,217,0.25);
+        background: rgba(74,144,217,0.08);
+        transition: all 0.25s;
+    }
+
+    .btn-invertir-whatsapp:hover {
+        background: rgba(37,99,199,0.2);
+        border-color: rgba(74,144,217,0.45);
+        color: #fff;
+    }
+
+    .btn-invertir-whatsapp svg { width: 16px; height: 16px; }
+
+    /* ═══════════════════════════════════════
+       SIMULADOR DE INVERSIÓN
+    ═══════════════════════════════════════ */
+    .simulador {
+        margin: 1rem 0 3rem;
+        border-radius: 22px;
+        padding: 2.5rem 2rem;
+        background: linear-gradient(135deg, rgba(13,31,60,.9), rgba(17,41,82,.85));
+        border: 1px solid rgba(0,212,255,.2);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .simulador::before {
+        content: '';
+        position: absolute; top: 0; left: 0; right: 0; height: 2px;
+        background: linear-gradient(90deg, transparent, var(--accent), transparent);
+    }
+
+    .sim-titulo {
+        font-family: 'Exo 2', sans-serif;
+        font-size: 1.7rem;
+        font-weight: 800;
+        color: #fff;
+        margin-bottom: .4rem;
+    }
+
+    .sim-titulo span {
+        background: linear-gradient(135deg, var(--ice-200), var(--accent));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+
+    .sim-desc { color: var(--ice-300); font-size: .9rem; margin-bottom: 2rem; }
+
+    .sim-grid { display: grid; grid-template-columns: 1.05fr 1fr; gap: 2rem; align-items: center; }
+    .sim-campos { display: grid; gap: 1rem; }
+    .sim-campo { display: flex; flex-direction: column; gap: 6px; }
+    .sim-campo label { font-size: .74rem; font-weight: 600; color: var(--ice-100); text-transform: uppercase; letter-spacing: .06em; }
+    .sim-campo select, .sim-campo input {
+        background: rgba(7,26,46,.6); border: 1px solid rgba(74,144,217,.25);
+        border-radius: 10px; padding: .7rem 1rem; color: #fff; font-size: .92rem; outline: none;
+        transition: border-color .2s, box-shadow .2s; width: 100%; box-sizing: border-box;
+    }
+    .sim-campo select:focus, .sim-campo input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(0,212,255,.15); }
+    .sim-campo input::placeholder { color: rgba(122,154,184,.6); }
+
+    .sim-resultados { display: grid; gap: .8rem; }
+    .sim-fila {
+        display: flex; justify-content: space-between; align-items: center;
+        background: rgba(7,26,46,.5); border: 1px solid rgba(74,144,217,.15);
+        border-radius: 12px; padding: .9rem 1.1rem;
+    }
+    .sim-fila-label { font-size: .8rem; color: var(--ice-300); }
+    .sim-fila-val { font-family: 'Exo 2', sans-serif; font-weight: 700; color: #fff; font-size: 1.05rem; }
+    .sim-fila-val.gain { color: #4ade80; }
+    .sim-fila-val.total { color: var(--accent); }
+
+    @media (max-width: 900px) {
+        .sim-grid { grid-template-columns: 1fr; }
     }
 
     /* ═══════════════════════════════════════
@@ -843,7 +938,7 @@
         {{-- ══════════════════════════════════
              DIVISOR
         ══════════════════════════════════ --}}
-        @if($inversion->count())
+        @if($disponibles->count())
         <div class="seccion-divisor reveal">
             <div class="seccion-divisor-line"></div>
             <div class="seccion-divisor-badge">
@@ -862,35 +957,27 @@
 
         <div class="invertir-header reveal">
             <div class="section-label" style="justify-content:center;">Invierte con MREYZE</div>
-            <h2 class="section-title" style="text-align:center;">Proyectos <span>Abiertos a Inversión</span></h2>
+            <h2 class="section-title" style="text-align:center;">Proyectos para <span>invertir</span></h2>
         </div>
         <p class="invertir-subtitulo reveal">
-            Estos son los proyectos que estamos por ejecutar o que se encuentran en desarrollo activo.
-            Puedes financiar total o parcialmente cualquiera de ellos y ser parte del resultado.
+            Invierte tu dinero y obtén un retorno estimado del
+            <strong style="color:var(--accent);">{{ $retornoEjemplo }}%</strong>.
+            Elige un proyecto, calcula tu ganancia con el simulador y sé parte del resultado.
         </p>
 
         {{-- Tarjetas de proyectos de inversión --}}
         <div class="inversion-grid">
 
-            @foreach($inversion as $idx => $inv)
+            @foreach($disponibles as $idx => $inv)
                 @php
                     $cat = $inv->categoria;
                     $invStyle = $catInversionStyles[$cat] ?? $catInversionStyles['software'];
                     $emoji = $catEmojis[$cat] ?? '📁';
-                    $badgeClass = $inv->inversion_estado === 'abierto' ? 'abierto' : 'pronto';
-                    $badgeLabel = $inv->inversion_estado === 'abierto'
-                        ? '● Abierto'
-                        : ($inv->inversion_etiqueta ?: '◷ Próximamente');
-                    $esDestacada = $inv->inversion_estado === 'abierto' && $inv->inversion_porcentaje_financiado >= 50;
+                    $esDestacada = $inv->inversion_porcentaje_financiado >= 50;
                     $revealDelay = $idx === 0 ? 'reveal' : ($idx === 1 ? 'reveal reveal-delay-1' : 'reveal reveal-delay-2');
-                    $btnClass = $inv->inversion_estado === 'abierto' ? '' : ' pronto';
-                    $btnText = $inv->inversion_estado === 'abierto'
-                        ? 'Quiero invertir en este proyecto'
-                        : 'Notificarme cuando abra';
-                    $whatsappLink = $inv->whatsapp_link ?? '#';
                 @endphp
                 <div class="inversion-card{{ $esDestacada ? ' destacada' : '' }} {{ $revealDelay }}">
-                    <span class="inversion-badge-top {{ $badgeClass }}">{{ $badgeLabel }}</span>
+                    <span class="inversion-badge-top disponible">● Disponible</span>
                     <div class="inversion-card-header" style="{{ $invStyle['header'] }}">
                         <div class="inversion-card-header-bg" style="{{ $invStyle['bg'] }}"></div>
                         @if($inv->imagen_principal_url)
@@ -923,29 +1010,24 @@
                                 <div class="inversion-dato-label">Disponible aún</div>
                             </div>
                             <div class="inversion-dato">
-                                <div class="inversion-dato-val">{{ $inv->inversion_tiempo_estimado }}<span> meses</span></div>
+                                <div class="inversion-dato-val">{{ (int) $inv->inversion_tiempo_estimado }}<span> meses</span></div>
                                 <div class="inversion-dato-label">Tiempo de ejecución</div>
                             </div>
                             <div class="inversion-dato">
-                                <div class="inversion-dato-val">ROI <span>~{{ $inv->inversion_roi }}%</span></div>
+                                <div class="inversion-dato-val">{{ $inv->inversion_roi_label }}</div>
                                 <div class="inversion-dato-label">Retorno estimado</div>
                             </div>
                         </div>
                     </div>
                     <div class="inversion-card-footer">
+                        <a href="{{ route('inversiones.create', $inv) }}" class="btn-invertir">
+                            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M9 16.17 4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+                            Invertir ahora
+                        </a>
                         @if($inv->whatsapp_numero)
-                            <a href="{{ $inv->whatsapp_link }}" target="_blank" rel="noopener noreferrer" class="btn-invertir{{ $btnClass }}">
+                            <a href="{{ $inv->whatsapp_link }}" target="_blank" rel="noopener noreferrer" class="btn-invertir-whatsapp">
                                 <svg viewBox="0 0 24 24" fill="currentColor"><path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/></svg>
-                                {{ $btnText }}
-                            </a>
-                        @else
-                            <a href="https://t.me/+6k2JGfEJzvY1ZWNh" target="_blank" rel="noopener noreferrer" class="btn-invertir{{ $btnClass }}">
-                                @if($inv->inversion_estado === 'abierto')
-                                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/></svg>
-                                @else
-                                    <svg viewBox="0 0 24 24" fill="currentColor" style="width:16px;height:16px"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z"/></svg>
-                                @endif
-                                {{ $btnText }}
+                                Coordinar por WhatsApp
                             </a>
                         @endif
                     </div>
@@ -953,6 +1035,53 @@
             @endforeach
 
         </div>{{-- /inversion-grid --}}
+
+        {{-- SIMULADOR DE INVERSIÓN --}}
+        <section class="simulador reveal">
+            <div class="section-label" style="justify-content:center;">Simulador de inversión</div>
+            <h3 class="sim-titulo" style="text-align:center;">Calcula tu <span>retorno</span></h3>
+            <p class="sim-desc" style="text-align:center; max-width:560px; margin:0 auto 2rem;">Elige un proyecto, ingresa el monto a invertir y descubre cuánto puedes ganar.</p>
+
+            <div class="sim-grid">
+                <div class="sim-campos">
+                    <div class="sim-campo">
+                        <label for="simProyecto">Proyecto</label>
+                        <select id="simProyecto">
+                            @foreach($disponibles as $inv)
+                                <option value="{{ $inv->id }}"
+                                        data-roi="{{ $inv->inversion_roi_numero }}"
+                                        data-meses="{{ (int) $inv->inversion_tiempo_estimado }}"
+                                        data-max="{{ (float) $inv->inversion_monto_disponible }}">
+                                    {{ $inv->titulo }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="sim-campo">
+                        <label for="simMonto">Monto a invertir (S/)</label>
+                        <input type="number" id="simMonto" min="50" step="50" value="1000">
+                    </div>
+                    <div class="sim-campo">
+                        <label for="simPeriodo">Periodo de inversión</label>
+                        <select id="simPeriodo"></select>
+                    </div>
+                </div>
+                <div class="sim-resultados">
+                    <div class="sim-fila">
+                        <span class="sim-fila-label">Monto invertido</span>
+                        <span class="sim-fila-val" id="simBase">S/ 1,000</span>
+                    </div>
+                    <div class="sim-fila">
+                        <span class="sim-fila-label">Retorno estimado (<span id="simRoiLabel"></span>)</span>
+                        <span class="sim-fila-val gain" id="simGanancia">S/ 0</span>
+                    </div>
+                    <div class="sim-fila">
+                        <span class="sim-fila-label">Total recibido</span>
+                        <span class="sim-fila-val total" id="simTotal">S/ 0</span>
+                    </div>
+                </div>
+            </div>
+        </section>
         @endif
 
 
@@ -999,6 +1128,70 @@
             </div>
         </div>
 
+        {{-- ══════════════════════════════════
+             PARTE FINAL: PROYECTOS COMPLETADOS
+        ══════════════════════════════════ --}}
+        @if($completados->count())
+        <div class="seccion-divisor reveal" style="margin-top:5rem;">
+            <div class="seccion-divisor-line"></div>
+            <div class="seccion-divisor-badge">
+                <svg viewBox="0 0 24 24" fill="currentColor" style="width:14px;height:14px"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+                Resultados entregados
+            </div>
+            <div class="seccion-divisor-line"></div>
+        </div>
+
+        <div class="invertir-header reveal">
+            <div class="section-label" style="justify-content:center;">Resultados entregados</div>
+            <h2 class="section-title" style="text-align:center;">Proyectos <span>completados</span></h2>
+        </div>
+        <p class="invertir-subtitulo reveal" style="margin-bottom:2.5rem;">
+            Inversiones que ya entregamos con su retorno final. Así de transparente es el proceso con MREYZE.
+        </p>
+
+        <div class="inversion-grid">
+            @foreach($completados as $idx => $inv)
+                @php
+                    $cat = $inv->categoria;
+                    $invStyle = $catInversionStyles[$cat] ?? $catInversionStyles['software'];
+                    $emoji = $catEmojis[$cat] ?? '📁';
+                    $retornoFinal = $inv->inversion_retorno_final_label ?? $inv->inversion_roi_label;
+                    $revealDelay = $idx === 0 ? 'reveal' : ($idx === 1 ? 'reveal reveal-delay-1' : 'reveal reveal-delay-2');
+                @endphp
+                <a href="{{ route('proyectos.show', $inv) }}" class="inversion-card {{ $revealDelay }}" style="text-decoration:none;color:inherit;">
+                    <span class="inversion-badge-top completado">✓ Completado</span>
+                    <div class="inversion-card-header" style="{{ $invStyle['header'] }}">
+                        <div class="inversion-card-header-bg" style="{{ $invStyle['bg'] }}"></div>
+                        @if($inv->imagen_principal_url)
+                            <img src="{{ $inv->imagen_principal_url }}" alt="{{ $inv->titulo }}" class="inversion-card-header-img" onerror="this.style.display='none'">
+                        @endif
+                        <div class="inversion-card-icon-wrap" style="{{ $invStyle['icon'] }}">
+                            <svg viewBox="0 0 24 24" fill="{{ $catIconFills[$cat] ?? 'rgba(122,184,245,0.95)' }}"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58z"/></svg>
+                        </div>
+                        <span class="inversion-card-categoria" style="{{ $invStyle['cat'] }}">{{ $invStyle['fillName'] }}</span>
+                    </div>
+                    <div class="inversion-card-body">
+                        <div class="inversion-card-nombre">{{ $inv->titulo }}</div>
+                        <p class="inversion-card-desc">{{ $inv->descripcion_corta }}</p>
+                        <div class="inversion-datos">
+                            <div class="inversion-dato">
+                                <div class="inversion-dato-val verde">{{ $retornoFinal }}</div>
+                                <div class="inversion-dato-label">Retorno final</div>
+                            </div>
+                            <div class="inversion-dato">
+                                <div class="inversion-dato-val">{{ $inv->fecha_fin?->format('d/m/Y') }}</div>
+                                <div class="inversion-dato-label">Fecha de finalización</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="inversion-card-footer">
+                        <span class="btn-invertir">Ver proyecto</span>
+                    </div>
+                </a>
+            @endforeach
+        </div>
+        @endif
+
     </div>
 </section>
 
@@ -1018,3 +1211,59 @@
 </script>
 
 @endsection
+
+@push('scripts')
+<script>
+(function () {
+    var selProy = document.getElementById('simProyecto');
+    var selPer  = document.getElementById('simPeriodo');
+    var monto   = document.getElementById('simMonto');
+    var base    = document.getElementById('simBase');
+    var gan     = document.getElementById('simGanancia');
+    var total   = document.getElementById('simTotal');
+    var roiLbl  = document.getElementById('simRoiLabel');
+
+    if (!selProy || !selPer) return;
+
+    function fmt(n) {
+        return 'S/ ' + n.toLocaleString('es-PE', { maximumFractionDigits: 2 });
+    }
+
+    function proyecto() {
+        var opt = selProy.options[selProy.selectedIndex];
+        return {
+            roi: parseFloat(opt.dataset.roi) || 0,
+            meses: parseInt(opt.dataset.meses, 10) || 0,
+            max: parseFloat(opt.dataset.max) || 0
+        };
+    }
+
+    function refreshPeriodo() {
+        var p = proyecto();
+        selPer.innerHTML = '<option>' + p.meses + ' meses</option>';
+        roiLbl.textContent = p.roi + '%';
+        monto.max = Math.max(50, p.max);
+        if (parseFloat(monto.value) > p.max) {
+            monto.value = Math.max(50, Math.floor(p.max));
+        }
+    }
+
+    function update() {
+        var p = proyecto();
+        var v = parseFloat(monto.value) || 0;
+        if (v < 50) v = 50;
+        if (v > p.max) v = p.max;
+        monto.value = v;
+        base.textContent = fmt(v);
+        var g = v * (p.roi / 100);
+        gan.textContent = fmt(g);
+        total.textContent = fmt(v + g);
+    }
+
+    selProy.addEventListener('change', function () { refreshPeriodo(); update(); });
+    monto.addEventListener('input', update);
+    refreshPeriodo();
+    update();
+})();
+</script>
+@endpush

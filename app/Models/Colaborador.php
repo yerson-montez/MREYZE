@@ -38,7 +38,7 @@ class Colaborador extends Model
     public function pedidosEntregados(): HasMany
     {
         return $this->hasMany(Pedido::class, 'colaborador_id')
-                    ->where('estado', 'entregado');
+                    ->where('estado', 'completado');
     }
 
     // ── Scopes ─────────────────────────────────────────────────────────
@@ -66,7 +66,7 @@ class Colaborador extends Model
     public function getComisionPendienteAttribute(): float
     {
         return (float) $this->pedidos()
-            ->where('estado', 'entregado')
+            ->where('estado', 'completado')
             ->where('comision_pagada', false)
             ->sum('comision_generada');
     }

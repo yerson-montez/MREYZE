@@ -13,14 +13,13 @@ class BoletaService
 {
     public function generar(Pedido $pedido, Pago $pago): ?Boleta
     {
-        $existing = $pedido->boletas()->first();
-        if ($existing) {
-            Log::info('BoletaService: boleta ya existe, retornando existente', [
-                'pedido_id' => $pedido->id,
-                'boleta_id' => $existing->id,
-                'numero'    => $existing->numero_boleta,
+        if ($pago->estado_pago !== 'aprobado') {
+            Log::warning('BoletaService: pago no aprobado, no se genera boleta', [
+                'pedido_id'    => $pedido->id,
+                'pago_id'      => $pago->id,
+                'estado_pago'  => $pago->estado_pago,
             ]);
-            return $existing;
+            return null;
         }
 
         try {
@@ -28,6 +27,24 @@ class BoletaService
             $totalPedido = (float) $pedido->total;
 
             $boleta = DB::transaction(function () use ($pedido, $pago, $montoPagado) {
+                // Bloquear el pedido para serializar la generación y evitar duplicados
+                $pedidoBloqueado = Pedido::whereKey($pedido->id)->lockForUpdate()->first();
+
+                if (! $pedidoBloqueado) {
+                    throw new \RuntimeException('Pedido no encontrado al generar la boleta.');
+                }
+
+                // Anti-duplicado: dentro de la transacción y con el pedido bloqueado
+                $existing = $pedidoBloqueado->boletas()->lockForUpdate()->first();
+                if ($existing) {
+                    Log::info('BoletaService: boleta ya existe, retornando existente', [
+                        'pedido_id' => $pedido->id,
+                        'boleta_id' => $existing->id,
+                        'numero'    => $existing->numero_boleta,
+                    ]);
+                    return $existing;
+                }
+
                 $serie = config('boleta.serie', 'B001');
                 $correlativo = $this->siguienteCorrelativo($serie);
                 $numeroBoleta = sprintf('%s-%06d', $serie, $correlativo);

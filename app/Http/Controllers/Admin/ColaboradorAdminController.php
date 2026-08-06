@@ -57,7 +57,7 @@ class ColaboradorAdminController extends Controller
             'total_ventas'       => $colaborador->pedidosEntregados()->sum('total'),
             'total_pedidos'      => $colaborador->pedidos()->count(),
             'comision_pendiente' => $colaborador->pedidos()
-                ->where('estado', 'entregado')
+                ->where('estado', 'completado')
                 ->where('comision_pagada', false)
                 ->sum('comision_generada'),
         ];

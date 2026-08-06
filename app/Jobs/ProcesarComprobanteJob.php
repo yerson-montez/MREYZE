@@ -97,7 +97,7 @@ class ProcesarComprobanteJob implements ShouldQueue
 
         if ($estadoValidacion === EstadoValidacionOcr::Validado) {
             $this->pago->update(['estado_pago' => 'aprobado']);
-            $pedido->update(['estado' => 'pagado_parcial']);
+            $pedido->update(['estado' => 'pago_confirmado']);
 
             $boletaService->generar($pedido, $this->pago);
 
@@ -110,17 +110,14 @@ class ProcesarComprobanteJob implements ShouldQueue
                 'hash'      => $resultado->hashSha256,
             ]);
         } else {
-            $estadoPagoOcr = match ($estadoValidacion) {
-                EstadoValidacionOcr::Rechazado,
-                EstadoValidacionOcr::Sospechoso,
-                EstadoValidacionOcr::ConfianzaBaja => 'rechazado',
-                default => 'pendiente',
-            };
+            $estadoPagoOcr = $estadoValidacion === EstadoValidacionOcr::Rechazado
+                ? 'rechazado'
+                : 'pendiente';
 
             $this->pago->update(['estado_pago' => $estadoPagoOcr]);
-            $pedido->update(['estado' => 'pendiente_pago']);
+            $pedido->update(['estado' => 'pendiente']);
 
-            Log::info('Job.OCR: pago NO validado — actualizado a pendiente_pago', [
+            Log::info('Job.OCR: pago NO validado — pendiente de revisión manual', [
                 'pago_id'        => $pagoId,
                 'pedido_id'      => $pedido->id,
                 'estado_ocr'     => $estadoValidacion->value,
@@ -201,7 +198,7 @@ class ProcesarComprobanteJob implements ShouldQueue
         ]);
 
         $this->pago->update(['estado_pago' => 'pendiente']);
-        $pedido->update(['estado' => 'pendiente_pago']);
+        $pedido->update(['estado' => 'pendiente']);
 
         $this->pago->refresh();
         $pedido->refresh();

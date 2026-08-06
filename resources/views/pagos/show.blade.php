@@ -66,6 +66,7 @@
 .estado-badge{display:inline-flex;align-items:center;gap:6px;padding:6px 14px;border-radius:20px;font-size:.78rem;font-weight:600;}
 .estado-badge.pendiente{background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.3);color:var(--warning);}
 .estado-badge.aprobado{background:rgba(0,212,170,.1);border:1px solid rgba(0,212,170,.3);color:var(--success);}
+.estado-badge.procesando{background:rgba(0,212,255,.1);border:1px solid rgba(0,212,255,.3);color:var(--accent);}
 .estado-badge.rechazado{background:rgba(255,107,107,.1);border:1px solid rgba(255,107,107,.3);color:var(--danger);}
 .alert{background:rgba(255,107,107,.08);border:1px solid rgba(255,107,107,.3);border-left:4px solid var(--danger);border-radius:12px;padding:14px 18px;margin-bottom:16px;}
 .alert p{color:var(--danger);font-size:.82rem;padding:3px 0;}
@@ -109,7 +110,10 @@
     </div>
     <div class="info-row">
       <span class="info-label">Estado</span>
-      <span id="pedido-estado-badge" class="estado-badge {{ $pedido->estado === 'pendiente_pago' ? 'pendiente' : ($pedido->estado === 'pagado_parcial' ? 'aprobado' : '') }}">
+      <span id="pedido-estado-badge" class="estado-badge
+        {{ in_array($pedido->estado, ['preparando', 'enviado', 'en_camino', 'listo_recojo']) ? 'procesando' : '' }}
+        {{ $pedido->estado === 'pendiente' ? 'pendiente' : '' }}
+        {{ $pedido->estado === 'pago_confirmado' || $pedido->estado === 'completado' ? 'aprobado' : '' }}">
         {{ $pedido->estado_label }}
       </span>
     </div>
@@ -139,11 +143,12 @@
   </div>
 
   <div id="pago-status-content">
-  @if ($pedido->estado === 'pendiente_pago')
-    @php
-      $ultimoOcrError = $pago && in_array($pago->ocr_resultado, ['error_ocr', 'ocr_fallido', 'rechazado', 'confianza_baja', 'sospechoso']) ? $pago->ocr_resultado : null;
-    @endphp
+  @php
+    $ultimoOcrError = $pago && in_array($pago->ocr_resultado, ['error_ocr', 'ocr_fallido', 'rechazado', 'confianza_baja', 'sospechoso']) ? $pago->ocr_resultado : null;
+    $pagoEnRevision = $pago && in_array($pago->ocr_resultado, ['pendiente', 'procesando', 'validado']);
+  @endphp
 
+  @if ($pedido->estado === 'pendiente')
     @if ($ultimoOcrError)
       @php
         $motivoReintento = match ($ultimoOcrError) {
@@ -172,26 +177,10 @@
         </div>
       </div>
       @include('pagos._form-comprobante', ['retry' => true])
-    @else
+    @elseif ($pagoEnRevision)
       @php
-        $datosYape = $yape?->datos ?? [];
-        $numeroYape  = $datosYape['numero']  ?? config('empresa.whatsapp_numero');
-        $titularYape = $datosYape['titular'] ?? 'MREYZE AUOTOMATISACION Y SISTEMAS SAC';
+        $ocrEstado = $pago?->ocr_resultado ?? 'pendiente';
       @endphp
-      <div class="pago-card">
-        <h2>Paga con Yape</h2>
-        <div class="qr-wrap">
-          <img src="{{ asset('img/Empresa.png') }}" alt="Código QR Yape">
-          <div class="qr-num">{{ $numeroYape }}</div>
-          <div class="qr-label">{{ $titularYape }}</div>
-        </div>
-      </div>
-      @include('pagos._form-comprobante')
-    @endif
-  @elseif ($pedido->estado === 'pendiente_aprobacion')
-    @php
-      $ocrEstado = $pago?->ocr_resultado ?? 'pendiente';
-    @endphp
 
     <div id="pendiente-aprobacion-section">
       <div id="status-pendiente" class="pago-card" data-ocr-state="pendiente" {{ $ocrEstado !== 'pendiente' ? 'style=display:none' : '' }}>
@@ -292,11 +281,53 @@
         @include('pagos._form-comprobante', ['retry' => true])
       </div>
     </div>
-  @elseif ($pedido->estado === 'pagado_parcial')
+
+    @else
+      @php
+        $datosYape = $yape?->datos ?? [];
+        $numeroYape  = $datosYape['numero']  ?? config('empresa.whatsapp_numero');
+        $titularYape = $datosYape['titular'] ?? 'MREYZE AUOTOMATISACION Y SISTEMAS SAC';
+      @endphp
+      <div class="pago-card">
+        <h2>Paga con Yape</h2>
+        <div class="qr-wrap">
+          <img src="{{ asset('img/Empresa.png') }}" alt="Código QR Yape">
+          <div class="qr-num">{{ $numeroYape }}</div>
+          <div class="qr-label">{{ $titularYape }}</div>
+        </div>
+      </div>
+      @include('pagos._form-comprobante')
+    @endif
+
+  @elseif (in_array($pedido->estado, ['pago_confirmado', 'preparando', 'enviado', 'en_camino', 'listo_recojo']))
     <div id="status-pagado-parcial" class="pago-card">
       <div class="success-box">
-        <p style="font-size:1.2rem;font-weight:700;">Pago aprobado</p>
-        <p style="margin-top:8px;">Gracias por tu pago. Estamos preparando tu pedido.</p>
+        <p style="font-size:1.2rem;font-weight:700;">
+          <svg viewBox="0 0 24 24" fill="currentColor" style="width:22px;height:22px;vertical-align:-4px;color:var(--success);"><path d="M9 16.2L4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4L9 16.2z"/></svg>
+          ¡Pedido realizado!
+        </p>
+        <p style="margin-top:8px;">Tu pago fue confirmado. Estamos preparando tu pedido.</p>
+        <div style="margin-top:14px;">
+          <a href="{{ route('pedidos.show', $pedido) }}" class="btn-yape" style="display:inline-flex;padding:10px 20px;font-size:.85rem;gap:6px;text-decoration:none;">
+            <svg viewBox="0 0 24 24" fill="currentColor" style="width:16px;height:16px;"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
+            Ver seguimiento del pedido
+          </a>
+        </div>
+      </div>
+    </div>
+  @elseif ($pedido->estado === 'completado')
+    <div id="status-completado" class="pago-card">
+      <div class="success-box">
+        <p style="font-size:1.2rem;font-weight:700;">
+          <svg viewBox="0 0 24 24" fill="currentColor" style="width:22px;height:22px;vertical-align:-4px;color:var(--success);"><path d="M9 16.2L4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4L9 16.2z"/></svg>
+          Pedido completado
+        </p>
+        <p style="margin-top:8px;">Tu pedido fue completado. ¡Gracias por tu compra!</p>
+        <div style="margin-top:14px;">
+          <a href="{{ route('pedidos.show', $pedido) }}" class="btn-yape" style="display:inline-flex;padding:10px 20px;font-size:.85rem;gap:6px;text-decoration:none;">
+            Ver detalle del pedido
+          </a>
+        </div>
       </div>
     </div>
   @endif
@@ -410,8 +441,11 @@
         if (section) {
             section.innerHTML =
                 '<div class="pago-card"><div class="success-box">' +
-                '<p style="font-size:1.2rem;font-weight:700;">Pago aprobado</p>' +
-                '<p style="margin-top:8px;">Gracias por tu pago. Estamos preparando tu pedido.</p>' +
+                '<p style="font-size:1.2rem;font-weight:700;">¡Pedido realizado!</p>' +
+                '<p style="margin-top:8px;">Tu pago fue confirmado. Estamos preparando tu pedido.</p>' +
+                '<div style="margin-top:14px;"><a href="{{ route('pedidos.show', $pedido) }}" ' +
+                'style="display:inline-flex;padding:10px 20px;font-size:.85rem;gap:6px;border-radius:8px;background:var(--success);color:#062b24;font-weight:700;text-decoration:none;">' +
+                'Ver seguimiento del pedido</a></div>' +
                 '</div></div>';
         }
     }

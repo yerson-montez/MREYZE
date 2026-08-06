@@ -323,6 +323,7 @@
                         <div class="nav-user-dropdown" id="userDropdown">
                             <a href="{{ route('profile.edit') }}">Mi perfil</a>
                             <a href="{{ route('pedidos.mis') }}">Mis pedidos</a>
+                            <a href="{{ route('inversiones.mis') }}">Mis inversiones</a>
                             <form method="POST" action="{{ route('logout') }}">
                                 @csrf
                                 <button type="submit">Cerrar sesión</button>
@@ -399,6 +400,7 @@
                 @auth
                     <a href="{{ route('profile.edit') }}" class="nav-mobile-action">Mi perfil</a>
                     <a href="{{ route('pedidos.mis') }}" class="nav-mobile-action">Mis pedidos</a>
+                    <a href="{{ route('inversiones.mis') }}" class="nav-mobile-action">Mis inversiones</a>
                     <form method="POST" action="{{ route('logout') }}" class="nav-mobile-action" style="padding:0;">
                         @csrf
                         <button type="submit" style="all: unset; width:100%; height:100%; display:flex; align-items:center; justify-content:center; cursor:pointer;">Cerrar sesión</button>

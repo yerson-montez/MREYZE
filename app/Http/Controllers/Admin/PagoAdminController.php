@@ -46,11 +46,16 @@ class PagoAdminController extends Controller
                 ]);
 
                 if ($accion === 'aprobar') {
-                    $pago->pedido->update(['estado' => 'pagado_parcial']);
+                    $pago->pedido->update(['estado' => 'pago_confirmado']);
 
                     $boleta = $boletaService->generar($pago->pedido, $pago);
                     if (! $boleta) {
                         throw new \RuntimeException('No se pudo generar la boleta automáticamente. Revise los logs para más detalles.');
+                    }
+                } else {
+                    $pedido = $pago->pedido;
+                    if (in_array($pedido->estado, ['pago_confirmado', 'preparando', 'enviado', 'en_camino', 'listo_recojo'])) {
+                        $pedido->update(['estado' => 'pendiente']);
                     }
                 }
             });

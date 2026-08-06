@@ -189,7 +189,6 @@
                 : route('admin.proyectos.store') }}"
             enctype="multipart/form-data"
             id="proyectoForm"
-            x-data="{ tipo: '{{ old('tipo', $proyecto->tipo ?? 'portafolio') }}' }"
         >
             @csrf
             @isset($proyecto) @method('PUT') @endisset
@@ -269,8 +268,7 @@
 
                 <div class="adm-form-group" style="max-width:280px">
                     <label class="adm-label" for="tipo">Tipo *</label>
-                    <select id="tipo" name="tipo" class="adm-select-field"
-                            required x-model="tipo">
+                    <select id="tipo" name="tipo" class="adm-select-field" required>
                         <option value="portafolio" {{ old('tipo', $proyecto->tipo ?? '') === 'portafolio' ? 'selected' : '' }}>Portafolio</option>
                         <option value="inversion"  {{ old('tipo', $proyecto->tipo ?? '') === 'inversion'  ? 'selected' : '' }}>Inversión</option>
                     </select>
@@ -405,7 +403,7 @@
                 </div>
 
                 {{-- CAMPOS DE INVERSIÓN --}}
-                <div x-show="tipo === 'inversion'" x-transition x-cloak>
+                <div id="invFields">
                     <hr class="adm-divider">
                     <div class="adm-section-label">Datos de inversión</div>
 
@@ -438,27 +436,28 @@
                             @error('inversion_porcentaje_financiado')<div class="adm-error">{{ $message }}</div>@enderror
                         </div>
                         <div class="adm-form-group">
-                            <label class="adm-label" for="inversion_roi">ROI estimado</label>
+                            <label class="adm-label" for="inversion_roi">Retorno estimado (%)</label>
                             <input id="inversion_roi" name="inversion_roi" type="text" class="adm-input"
                                    value="{{ old('inversion_roi', $proyecto->inversion_roi ?? '') }}"
-                                   placeholder="Ej: 18% anual">
+                                   placeholder="Ej: 30%">
                             @error('inversion_roi')<div class="adm-error">{{ $message }}</div>@enderror
                         </div>
                     </div>
 
                     <div class="adm-form-row">
                         <div class="adm-form-group">
-                            <label class="adm-label" for="inversion_tiempo_estimado">Tiempo estimado</label>
-                            <input id="inversion_tiempo_estimado" name="inversion_tiempo_estimado" type="text" class="adm-input"
+                            <label class="adm-label" for="inversion_tiempo_estimado">Tiempo de ejecución (meses)</label>
+                            <input id="inversion_tiempo_estimado" name="inversion_tiempo_estimado" type="number" min="1"
+                                   class="adm-input"
                                    value="{{ old('inversion_tiempo_estimado', $proyecto->inversion_tiempo_estimado ?? '') }}"
-                                   placeholder="Ej: 12 meses">
+                                   placeholder="Ej: 12">
                             @error('inversion_tiempo_estimado')<div class="adm-error">{{ $message }}</div>@enderror
                         </div>
                         <div class="adm-form-group">
-                            <label class="adm-label" for="inversion_estado">Estado de inversión</label>
+                            <label class="adm-label" for="inversion_estado">Estado del proyecto *</label>
                             <select id="inversion_estado" name="inversion_estado" class="adm-select-field">
                                 <option value="">Seleccionar...</option>
-                                @foreach(['abierto' => 'Abierto', 'proximamente' => 'Próximamente', 'cerrado' => 'Cerrado'] as $val => $label)
+                                @foreach(\App\Models\Proyecto::INVERSION_ESTADOS as $val => $label)
                                 <option value="{{ $val }}"
                                     {{ old('inversion_estado', $proyecto->inversion_estado ?? '') === $val ? 'selected' : '' }}>
                                     {{ $label }}
@@ -466,6 +465,18 @@
                                 @endforeach
                             </select>
                             @error('inversion_estado')<div class="adm-error">{{ $message }}</div>@enderror
+                        </div>
+                    </div>
+
+                    <div class="adm-form-row" id="retornoFinalRow">
+                        <div class="adm-form-group" style="max-width:350px">
+                            <label class="adm-label" for="inversion_retorno_final">Retorno final (%)</label>
+                            <input id="inversion_retorno_final" name="inversion_retorno_final" type="number" step="0.01" min="0"
+                                   class="adm-input"
+                                   value="{{ old('inversion_retorno_final', $proyecto->inversion_retorno_final ?? '') }}"
+                                   placeholder="Ej: 30">
+                            <div class="adm-input-hint">Porcentaje de retorno entregado al finalizar el proyecto.</div>
+                            @error('inversion_retorno_final')<div class="adm-error">{{ $message }}</div>@enderror
                         </div>
                     </div>
 
@@ -516,6 +527,39 @@
             </div>
         </form>
     </div>
+
+    @isset($proyecto)
+    <div style="max-width: 800px; margin: 2rem auto 0;">
+        <div class="adm-form-card" style="background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 1.6rem 1.7rem;">
+            <div class="adm-section-label" style="font-size:.78rem;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:.08em;margin-bottom:1.2rem;">
+                📄 Contrato de inversión (PDF)
+            </div>
+
+            @if($proyecto->contrato_url)
+                <div class="adm-alert adm-alert-success" style="margin-bottom:1.2rem;">
+                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+                    Contrato cargado. <a href="{{ $proyecto->contrato_url }}" target="_blank" style="color:var(--accent);font-weight:700;">Ver contrato</a>
+                </div>
+            @else
+                <p style="font-size:.82rem;color:var(--muted);margin-bottom:1.2rem;">Aún no hay contrato para este proyecto. Sube el PDF que los inversionistas podrán consultar.</p>
+            @endif
+
+            <form method="POST" action="{{ route('admin.proyectos.contrato', $proyecto) }}" enctype="multipart/form-data" style="display:flex; gap:.75rem; flex-wrap:wrap; align-items:center;">
+                @csrf
+                <input type="file" name="contrato_pdf" accept="application/pdf" required class="adm-input" style="flex:1; min-width:200px;">
+                <button type="submit" class="adm-btn adm-btn-primary">
+                    {{ $proyecto->contrato_pdf ? 'Reemplazar contrato' : 'Subir contrato' }}
+                </button>
+                @if($proyecto->contrato_pdf)
+                <button type="submit" form="eliminarContratoForm" class="adm-btn adm-btn-danger">Eliminar</button>
+                @endif
+            </form>
+            <form id="eliminarContratoForm" method="POST" action="{{ route('admin.proyectos.contrato.eliminar', $proyecto) }}" onsubmit="return confirm('¿Eliminar el contrato del proyecto?')">
+                @csrf @method('DELETE')
+            </form>
+        </div>
+    </div>
+    @endisset
 
 <script>
 // ── Auto-generate slug from titulo ──
@@ -676,7 +720,32 @@ function updateOrder() {
 }
 </script>
 
-<style>
-[x-cloak] { display: none !important; }
-</style>
+<script>
+// ── Toggle sección de inversión (sin Alpine) ──
+(function () {
+    const tipoSel = document.getElementById('tipo');
+    const invFields = document.getElementById('invFields');
+    const estadoInvSel = document.getElementById('inversion_estado');
+    const retornoFinalRow = document.getElementById('retornoFinalRow');
+
+    function syncRetornoFinal() {
+        if (!retornoFinalRow) return;
+        retornoFinalRow.style.display =
+            tipoSel && estadoInvSel &&
+            tipoSel.value === 'inversion' && estadoInvSel.value === 'completado'
+                ? '' : 'none';
+    }
+
+    function syncInvFields() {
+        if (invFields) {
+            invFields.style.display = tipoSel && tipoSel.value === 'inversion' ? '' : 'none';
+        }
+        syncRetornoFinal();
+    }
+
+    if (tipoSel) tipoSel.addEventListener('change', syncInvFields);
+    if (estadoInvSel) estadoInvSel.addEventListener('change', syncRetornoFinal);
+    syncInvFields();
+})();
+</script>
 @endsection

@@ -24,11 +24,14 @@ class PagoController extends Controller
         $boleta = $pedido->boletas()->first();
 
         $currentEstado = match ($pedido->estado) {
-            'pagado_parcial' => 'aprobado',
-            'entregado'      => 'completado',
-            'anulado'        => 'anulado',
-            'cancelado'      => 'cancelado',
-            default          => 'pendiente',
+            'pago_confirmado' => 'aprobado',
+            'preparando',
+            'enviado',
+            'en_camino',
+            'listo_recojo'  => 'procesando',
+            'completado'    => 'completado',
+            'cancelado'     => 'cancelado',
+            default         => 'pendiente',
         };
 
         $currentOcr = match ($pago?->ocr_resultado) {
@@ -47,7 +50,7 @@ class PagoController extends Controller
             abort(403);
         }
 
-        if (! in_array($pedido->estado, ['pendiente_pago', 'pendiente_aprobacion'])) {
+        if (! in_array($pedido->estado, ['pendiente'])) {
             return back()->withErrors(['pedido' => 'Este pedido no está pendiente de pago.']);
         }
 
@@ -66,7 +69,7 @@ class PagoController extends Controller
         }
 
         $pago = $pedido->pagos()->create($data);
-        $pedido->update(['estado' => 'pendiente_aprobacion']);
+        $pedido->update(['estado' => 'pendiente']);
 
         ProcesarComprobanteJob::dispatch($pago);
 
@@ -118,11 +121,14 @@ class PagoController extends Controller
         $boleta = $pedido->boletas()->first();
 
         $estado = match ($pedido->estado) {
-            'pagado_parcial' => 'aprobado',
-            'entregado'      => 'completado',
-            'anulado'        => 'anulado',
-            'cancelado'      => 'cancelado',
-            default          => 'pendiente',
+            'pago_confirmado' => 'aprobado',
+            'preparando',
+            'enviado',
+            'en_camino',
+            'listo_recojo' => 'procesando',
+            'completado'   => 'completado',
+            'cancelado'    => 'cancelado',
+            default        => 'pendiente',
         };
 
         $ocrRaw = $pago?->ocr_resultado;
@@ -135,6 +141,7 @@ class PagoController extends Controller
 
         return response()->json([
             'estado'     => $estado,
+            'estado_raw' => $pedido->estado,
             'estado_ocr' => $estadoOcr,
             'boleta'     => $boleta ? [
                 'existe'   => true,

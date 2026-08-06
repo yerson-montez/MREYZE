@@ -28,7 +28,7 @@ class AdminController extends Controller
         $pagosAprobados   = Pago::where('estado_pago', 'aprobado')->count();
         $pagosRechazados  = Pago::where('estado_pago', 'rechazado')->count();
         $totalPedidos     = Pedido::count();
-        $pedidosPendientes = Pedido::where('estado', 'pendiente_pago')->count();
+        $pedidosPendientes = Pedido::where('estado', 'pendiente')->count();
 
         return view('admin.dashboard', compact(
             'totalProductos',

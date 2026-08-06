@@ -14,8 +14,9 @@ class ProyectoController extends Controller
             ->orderBy('orden')
             ->latest();
 
-        $portafolio = (clone $base)->portafolio()->get();
-        $inversion  = (clone $base)->inversion()->get();
+        $portafolio  = (clone $base)->portafolio()->get();
+        $disponibles = (clone $base)->inversion()->where('inversion_estado', 'disponible')->get();
+        $completados = (clone $base)->inversion()->where('inversion_estado', 'completado')->get();
 
         $categorias = Proyecto::visibles()
             ->distinct()
@@ -23,7 +24,17 @@ class ProyectoController extends Controller
             ->filter()
             ->values();
 
-        return view('proyectos.index', compact('portafolio', 'inversion', 'categorias'));
+        $retornoEjemplo = 0;
+        foreach ($disponibles as $proyecto) {
+            $roi = $proyecto->inversion_roi_numero;
+            if ($roi !== null) {
+                $retornoEjemplo = max($retornoEjemplo, $roi);
+            }
+        }
+
+        return view('proyectos.index', compact(
+            'portafolio', 'disponibles', 'completados', 'categorias', 'retornoEjemplo'
+        ));
     }
 
     public function show(Proyecto $proyecto)

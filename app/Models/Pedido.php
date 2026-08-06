@@ -10,6 +10,17 @@ use Illuminate\Support\Str;
 
 class Pedido extends Model
 {
+    public const ESTADOS = [
+        'pendiente'      => 'Pendiente de pago',
+        'pago_confirmado' => 'Pago confirmado',
+        'preparando'     => 'Preparando',
+        'enviado'        => 'Enviado',
+        'en_camino'      => 'En camino',
+        'listo_recojo'   => 'Listo para recojo',
+        'completado'     => 'Completado',
+        'cancelado'      => 'Cancelado',
+    ];
+
     protected $fillable = [
         'numero_pedido',
         'producto_id',
@@ -87,9 +98,18 @@ class Pedido extends Model
         $this->saldo    = $this->total - $this->adelanto;
     }
 
+    public function getTotalPagadoAttribute(): float
+    {
+        if ($this->relationLoaded('pagos')) {
+            return (float) $this->pagos->where('estado_pago', 'aprobado')->sum('monto');
+        }
+
+        return (float) $this->pagos()->where('estado_pago', 'aprobado')->sum('monto');
+    }
+
     public function procesarComision(): void
     {
-        if ($this->estado !== 'entregado')  return;
+        if ($this->estado !== 'completado')  return;
         if ($this->comision_generada > 0)   return;
         if (! $this->colaborador_id)        return;
 
@@ -107,41 +127,41 @@ class Pedido extends Model
     public function getEstadoColorAttribute(): string
     {
         return match ($this->estado) {
-            'pendiente_pago'       => 'bg-amber-100 text-amber-700',
-            'pendiente_aprobacion' => 'bg-blue-100 text-blue-700',
-            'pagado_parcial'       => 'bg-indigo-100 text-indigo-700',
-            'preparando'           => 'bg-purple-100 text-purple-700',
-            'en_proceso_envio'     => 'bg-orange-100 text-orange-700',
-            'enviado'              => 'bg-cyan-100 text-cyan-700',
-            'entregado'            => 'bg-green-100 text-green-700',
-            'cancelado'            => 'bg-red-100 text-red-700',
-            default                => 'bg-gray-100 text-gray-700',
+            'pendiente'       => 'bg-amber-100 text-amber-700',
+            'pago_confirmado' => 'bg-indigo-100 text-indigo-700',
+            'preparando'      => 'bg-purple-100 text-purple-700',
+            'enviado'         => 'bg-cyan-100 text-cyan-700',
+            'en_camino'       => 'bg-orange-100 text-orange-700',
+            'listo_recojo'    => 'bg-blue-100 text-blue-700',
+            'completado'      => 'bg-green-100 text-green-700',
+            'cancelado'       => 'bg-red-100 text-red-700',
+            default           => 'bg-gray-100 text-gray-700',
         };
     }
 
     public function getEstadoLabelAttribute(): string
     {
         return match ($this->estado) {
-            'pendiente_pago'       => 'Pendiente de pago',
-            'pendiente_aprobacion' => 'Pendiente de aprobación',
-            'pagado_parcial'       => 'Pago aprobado',
-            'preparando'           => 'Preparando pedido',
-            'en_proceso_envio'     => 'En proceso de envío',
-            'enviado'              => 'Enviado',
-            'entregado'            => 'Entregado',
-            'cancelado'            => 'Cancelado',
-            default                => $this->estado,
+            'pendiente'       => 'Pendiente',
+            'pago_confirmado' => 'Pago confirmado',
+            'preparando'      => 'Preparando pedido',
+            'enviado'         => 'Enviado',
+            'en_camino'       => 'En camino',
+            'listo_recojo'    => 'Listo para recojo',
+            'completado'      => 'Completado',
+            'cancelado'       => 'Cancelado',
+            default           => $this->estado,
         };
     }
 
     public function scopePendientes($query)
     {
-        return $query->where('estado', 'pendiente_pago');
+        return $query->where('estado', 'pendiente');
     }
 
     public function scopeEntregados($query)
     {
-        return $query->where('estado', 'entregado');
+        return $query->where('estado', 'completado');
     }
 
     public function scopeConColaborador($query)

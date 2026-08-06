@@ -77,7 +77,7 @@
     </div>
   @endif
 
-  @if ($pago->estado_pago === 'pendiente')
+  @if ($pago->estado_pago !== 'aprobado')
     <div class="card">
       <h2>Revisar pago</h2>
       <form action="{{ route('admin.pagos.aprobar', $pago) }}" method="POST">

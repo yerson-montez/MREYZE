@@ -50,26 +50,26 @@ class PagoDebugCommand extends Command
             && $pago->ocr_resultado !== 'pendiente'
             && $pago->ocr_resultado !== 'procesando';
 
-        $pedidoEstaEnAprobacion = $pedido->estado === 'pendiente_aprobacion';
-        $pedidoEsPagoPendiente = $pedido->estado === 'pendiente_pago';
+        $pedidoEstaEnAprobacion = $pedido->estado === 'pendiente';
+        $pedidoEsPagoPendiente = $pedido->estado === 'pendiente';
 
         if ($pago->ocr_resultado === 'validado') {
-            $coinciden = $pedido->estado === 'pagado_parcial';
+            $coinciden = $pedido->estado === 'pago_confirmado';
             $this->evaluar(
-                'OCR=validado  →  pedido.estado=pagado_parcial',
+                'OCR=validado  →  pedido.estado=pago_confirmado',
                 $coinciden,
                 'ProcesarComprobanteJob::handle()',
-                'Línea 79-81: update pago.estado_pago=aprobado + pedido.estado=pagado_parcial'
+                'Pago aprobado → pedido.estado=pago_confirmado'
             );
         } elseif ($ocrEsFinal) {
             $coinciden = $pedidoEsPagoPendiente;
             $this->evaluar(
-                'OCR=' . $pago->ocr_resultado . '  →  pedido.estado=pendiente_pago',
+                'OCR=' . $pago->ocr_resultado . '  →  pedido.estado=pendiente',
                 $coinciden,
                 'ProcesarComprobanteJob::handle() o marcarResultado()',
                 match (true) {
                     $coinciden => 'OK — el Job actualizó pedido.estado a ' . $pedido->estado,
-                    $pedidoEstaEnAprobacion => 'Línea 107 o 190: el Job debería haber cambiado pedido.estado a pendiente_pago',
+                    $pedidoEstaEnAprobacion => 'El Job debería haber cambiado pedido.estado a pendiente',
                     default => 'pedido.estado=' . $pedido->estado . ' — valor inesperado'
                 }
             );
@@ -82,13 +82,11 @@ class PagoDebugCommand extends Command
         if ($ocrEsFinal && $pedidoEstaEnAprobacion) {
             $this->error('  *** INCONSISTENCIA DETECTADA ***');
             $this->line('  El OCR terminó (estado=' . $pago->ocr_resultado . ') pero pedido.estado');
-            $this->line('  sigue siendo "pendiente_aprobacion". El usuario siempre verá');
-            $this->line('  "Pendiente de aprobación" en el badge y el contenido del');
-            $this->line('  @elseif ($pedido->estado === \'pendiente_aprobacion\')');
+            $this->line('  sigue siendo "pendiente". El usuario siempre verá');
+            $this->line('  "Pendiente de pago" en el badge.');
             $this->line('');
             $this->line('  Causa raíz: ProcesarComprobanteJob no actualizaba pedido.estado');
-            $this->line('  cuando el OCR fallaba. Se corrigió en marcarResultado() (línea ~189)');
-            $this->line('  y en la rama else de handle() (línea ~106-107).');
+            $this->line('  cuando el OCR fallaba o no se validaba.');
             return self::FAILURE;
         }
 

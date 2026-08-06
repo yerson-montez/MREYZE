@@ -25,6 +25,11 @@ class User extends Authenticatable
         return $this->hasMany(Pedido::class);
     }
 
+    public function inversiones(): HasMany
+    {
+        return $this->hasMany(Inversion::class);
+    }
+
     public function esAdmin(): bool
     {
         return $this->role === 'admin';

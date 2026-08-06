@@ -5,8 +5,10 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Pedido;
 use App\Models\PedidoEstado;
+use App\Services\BoletaService;
 use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
 
 class PedidoAdminController extends Controller
@@ -23,16 +25,14 @@ class PedidoAdminController extends Controller
             ->paginate(20)
             ->withQueryString();
 
-        $totales = [
-            'pendiente_pago'       => Pedido::where('estado', 'pendiente_pago')->count(),
-            'pendiente_aprobacion' => Pedido::where('estado', 'pendiente_aprobacion')->count(),
-            'pagado_parcial'       => Pedido::where('estado', 'pagado_parcial')->count(),
-            'preparando'           => Pedido::where('estado', 'preparando')->count(),
-            'en_proceso_envio'     => Pedido::where('estado', 'en_proceso_envio')->count(),
-            'enviado'              => Pedido::where('estado', 'enviado')->count(),
-            'entregado'            => Pedido::where('estado', 'entregado')->count(),
-            'cancelado'            => Pedido::where('estado', 'cancelado')->count(),
-        ];
+        $conteos = Pedido::query()
+            ->selectRaw('estado, COUNT(*) as total')
+            ->groupBy('estado')
+            ->pluck('total', 'estado');
+
+        $totales = collect(array_keys(Pedido::ESTADOS))
+            ->mapWithKeys(fn ($estado) => [$estado => (int) ($conteos[$estado] ?? 0)])
+            ->all();
 
         $ventasHoy = Pedido::whereDate('created_at', today())->count();
 
@@ -45,27 +45,44 @@ class PedidoAdminController extends Controller
         return view('admin.pedidos.show', compact('pedido'));
     }
 
-    public function actualizarEstado(Request $request, Pedido $pedido): RedirectResponse
+    public function actualizarEstado(Request $request, Pedido $pedido, BoletaService $boletaService): RedirectResponse
     {
         $request->validate([
-            'estado'      => 'required|in:pendiente_pago,pendiente_aprobacion,pagado_parcial,preparando,en_proceso_envio,enviado,entregado,cancelado',
+            'estado'      => 'required|in:pendiente,pago_confirmado,preparando,enviado,en_camino,listo_recojo,completado,cancelado',
             'descripcion' => 'nullable|string|max:500',
         ]);
 
         $estadoAnterior = $pedido->estado;
         $nuevoEstado    = $request->estado;
 
-        $pedido->update(['estado' => $nuevoEstado]);
+        DB::transaction(function () use ($pedido, $estadoAnterior, $nuevoEstado, $request, $boletaService) {
+            $pedido->update(['estado' => $nuevoEstado]);
 
-        // Guardar en historial
-        $pedido->estados()->create([
-            'estado'      => $nuevoEstado,
-            'descripcion' => $request->descripcion,
-        ]);
+            // Guardar en historial
+            $pedido->estados()->create([
+                'estado'      => $nuevoEstado,
+                'descripcion' => $request->descripcion,
+            ]);
 
-        if ($estadoAnterior !== 'entregado' && $nuevoEstado === 'entregado') {
-            $pedido->procesarComision();
-        }
+            // Confirmación manual del pago: sincronizar pago aprobado y boleta
+            if ($nuevoEstado === 'pago_confirmado' && ! $pedido->pagos()->where('estado_pago', 'aprobado')->exists()) {
+                $pago = $pedido->pagos()->where('estado_pago', 'pendiente')->latest()->first();
+
+                if ($pago) {
+                    $pago->update([
+                        'estado_pago'  => 'aprobado',
+                        'fecha_pago'   => now(),
+                        'aprobado_por' => auth()->id(),
+                    ]);
+
+                    $boletaService->generar($pedido, $pago);
+                }
+            }
+
+            if ($estadoAnterior !== 'completado' && $nuevoEstado === 'completado') {
+                $pedido->procesarComision();
+            }
+        });
 
         return redirect()
             ->route('admin.pedidos.show', $pedido)

@@ -1,0 +1,13 @@
+{
+  "type": "service_account",
+  "project_id": "starlit-complex-504704-v7",
+  "private_key_id": "edd9e87f9ef0a53565333bee12f5e0df357816b9",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvwIBADANBgkqhkiG9w0BAQEFAASCBKkwggSlAgEAAoIBAQDX5n+UHoEPY4SO\nBHog+E3dkxYRkcu9EB5LJ2RsPgfR7deDpANi72UmN1+h3W10/fm6AQfMVdZkPRKR\npxBXSFeCVMJrzVA2oIILs8kM7avbq60SQj1At77ILYIqlWmg/wuCZ6ufodzkt4jo\nETu26wO61wAtooND/AaNe9QiZa5lSyX0dh4F+wqrSnxxYHy0WPxYn4WrHk0Jmg+e\n/sZ2d3lEK+ERg6Yct4+g8z4IUOXimz4BGQYXQGfgkGVBs7zdlce+jdS2u7J4j7fe\nJdDE7HIq6G/N/ST493mj0aaY9xyK8JNHrZhb5+z+cECYJEcB0BkYaCKjggVL1Ebr\nEQm+2gT3AgMBAAECggEAG/jeMKefGwpOw0OrOxhQplOHOXGFTxKGikApT6jdxIIn\nOQQH+EqB9WiZOFSC+PRq5YF6rCu24jfTbxGRGW3jAJzQr7zjFqDHGJMLimRErupY\nOxRf8UGdMzxKMBA5pkVFDXk3EDCdePiagU6ySOm8CvoOKNt0XFuL0croWiiIZtEP\nw796yPXDzAJkqenXt2H1Aq12/jNP2mkJ06nNOjem5mgBB3eT2HpJsCsbP+fXrX59\nwSzLYRe0JZlUN+PYILhEYj+nWDezo4vmr5vviQvAzFbqy7KHBdYF6JDtUXI615vz\nL9l3JsaCkDpnNfRUOJTsSf639Zrs5WLpCFALQ8rgQQKBgQDwSG3NSr6zh5CltNfb\nkvGmJxHQcsx07ESAgbidducn97yND2gyAix9Q+1mfJ5DX6EaIN+yBWxxkU6uSVkn\nUq/ECau3rMGCZiH0TCKdjo3212MIl1xsgaNArtHFqONqNU/QzvFSsRa0JiF/a4+e\n3cDzTa7iLCgEFN6HUzfPJKv3FwKBgQDmBcfHei++xTtAKQbYv+joXqSZ8dnY6CdV\nJU4XwI4FzWMx5RXGpsuGyYmNhzPmCVlBKUKB3shBw8zzcY2geEjIBmgUimm+2lWT\ntSXtkULmS0yBwbKyugxxrkYKSrClhpjd2n2mxZH1Qewusl5C/eKuT8YBp6eYOXfc\nf/fAxdUNIQKBgQCqA2WFw2RJnRsw1FODbmaDHNPS/NdDx8T0dFTPPclzEywbVxJv\nh/A4te5s/LHyk+Bmn2oICSRg+uKEGSv20d/BwuH4dUj6Xg+aTqCTgMFcLaxJ8OcZ\nc2SyqL+OruAyTwRph3NjAiBBWVWMVevqCZezz3x1Va7+rFGDyNMNQzJWAwKBgQCj\nkkC67Xy+YGr9+S7RO8dYVtUeVAniYVR3DAw4f8l+/ssnVAzkMwBQXUjfx+F0F/nM\niJau28n0WlSIWZupHWBEPaoN0U/ZVFG+s/bAtaepNKq3KxL0XbEztgZAk1SCoPBb\n81+fFKfyjGpz2ouFgB2Ob1QTITHg4h0GREneX9BdgQKBgQCB8/LTwZ2sj4neWWjj\nKmYt7JEcO/sJwvnBm27QzMHKYY3HoTX9JIxRNRSN7I3K1LFlHHwzVZQ6AfEVdhJp\nD9D1M7Kc0QcjN4D8mafBBKKkCKwb68NHKdYRycrpTAeVHnJwY69o4qjB8xirlSG4\n+uwMzXNKj3ue1vgtjcqObUED8w==\n-----END PRIVATE KEY-----\n",
+  "client_email": "mreyze-vision-ocr@starlit-complex-504704-v7.iam.gserviceaccount.com",
+  "client_id": "106418920488260671715",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/mreyze-vision-ocr%40starlit-complex-504704-v7.iam.gserviceaccount.com",
+  "universe_domain": "googleapis.com"
+}

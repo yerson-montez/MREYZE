@@ -154,6 +154,33 @@ class AdminProyectoController extends Controller
         return back()->with('exito', 'Visibilidad del proyecto actualizada.');
     }
 
+    public function subirContrato(Request $request, Proyecto $proyecto)
+    {
+        $data = $request->validate([
+            'contrato_pdf' => 'required|file|mimes:pdf|max:10240',
+        ]);
+
+        if ($proyecto->contrato_pdf) {
+            Storage::disk('public')->delete($proyecto->contrato_pdf);
+        }
+
+        $proyecto->update([
+            'contrato_pdf' => $request->file('contrato_pdf')->store('contratos', 'public'),
+        ]);
+
+        return back()->with('exito', 'Contrato actualizado correctamente.');
+    }
+
+    public function eliminarContrato(Proyecto $proyecto)
+    {
+        if ($proyecto->contrato_pdf) {
+            Storage::disk('public')->delete($proyecto->contrato_pdf);
+            $proyecto->update(['contrato_pdf' => null]);
+        }
+
+        return back()->with('exito', 'Contrato eliminado.');
+    }
+
     public function setPrincipal(ProyectoImagen $imagen)
     {
         $imagen->proyecto->imagenes()->update(['es_principal' => false]);
@@ -200,7 +227,7 @@ class AdminProyectoController extends Controller
     private function limpiarInversionSiPortafolio(array $data, ?string $tipo): array
     {
         if ($tipo !== 'inversion') {
-            foreach (['inversion_monto_total', 'inversion_monto_disponible', 'inversion_porcentaje_financiado', 'inversion_tiempo_estimado', 'inversion_roi', 'inversion_estado', 'inversion_etiqueta'] as $campo) {
+            foreach (['inversion_monto_total', 'inversion_monto_disponible', 'inversion_porcentaje_financiado', 'inversion_tiempo_estimado', 'inversion_roi', 'inversion_retorno_final', 'inversion_estado', 'inversion_etiqueta'] as $campo) {
                 $data[$campo] = null;
             }
         }
@@ -229,7 +256,8 @@ class AdminProyectoController extends Controller
             'inversion_porcentaje_financiado' => 'nullable|integer|min:0|max:100',
             'inversion_tiempo_estimado'      => 'nullable|string|max:100',
             'inversion_roi'      => 'nullable|string|max:50',
-            'inversion_estado'   => 'nullable|in:abierto,proximamente,cerrado',
+            'inversion_retorno_final' => 'nullable|numeric|min:0|max:1000',
+            'inversion_estado'   => 'nullable|in:disponible,en_ejecucion,completado',
             'inversion_etiqueta' => 'nullable|string|max:100',
             'whatsapp_numero'    => 'nullable|string|max:20',
             'whatsapp_mensaje'   => 'nullable|string|max:500',

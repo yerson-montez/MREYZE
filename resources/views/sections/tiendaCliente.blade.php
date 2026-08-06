@@ -480,7 +480,21 @@
                         Panel admin
                     </a>
                     @endif
-                @endauth
+                    @endauth
+
+                    @auth
+                    <a href="{{ route('pedidos.mis') }}"
+                       title="Mis pedidos"
+                       style="display:inline-flex;align-items:center;gap:.4rem;
+                              padding:.45rem 1rem;border-radius:8px;font-size:.8rem;font-weight:600;
+                              background:rgba(0,212,255,.1);color:#00d4ff;
+                              border:1px solid rgba(0,212,255,.3);text-decoration:none;
+                              transition:all .18s"
+                       onmouseover="this.style.background='rgba(0,212,255,.2)'"
+                       onmouseout="this.style.background='rgba(0,212,255,.1)'">
+                        📦 Mis pedidos
+                    </a>
+                    @endauth
 
                 <a href="{{ url('/tienda') }}" class="tienda-ver-mas">
                     Ver catálogo completo

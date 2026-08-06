@@ -312,6 +312,7 @@
                         <div class="nav-user-dropdown" id="userDropdown">
                             <a href="{{ route('profile.edit') }}">Mi perfil</a>
                             <a href="{{ route('pedidos.mis') }}">Mis pedidos</a>
+                            <a href="{{ route('inversiones.mis') }}">Mis inversiones</a>
                             <form method="POST" action="{{ route('logout') }}">
                                 @csrf
                                 <button type="submit">Cerrar sesión</button>

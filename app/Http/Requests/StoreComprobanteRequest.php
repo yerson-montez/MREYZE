@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Models\Pedido;
 use App\Rules\ComprobanteValido;
 use Illuminate\Foundation\Http\FormRequest;
 
@@ -9,7 +10,19 @@ class StoreComprobanteRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return true;
+        $user = $this->user();
+
+        if (! $user) {
+            return false;
+        }
+
+        $pedido = $this->route('pedido');
+
+        if (! $pedido instanceof Pedido) {
+            return false;
+        }
+
+        return (int) $pedido->user_id === (int) $user->id;
     }
 
     public function rules(): array
