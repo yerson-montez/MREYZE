@@ -83,9 +83,11 @@ Route::middleware('auth')->group(function () {
     Route::post('/pedidos/crear/{producto:slug}', [PedidoController::class, 'store'])->name('pedidos.store');
 
     Route::get('/mis-pedidos', [PedidoController::class, 'misPedidos'])->name('pedidos.mis');
-    Route::get('/mis-pedidos/{pedido}', [PedidoController::class, 'show'])->name('pedidos.show'); 
+    Route::get('/mis-pedidos/{pedido}', [PedidoController::class, 'show'])->name('pedidos.show');
+    Route::post('/mis-pedidos/{pedido}/cancelar', [PedidoController::class, 'cancelar'])->name('pedidos.cancelar');
 
     Route::get('/mis-inversiones', [InversionController::class, 'misInversiones'])->name('inversiones.mis');
+    Route::get('/mis-inversiones/{inversion}/contrato', [InversionController::class, 'descargarContrato'])->name('inversiones.contrato');
 
     // Pago con Yape
     Route::get('/pedido/{pedido}/pago',        [PagoController::class, 'show'])->name('pedidos.pago');
@@ -184,6 +186,8 @@ Route::post('/productos/importar',
         Route::post('/inversiones/{inversion}/aprobar',     [AdminInversionController::class, 'aprobar'])->name('inversiones.aprobar');
         Route::post('/inversiones/{inversion}/rechazar',    [AdminInversionController::class, 'rechazar'])->name('inversiones.rechazar');
         Route::get('/inversiones/{inversion}/comprobante',  [AdminInversionController::class, 'descargarComprobante'])->name('inversiones.comprobante');
+        Route::post('/inversiones/{inversion}/contrato',    [AdminInversionController::class, 'subirContrato'])->name('inversiones.contrato');
+        Route::get('/inversiones/{inversion}/contrato',     [AdminInversionController::class, 'descargarContrato'])->name('inversiones.contrato.descargar');
     });
 
 Route::get('/dashboard', fn() => view('dashboard'))->middleware('auth')->name('dashboard');

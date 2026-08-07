@@ -14,15 +14,26 @@ class ValidacionPagoService
     private const CONFIANZA_ALTA   = 0.8;
     private const TOLERANCIA_MONTO = 0.01;
 
-    public function validar(ResultadoOcr $ocr, Pedido $pedido, string $codigoIngresado, int $pagoId): EstadoValidacionOcr
+    public function validar(ResultadoOcr $ocr, ?Pedido $pedido, string $codigoIngresado, int $pagoId, ?float $montoEsperado = null): EstadoValidacionOcr
     {
+        $montoEsperado ??= $pedido !== null ? (float) $pedido->adelanto : null;
+
+        if ($montoEsperado === null) {
+            Log::warning('ValidacionPago: no hay monto esperado para validar', [
+                'pago_id'   => $pagoId,
+                'pedido_id' => $pedido?->id,
+                'hash'      => $ocr->hashSha256,
+            ]);
+            return EstadoValidacionOcr::Sospechoso;
+        }
+
         $contexto = [
             'pago_id'           => $pagoId,
-            'pedido_id'         => $pedido->id,
+            'pedido_id'         => $pedido?->id,
             'hash'              => $ocr->hashSha256,
             'confianza_global'  => $ocr->confianzaGlobal,
             'monto_ocr'         => $ocr->monto,
-            'monto_esperado'    => (float) $pedido->adelanto,
+            'monto_esperado'    => $montoEsperado,
             'codigo_ocr'        => $ocr->codigoOperacion,
             'codigo_ingresado'  => $codigoIngresado,
         ];
@@ -42,7 +53,7 @@ class ValidacionPagoService
             return EstadoValidacionOcr::Sospechoso;
         }
 
-        $diferencia = abs($ocr->monto - (float) $pedido->adelanto);
+        $diferencia = abs($ocr->monto - $montoEsperado);
 
         if ($diferencia > self::TOLERANCIA_MONTO) {
             Log::warning('ValidacionPago: el monto no coincide con el adelanto del pedido', $contexto);

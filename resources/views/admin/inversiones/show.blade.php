@@ -115,6 +115,58 @@
     </div>
 
     <div class="inv-det-grid">
+        <div class="inv-det-card">
+            <h3>Estado del pago</h3>
+            @php $pagoInv = $inversion->ultimoPago; @endphp
+            @if($pagoInv)
+                <div class="inv-det-fila"><span>Estado del pago</span><strong>{{ $inversion->estado_pago_label }}</strong></div>
+                <div class="inv-det-fila"><span>Método de pago</span><strong>{{ $pagoInv->metodo_pago }}</strong></div>
+                @if($pagoInv->numero_operacion)
+                <div class="inv-det-fila"><span>N.º operación</span><strong>{{ $pagoInv->numero_operacion }}</strong></div>
+                @endif
+                <div class="inv-det-fila"><span>Verificación automática</span><strong>
+                    @if($pagoInv->ocr_resultado)
+                        {{ \App\Enums\EstadoValidacionOcr::tryFrom($pagoInv->ocr_resultado)?->label() }}
+                    @else
+                        Sin comprobante adjunto
+                    @endif
+                </strong></div>
+                @if($pagoInv->fecha_pago)
+                <div class="inv-det-fila"><span>Confirmado el</span><strong>{{ $pagoInv->fecha_pago->format('d/m/Y H:i') }}</strong></div>
+                @endif
+                @if($pagoInv->observaciones_admin)
+                <div class="inv-det-fila"><span>Observaciones</span><strong>{{ $pagoInv->observaciones_admin }}</strong></div>
+                @endif
+            @else
+                <p style="font-size:.85rem;color:var(--muted);line-height:1.6;">No hay un registro de pago vinculado a esta solicitud.</p>
+            @endif
+        </div>
+
+        <div class="inv-det-card">
+            <h3>Contrato de inversión</h3>
+            @if($inversion->estado === 'aprobado')
+                <form method="POST" action="{{ route('admin.inversiones.contrato', $inversion) }}" enctype="multipart/form-data">
+                    @csrf
+                    <input type="file" name="contrato_pdf" accept="application/pdf" required
+                           style="width:100%;background:rgba(7,26,46,.6);border:1px solid var(--border-md);border-radius:10px;padding:.7rem;color:var(--text);font-size:.82rem;margin-bottom:.8rem;">
+                    <button type="submit" class="adm-btn adm-btn-success" style="width:100%;">
+                        <svg viewBox="0 0 24 24" fill="currentColor" style="width:16px;height:16px"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg>
+                        Subir contrato PDF
+                    </button>
+                </form>
+                @if($inversion->contrato_pdf)
+                    <a href="{{ route('admin.inversiones.contrato.descargar', $inversion) }}" class="inv-comprobante" target="_blank" style="margin-top:.9rem;">
+                        <svg viewBox="0 0 24 24" fill="currentColor" style="width:16px;height:16px"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg>
+                        Descargar contrato actual
+                    </a>
+                @endif
+            @else
+                <p style="font-size:.85rem;color:var(--muted);line-height:1.6;">El contrato de inversión podrá subirse una vez que la inversión esté aprobada.</p>
+            @endif
+        </div>
+    </div>
+
+    <div class="inv-det-grid">
         <div class="inv-det-card inv-notas">
             <h3>Notas internas</h3>
             <form method="POST" action="{{ route('admin.inversiones.rechazar', $inversion) }}">

@@ -102,6 +102,7 @@
                     <th>Monto</th>
                     <th>Medio de pago</th>
                     <th>Estado</th>
+                    <th>Pago</th>
                     <th>Fecha</th>
                     <th></th>
                 </tr>
@@ -133,6 +134,20 @@
                         @endif
                     </td>
                     <td><span class="adm-pill {{ $pill }}">{{ $inv->estado_label }}</span></td>
+                    <td>
+                        @if($inv->ultimoPago)
+                            @php
+                                $pagoPill = match($inv->ultimoPago->estado_pago) {
+                                    'aprobado'  => 'adm-pill-approved',
+                                    'rechazado' => 'adm-pill-rejected',
+                                    default     => 'adm-pill-pending',
+                                };
+                            @endphp
+                            <span class="adm-pill {{ $pagoPill }}">{{ $inv->estado_pago_label }}</span>
+                        @else
+                            <span style="font-size:.72rem;color:var(--muted);">Sin pago</span>
+                        @endif
+                    </td>
                     <td style="font-size:.8rem;color:var(--muted);">{{ $inv->created_at->format('d/m/Y H:i') }}</td>
                     <td>
                         <a href="{{ route('admin.inversiones.show', $inv) }}" class="adm-btn adm-btn-ghost" style="padding:.35rem .75rem; font-size:.72rem;">Revisar</a>

@@ -19,9 +19,28 @@ class PagoController extends Controller
             abort(403);
         }
 
-        $yape = MetodoPago::where('clave', 'yape')->first();
+        // Pedido pagado al 100%: ya no se muestra la pantalla de pago,
+        // únicamente la boleta/ticket de pago.
+        if ((float) $pedido->total_pagado >= (float) $pedido->total && $pedido->boletas()->exists()) {
+            return redirect()->route('pedidos.boleta', $pedido);
+        }
+
+        $metodosPago = MetodoPago::activos()->get();
+        $yape = $metodosPago->firstWhere('clave', 'yape') ?? MetodoPago::where('clave', 'yape')->first();
         $pago = $pedido->pagos()->latest()->first();
         $boleta = $pedido->boletas()->first();
+
+        $totalPagado    = $pedido->total_pagado;
+        $saldoPendiente = round(max((float) $pedido->total - $totalPagado, 0), 2);
+        $montoPago      = $totalPagado > 0 ? $saldoPendiente : (float) $pedido->adelanto;
+        $tipoPago       = $totalPagado > 0 ? 'saldo' : 'adelanto';
+
+        $pagoEnRevision = $pago && in_array($pago->ocr_resultado, ['pendiente', 'procesando']);
+
+        $puedePagarSaldo = in_array($pedido->estado, ['pendiente', 'pago_confirmado'])
+            && $totalPagado > 0
+            && $saldoPendiente > 0
+            && ! $pagoEnRevision;
 
         $currentEstado = match ($pedido->estado) {
             'pago_confirmado' => 'aprobado',
@@ -41,7 +60,19 @@ class PagoController extends Controller
             default         => 'error',
         };
 
-        return view('pagos.show', compact('pedido', 'yape', 'pago', 'boleta', 'currentEstado', 'currentOcr'));
+        return view('pagos.show', compact(
+            'pedido',
+            'yape',
+            'pago',
+            'boleta',
+            'currentEstado',
+            'currentOcr',
+            'metodosPago',
+            'saldoPendiente',
+            'montoPago',
+            'tipoPago',
+            'puedePagarSaldo',
+        ));
     }
 
     public function storeComprobante(Pedido $pedido, StoreComprobanteRequest $request)
@@ -50,17 +81,38 @@ class PagoController extends Controller
             abort(403);
         }
 
-        if (! in_array($pedido->estado, ['pendiente'])) {
-            return back()->withErrors(['pedido' => 'Este pedido no está pendiente de pago.']);
+        if (! in_array($pedido->estado, ['pendiente', 'pago_confirmado'])) {
+            return back()->withErrors(['pedido' => 'Este pedido ya no admite pagos en su estado actual.']);
+        }
+
+        $totalPagado    = $pedido->total_pagado;
+        $saldoPendiente = round(max((float) $pedido->total - $totalPagado, 0), 2);
+
+        if ($saldoPendiente <= 0) {
+            return back()->withErrors(['pedido' => 'Este pedido no tiene saldo pendiente.']);
+        }
+
+        $montoPago = $totalPagado > 0 ? $saldoPendiente : (float) $pedido->adelanto;
+
+        $metodoClave = $request->input('metodo_pago');
+
+        if ($metodoClave) {
+            $metodo = MetodoPago::activos()->where('clave', $metodoClave)->first();
+            if (! $metodo) {
+                return back()->withErrors(['metodo_pago' => 'El método de pago seleccionado no es válido.']);
+            }
+        } else {
+            // Comportamiento original del adelanto: método por defecto.
+            $metodoClave = 'yape';
         }
 
         $data = [
-            'pedido_id'     => $pedido->id,
-            'user_id'       => auth()->id(),
-            'monto'         => $pedido->adelanto,
-            'metodo_pago'   => 'yape',
-            'numero_operacion' => $request->input('numero_operacion'),
-            'ocr_resultado' => EstadoValidacionOcr::Pendiente->value,
+            'pedido_id'         => $pedido->id,
+            'user_id'           => auth()->id(),
+            'monto'             => $montoPago,
+            'metodo_pago'       => $metodoClave,
+            'numero_operacion'  => $request->input('numero_operacion'),
+            'ocr_resultado'     => EstadoValidacionOcr::Pendiente->value,
         ];
 
         if ($request->hasFile('comprobante')) {
@@ -69,12 +121,16 @@ class PagoController extends Controller
         }
 
         $pago = $pedido->pagos()->create($data);
+
         $pedido->update(['estado' => 'pendiente']);
 
         ProcesarComprobanteJob::dispatch($pago);
 
-        return redirect()->route('pedidos.pago', $pedido)
-            ->with('success', 'Comprobante enviado. El pago será verificado automáticamente.');
+        $mensaje = $totalPagado > 0
+            ? 'Comprobante del saldo enviado. El pago será verificado automáticamente.'
+            : 'Comprobante enviado. El pago será verificado automáticamente.';
+
+        return redirect()->route('pedidos.pago', $pedido)->with('success', $mensaje);
     }
 
     public function status(Pedido $pedido)

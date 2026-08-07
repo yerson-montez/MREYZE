@@ -5,6 +5,8 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Support\Facades\Storage;
 
 class Inversion extends Model
@@ -24,6 +26,7 @@ class Inversion extends Model
         'metodo_pago_id',
         'numero_operacion',
         'comprobante',
+        'contrato_pdf',
         'estado',
         'notas_admin',
     ];
@@ -49,18 +52,58 @@ class Inversion extends Model
         return $this->belongsTo(MetodoPago::class);
     }
 
+    public function pagos(): HasMany
+    {
+        return $this->hasMany(Pago::class);
+    }
+
+    public function ultimoPago(): HasOne
+    {
+        return $this->hasOne(Pago::class)->latestOfMany();
+    }
+
     public function getEstadoLabelAttribute(): string
     {
         return [
-            'pendiente' => 'Pendiente',
-            'aprobado'  => 'Aprobado',
-            'rechazado' => 'Rechazado',
-            'cancelado' => 'Cancelado',
+            'pendiente' => 'Inversión en revisión',
+            'aprobado'  => 'Inversión aprobada',
+            'rechazado' => 'Rechazada',
+            'cancelado' => 'Cancelada',
         ][$this->estado] ?? ucfirst($this->estado);
+    }
+
+    public function getEstadoPagoLabelAttribute(): string
+    {
+        return match ($this->ultimoPago?->estado_pago) {
+            'aprobado'  => 'Pago confirmado',
+            'rechazado' => 'Pago rechazado',
+            'pendiente' => 'Pago en revisión',
+            default     => 'Sin registro de pago',
+        };
+    }
+
+    public function getEstadoProyectoLabelAttribute(): string
+    {
+        return [
+            'disponible'   => 'Aceptando inversiones',
+            'en_ejecucion' => 'Proyecto en ejecución',
+            'completado'   => 'Finalizado',
+        ][$this->proyecto?->inversion_estado] ?? 'En preparación';
+    }
+
+    public function getParticipacionActivaAttribute(): bool
+    {
+        return $this->estado === 'aprobado'
+            && $this->proyecto?->inversion_estado === 'en_ejecucion';
     }
 
     public function getComprobanteUrlAttribute(): ?string
     {
         return $this->comprobante ? Storage::disk('public')->url($this->comprobante) : null;
+    }
+
+    public function getContratoUrlAttribute(): ?string
+    {
+        return $this->contrato_pdf ? Storage::disk('public')->url($this->contrato_pdf) : null;
     }
 }

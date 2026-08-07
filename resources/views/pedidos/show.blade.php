@@ -16,6 +16,11 @@
 .pd-badge.cyan{background:rgba(6,182,212,.12);border:1px solid rgba(6,182,212,.3);color:#67e8f9;}
 .pd-badge.green{background:rgba(0,212,170,.12);border:1px solid rgba(0,212,170,.3);color:var(--success);}
 .pd-badge.red{background:rgba(255,107,107,.12);border:1px solid rgba(255,107,107,.3);color:var(--danger);}
+.btn-accion{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:12px 22px;border-radius:10px;font-size:.85rem;font-weight:600;text-decoration:none;border:1px solid transparent;cursor:pointer;transition:all .2s;}
+.btn-accion.pagar{background:linear-gradient(135deg,var(--ice-500),var(--ice-400));color:#fff;border-color:rgba(74,144,217,.4);}
+.btn-accion.pagar:hover{background:linear-gradient(135deg,var(--ice-400),var(--glow));box-shadow:0 6px 24px rgba(59,130,246,.5);transform:translateY(-1px);}
+.btn-accion.cancelar{background:rgba(255,107,107,.12);color:var(--danger);border-color:rgba(255,107,107,.3);}
+.btn-accion.cancelar:hover{background:rgba(255,107,107,.25);}
 
 /* Card */
 .pd-card{background:linear-gradient(135deg,rgba(13,31,60,.95),rgba(17,41,82,.8));border:1px solid rgba(74,144,217,.18);border-radius:16px;padding:24px;margin-bottom:20px;position:relative;overflow:hidden;}
@@ -241,6 +246,25 @@
       </div>
     </div>
   </div>
+
+  {{-- Acciones del cliente --}}
+  @php
+    $saldoPendienteShow = max((float) $pedido->total - $pedido->total_pagado, 0);
+    $estadoInicial      = in_array($pedido->estado, ['pendiente', 'pago_confirmado']);
+  @endphp
+  @if ($estadoInicial)
+  <div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin:-4px 0 20px;">
+    @if ($pedido->total_pagado > 0 && $saldoPendienteShow > 0)
+      <a href="{{ route('pedidos.pago', $pedido) }}" class="btn-accion pagar">Completar pago pendiente — S/ {{ number_format($saldoPendienteShow, 2) }}</a>
+    @elseif ($pedido->total_pagado <= 0)
+      <a href="{{ route('pedidos.pago', $pedido) }}" class="btn-accion pagar">Pagar ahora — S/ {{ number_format($pedido->adelanto, 2) }}</a>
+    @endif
+    <form action="{{ route('pedidos.cancelar', $pedido) }}" method="POST" style="margin:0;">
+      @csrf
+      <button type="submit" class="btn-accion cancelar" onclick="return confirm('¿Seguro que deseas cancelar este pedido?')">Cancelar pedido</button>
+    </form>
+  </div>
+  @endif
 
   {{-- Pagos realizados --}}
   @if ($pedido->pagos->count() > 0)

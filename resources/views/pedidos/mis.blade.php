@@ -49,6 +49,8 @@
 .btn-pagar:hover{background:linear-gradient(135deg,var(--ice-400),var(--glow));box-shadow:0 6px 24px rgba(59,130,246,.5);transform:translateY(-1px);}
 .btn-ver{background:rgba(37,99,199,.15);color:var(--ice-200);border:1px solid rgba(74,144,217,.2);}
 .btn-ver:hover{background:rgba(37,99,199,.3);color:#fff;}
+.btn-cancelar{background:rgba(255,107,107,.12);color:var(--danger);border:1px solid rgba(255,107,107,.3);padding:10px 20px;border-radius:10px;font-size:.85rem;font-weight:600;cursor:pointer;transition:all .3s;}
+.btn-cancelar:hover{background:rgba(255,107,107,.25);}
 .vacio{text-align:center;padding:60px 20px;}
 .vacio-icon{font-size:3.6rem;margin-bottom:16px;filter:drop-shadow(0 8px 22px rgba(0,212,255,.3));animation:flotar 3s ease-in-out infinite;}
 @keyframes flotar{0%,100%{transform:translateY(0);}50%{transform:translateY(-9px);}}
@@ -58,7 +60,7 @@
 @media (max-width:560px){
   .precios-grid{grid-template-columns:1fr;}
   .pedido-actions{justify-content:stretch;}
-  .pedido-actions a{text-align:center;flex:1;}
+  .pedido-actions a,.pedido-actions button{text-align:center;flex:1;}
 }
 </style>
 
@@ -67,10 +69,13 @@
 
   @forelse ($pedidos as $pedido)
     @php
-      $pagado   = $pedido->total_pagado;
-      $pago     = $pedido->pagos->first();
-      $boleta   = $pedido->boletas->first();
-      $enProceso = ! in_array($pedido->estado, ['completado', 'cancelado']);
+      $pagado        = $pedido->total_pagado;
+      $saldoPendiente = max($pedido->total - $pagado, 0);
+      $pago          = $pedido->pagos->first();
+      $boleta        = $pedido->boletas->first();
+      $enProceso     = ! in_array($pedido->estado, ['completado', 'cancelado']);
+      $puedeCancelar = in_array($pedido->estado, ['pendiente', 'pago_confirmado']);
+      $puedePagarSaldo = $puedeCancelar && $pagado > 0 && $saldoPendiente > 0;
     @endphp
     <div class="pedido-card">
       @if ($enProceso)
@@ -98,7 +103,11 @@
         </div>
         <div class="precio-box">
           <div class="precio-label">Saldo</div>
-          <div class="precio-val amber">S/ {{ number_format(max($pedido->total - $pagado, 0), 2) }}</div>
+          @if ($saldoPendiente <= 0 && $pagado > 0)
+            <div class="precio-val green">✓ 100% pagado</div>
+          @else
+            <div class="precio-val amber">S/ {{ number_format($saldoPendiente, 2) }}</div>
+          @endif
         </div>
       </div>
 
@@ -118,15 +127,25 @@
       @endif
 
       <div class="pedido-actions">
-        @if ($pedido->estado === 'pendiente')
+        @if ($pedido->estado === 'pendiente' && $pagado <= 0)
           <a href="{{ route('pedidos.pago', $pedido) }}" class="btn-pagar">
             Pagar ahora — S/ {{ number_format($pedido->adelanto, 2) }}
+          </a>
+        @elseif ($puedePagarSaldo)
+          <a href="{{ route('pedidos.pago', $pedido) }}" class="btn-pagar">
+            Completar pago pendiente — S/ {{ number_format($saldoPendiente, 2) }}
           </a>
         @endif
         <a href="{{ route('pedidos.show', $pedido) }}" class="btn-ver">Ver seguimiento</a>
         @if ($boleta)
           <a href="{{ route('pedidos.boleta', $pedido) }}" class="btn-ver">Ver boleta</a>
           <a href="{{ route('pedidos.boleta.pdf', $pedido) }}" target="_blank" class="btn-ver">Boleta PDF</a>
+        @endif
+        @if ($puedeCancelar)
+          <form action="{{ route('pedidos.cancelar', $pedido) }}" method="POST" style="display:inline;">
+            @csrf
+            <button type="submit" class="btn-cancelar" onclick="return confirm('¿Seguro que deseas cancelar este pedido?')">Cancelar pedido</button>
+          </form>
         @endif
       </div>
     </div>

@@ -38,12 +38,14 @@ class ProcesarComprobanteJob implements ShouldQueue
     ): void {
         $pagoId = $this->pago->id;
         $pedido = $this->pago->pedido;
+        $inversion = $this->pago->inversion;
 
         Log::info('Job.OCR: ANTES de procesar', [
             'pago_id'          => $pagoId,
-            'pedido_id'        => $pedido->id,
+            'pedido_id'        => $pedido?->id,
+            'inversion_id'     => $inversion?->id,
             'pago.estado_pago' => $this->pago->estado_pago,
-            'pedido.estado'    => $pedido->estado,
+            'pedido.estado'    => $pedido?->estado,
         ]);
 
         $this->iniciarProcesamiento();
@@ -79,11 +81,16 @@ class ProcesarComprobanteJob implements ShouldQueue
 
         $codigoIngresado = $this->pago->numero_operacion ?? '';
 
+        $montoEsperado = $pedido !== null
+            ? (float) $pedido->adelanto
+            : (float) $inversion->monto;
+
         $estadoValidacion = $validacionService->validar(
             $resultado,
             $pedido,
             $codigoIngresado,
             $pagoId,
+            $montoEsperado,
         );
 
         $this->pago->update([
@@ -97,17 +104,19 @@ class ProcesarComprobanteJob implements ShouldQueue
 
         if ($estadoValidacion === EstadoValidacionOcr::Validado) {
             $this->pago->update(['estado_pago' => 'aprobado']);
-            $pedido->update(['estado' => 'pago_confirmado']);
 
-            $boletaService->generar($pedido, $this->pago);
-
-            $this->limpiarComprobante();
+            if ($pedido) {
+                $pedido->update(['estado' => 'pago_confirmado']);
+                $boletaService->generar($pedido, $this->pago);
+                $this->limpiarComprobante();
+            }
 
             Log::info('Job.OCR: pago aprobado automáticamente', [
-                'pago_id'   => $pagoId,
-                'pedido_id' => $pedido->id,
-                'confianza' => $resultado->confianzaGlobal,
-                'hash'      => $resultado->hashSha256,
+                'pago_id'      => $pagoId,
+                'pedido_id'    => $pedido?->id,
+                'inversion_id' => $inversion?->id,
+                'confianza'    => $resultado->confianzaGlobal,
+                'hash'         => $resultado->hashSha256,
             ]);
         } else {
             $estadoPagoOcr = $estadoValidacion === EstadoValidacionOcr::Rechazado
@@ -115,11 +124,14 @@ class ProcesarComprobanteJob implements ShouldQueue
                 : 'pendiente';
 
             $this->pago->update(['estado_pago' => $estadoPagoOcr]);
-            $pedido->update(['estado' => 'pendiente']);
+            if ($pedido) {
+                $pedido->update(['estado' => 'pendiente']);
+            }
 
             Log::info('Job.OCR: pago NO validado — pendiente de revisión manual', [
                 'pago_id'        => $pagoId,
-                'pedido_id'      => $pedido->id,
+                'pedido_id'      => $pedido?->id,
+                'inversion_id'   => $inversion?->id,
                 'estado_ocr'     => $estadoValidacion->value,
                 'estado_pago'    => $estadoPagoOcr,
                 'confianza'      => $resultado->confianzaGlobal,
@@ -127,14 +139,16 @@ class ProcesarComprobanteJob implements ShouldQueue
         }
 
         $this->pago->refresh();
-        $pedido->refresh();
+        if ($pedido) {
+            $pedido->refresh();
+        }
 
         Log::info('Job.OCR: DESPUÉS de procesar', [
-            'pago_id'          => $pagoId,
-            'pedido_id'        => $pedido->id,
-            'pago.estado_pago' => $this->pago->estado_pago,
+            'pago_id'            => $pagoId,
+            'pedido_id'          => $pedido?->id,
+            'pago.estado_pago'   => $this->pago->estado_pago,
             'pago.ocr_resultado' => $this->pago->ocr_resultado,
-            'pedido.estado'    => $pedido->estado,
+            'pedido.estado'      => $pedido?->estado,
         ]);
 
         PagoValidado::dispatch($this->pago, $estadoValidacion);
@@ -185,9 +199,9 @@ class ProcesarComprobanteJob implements ShouldQueue
 
         Log::info('Job.OCR: marcarResultado ANTES', [
             'pago_id'          => $pagoId,
-            'pedido_id'        => $pedido->id,
+            'pedido_id'        => $pedido?->id,
             'pago.estado_pago' => $this->pago->estado_pago,
-            'pedido.estado'    => $pedido->estado,
+            'pedido.estado'    => $pedido?->estado,
         ]);
 
         $this->pago->update([
@@ -198,17 +212,21 @@ class ProcesarComprobanteJob implements ShouldQueue
         ]);
 
         $this->pago->update(['estado_pago' => 'pendiente']);
-        $pedido->update(['estado' => 'pendiente']);
+        if ($pedido) {
+            $pedido->update(['estado' => 'pendiente']);
+        }
 
         $this->pago->refresh();
-        $pedido->refresh();
+        if ($pedido) {
+            $pedido->refresh();
+        }
 
         Log::info('Job.OCR: marcarResultado DESPUÉS', [
             'pago_id'            => $pagoId,
-            'pedido_id'          => $pedido->id,
+            'pedido_id'          => $pedido?->id,
             'pago.estado_pago'   => $this->pago->estado_pago,
             'pago.ocr_resultado' => $this->pago->ocr_resultado,
-            'pedido.estado'      => $pedido->estado,
+            'pedido.estado'      => $pedido?->estado,
             'estado_ocr'         => $estado->value,
         ]);
 

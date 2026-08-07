@@ -1,3 +1,5 @@
+@include('pagos._datos-pago')
+
 <div class="pago-card">
   <h2>{{ $retry ?? false ? 'Reintentar' : 'Sube tu comprobante' }}</h2>
   <form action="{{ route('pedidos.comprobante', $pedido) }}" method="POST" enctype="multipart/form-data">

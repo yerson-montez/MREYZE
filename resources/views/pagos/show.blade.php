@@ -105,9 +105,19 @@
       <span class="info-value" style="color:var(--success);">S/ {{ number_format($pedido->adelanto, 2) }}</span>
     </div>
     <div class="info-row">
-      <span class="info-label">Saldo pendiente</span>
-      <span class="info-value" style="color:var(--warning);">S/ {{ number_format($pedido->saldo, 2) }}</span>
+      <span class="info-label">Total pagado</span>
+      <span class="info-value" style="color:var(--success);">S/ {{ number_format($pedido->total_pagado, 2) }}</span>
     </div>
+    <div class="info-row">
+      <span class="info-label">Saldo pendiente</span>
+      <span class="info-value" style="{{ $saldoPendiente > 0 ? 'color:var(--warning);' : 'color:var(--success);' }}">S/ {{ number_format($saldoPendiente, 2) }}</span>
+    </div>
+    @if ($saldoPendiente <= 0 && $pedido->total_pagado > 0)
+    <div class="info-row">
+      <span class="info-label">Progreso de pago</span>
+      <span class="estado-badge aprobado" style="font-size:.95rem;padding:8px 18px;">100% PAGADO</span>
+    </div>
+    @endif
     <div class="info-row">
       <span class="info-label">Estado</span>
       <span id="pedido-estado-badge" class="estado-badge
@@ -148,7 +158,7 @@
     $pagoEnRevision = $pago && in_array($pago->ocr_resultado, ['pendiente', 'procesando', 'validado']);
   @endphp
 
-  @if ($pedido->estado === 'pendiente')
+  @if ($pedido->estado === 'pendiente' && ! $puedePagarSaldo)
     @if ($ultimoOcrError)
       @php
         $motivoReintento = match ($ultimoOcrError) {
@@ -283,30 +293,89 @@
     </div>
 
     @else
-      @php
-        $datosYape = $yape?->datos ?? [];
-        $numeroYape  = $datosYape['numero']  ?? config('empresa.whatsapp_numero');
-        $titularYape = $datosYape['titular'] ?? 'MREYZE AUOTOMATISACION Y SISTEMAS SAC';
-      @endphp
-      <div class="pago-card">
-        <h2>Paga con Yape</h2>
-        <div class="qr-wrap">
-          <img src="{{ asset('img/Empresa.png') }}" alt="Código QR Yape">
-          <div class="qr-num">{{ $numeroYape }}</div>
-          <div class="qr-label">{{ $titularYape }}</div>
-        </div>
-      </div>
       @include('pagos._form-comprobante')
     @endif
+
+  @elseif ($puedePagarSaldo)
+    @include('pagos._datos-pago')
+    <div id="status-saldo-pendiente" class="pago-card">
+      <h2>Completar pago pendiente</h2>
+      <div class="info-row">
+        <span class="info-label">Total pagado</span>
+        <span class="info-value" style="color:var(--success);">S/ {{ number_format($pedido->total_pagado, 2) }}</span>
+      </div>
+      <div class="info-row">
+        <span class="info-label">Saldo restante</span>
+        <span class="info-value" style="color:var(--warning);">S/ {{ number_format($saldoPendiente, 2) }}</span>
+      </div>
+      <div class="info-row">
+        <span class="info-label">Estado</span>
+        <span class="estado-badge aprobado">{{ $pedido->estado_label }}</span>
+      </div>
+
+      <form action="{{ route('pedidos.comprobante', $pedido) }}" method="POST" enctype="multipart/form-data" style="margin-top:16px;">
+        @csrf
+        <div class="form-group">
+          <label>Método de pago</label>
+          <div style="display:grid;gap:10px;">
+            @foreach ($metodosPago as $metodo)
+              <label style="display:flex;gap:10px;align-items:center;background:rgba(7,26,46,.6);border:1px solid rgba(74,144,217,.2);border-radius:10px;padding:12px;cursor:pointer;">
+                <input type="radio" name="metodo_pago" value="{{ $metodo->clave }}" {{ $loop->first ? 'checked' : '' }} style="accent-color:var(--accent);width:auto;">
+                <span style="flex:1;">
+                  <span style="display:block;font-size:.85rem;font-weight:600;color:#fff;">{{ $metodo->nombre }}</span>
+                  @php $datosMetodo = $metodo->datos ?? []; @endphp
+                  @if (!empty($datosMetodo['numero']))
+                    <span style="display:block;font-size:.75rem;color:var(--ice-300);">N.º {{ $datosMetodo['numero'] }}</span>
+                  @endif
+                  @if (!empty($datosMetodo['cci']))
+                    <span style="display:block;font-size:.75rem;color:var(--ice-300);">CCI {{ $datosMetodo['cci'] }}</span>
+                  @endif
+                  @if (!empty($datosMetodo['titular']))
+                    <span style="display:block;font-size:.75rem;color:var(--ice-300);">{{ $datosMetodo['titular'] }}</span>
+                  @endif
+                </span>
+              </label>
+            @endforeach
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Número de operación <span style="color:var(--danger);">*</span></label>
+          <input type="text" name="numero_operacion" placeholder="Ej: 123456789" value="{{ old('numero_operacion') }}" required>
+        </div>
+        <div class="form-group">
+          <label>Comprobante (JPG, PNG o PDF — máx 5 MB)</label>
+          <input type="file" name="comprobante" accept=".jpg,.jpeg,.png,.pdf">
+        </div>
+        <button type="submit" class="btn-yape">
+          <svg viewBox="0 0 24 24" fill="currentColor" style="width:18px;height:18px;"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+          Enviar comprobante del saldo
+        </button>
+      </form>
+    </div>
 
   @elseif (in_array($pedido->estado, ['pago_confirmado', 'preparando', 'enviado', 'en_camino', 'listo_recojo']))
     <div id="status-pagado-parcial" class="pago-card">
       <div class="success-box">
-        <p style="font-size:1.2rem;font-weight:700;">
-          <svg viewBox="0 0 24 24" fill="currentColor" style="width:22px;height:22px;vertical-align:-4px;color:var(--success);"><path d="M9 16.2L4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4L9 16.2z"/></svg>
-          ¡Pedido realizado!
-        </p>
-        <p style="margin-top:8px;">Tu pago fue confirmado. Estamos preparando tu pedido.</p>
+        @if ($saldoPendiente <= 0)
+          <p style="font-size:1.2rem;font-weight:700;color:var(--success);">
+            <svg viewBox="0 0 24 24" fill="currentColor" style="width:22px;height:22px;vertical-align:-4px;color:var(--success);"><path d="M9 16.2L4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4L9 16.2z"/></svg>
+            ¡Pedido 100% pagado!
+          </p>
+          <p style="margin-top:8px;">Tu pedido fue pagado en su totalidad. Estamos preparando tu pedido.</p>
+        @else
+          <p style="font-size:1.2rem;font-weight:700;">
+            <svg viewBox="0 0 24 24" fill="currentColor" style="width:22px;height:22px;vertical-align:-4px;color:var(--success);"><path d="M9 16.2L4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4L9 16.2z"/></svg>
+            ¡Pedido realizado!
+          </p>
+          <p style="margin-top:8px;">Tu pago fue confirmado. Estamos preparando tu pedido.</p>
+        @endif
+        @if ($pagoEnRevision)
+          <p style="margin-top:8px;{{ $pago?->ocr_resultado === 'validado' ? 'color:var(--success);' : 'color:var(--warning);' }}font-size:.85rem;">
+            {{ $pago?->ocr_resultado === 'validado'
+                ? 'El pago del saldo fue validado correctamente.'
+                : 'Tu pago del saldo está en proceso de validación.' }}
+          </p>
+        @endif
         <div style="margin-top:14px;">
           <a href="{{ route('pedidos.show', $pedido) }}" class="btn-yape" style="display:inline-flex;padding:10px 20px;font-size:.85rem;gap:6px;text-decoration:none;">
             <svg viewBox="0 0 24 24" fill="currentColor" style="width:16px;height:16px;"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>

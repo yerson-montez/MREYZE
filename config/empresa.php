@@ -15,6 +15,15 @@ return [
     'horario_html' => 'Lunes a Viernes<br>8:00 AM – 6:00 PM',
     'horario_linea' => 'Lun–Vie 8am–6pm',
 
+    'pago' => [
+        'qr'      => 'img/Empresa.png',
+        'banco'   => 'BBVA',
+        'medios'  => 'Yape / Plin',
+        'cci'     => '011-146-000100050182-83',
+        'cuenta'  => '0011-0146-0100050182',
+        'titular' => 'MReyze Automatización y Sistemas S.A.C.',
+    ],
+
     'whatsapp_grupo' => 'https://chat.whatsapp.com/HMzaN0kWQgm9cA2BpjDWiv',
 
     'redes' => [

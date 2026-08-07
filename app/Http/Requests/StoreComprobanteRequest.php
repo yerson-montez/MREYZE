@@ -29,6 +29,7 @@ class StoreComprobanteRequest extends FormRequest
     {
         return [
             'numero_operacion' => 'nullable|string|max:100',
+            'metodo_pago'      => 'nullable|string|max:50',
             'comprobante'      => ['nullable', 'file', new ComprobanteValido],
         ];
     }

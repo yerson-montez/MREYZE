@@ -13,7 +13,7 @@ class AdminInversionController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Inversion::with('proyecto')->latest();
+        $query = Inversion::with('proyecto', 'ultimoPago')->latest();
 
         if ($request->filled('estado')) {
             $query->where('estado', $request->estado);
@@ -46,7 +46,7 @@ class AdminInversionController extends Controller
 
     public function show(Inversion $inversion)
     {
-        $inversion->load('proyecto', 'metodoPago', 'user');
+        $inversion->load('proyecto', 'metodoPago', 'user', 'ultimoPago');
         return view('admin.inversiones.show', compact('inversion'));
     }
 
@@ -69,6 +69,15 @@ class AdminInversionController extends Controller
         DB::transaction(function () use ($inversion, $proyecto, $disponible, $monto) {
             $this->actualizarFinanciamiento($proyecto, $disponible - $monto);
             $inversion->update(['estado' => 'aprobado']);
+
+            $pago = $inversion->ultimoPago;
+            if ($pago && $pago->estado_pago === 'pendiente') {
+                $pago->update([
+                    'estado_pago'  => 'aprobado',
+                    'fecha_pago'   => now(),
+                    'aprobado_por' => auth()->id(),
+                ]);
+            }
         });
 
         return back()->with('exito', 'Inversión aprobada. El financiamiento del proyecto se actualizó automáticamente.');
@@ -94,6 +103,15 @@ class AdminInversionController extends Controller
                 'estado'      => 'rechazado',
                 'notas_admin' => $notas ?: null,
             ]);
+
+            $pago = $inversion->ultimoPago;
+            if ($pago && in_array($pago->estado_pago, ['pendiente', 'aprobado'])) {
+                $pago->update([
+                    'estado_pago'         => 'rechazado',
+                    'observaciones_admin' => $notas ?: $pago->observaciones_admin,
+                    'aprobado_por'        => auth()->id(),
+                ]);
+            }
         });
 
         return back()->with('exito', 'Inversión rechazada.');
@@ -106,6 +124,36 @@ class AdminInversionController extends Controller
         }
 
         return Storage::disk('public')->download($inversion->comprobante);
+    }
+
+    public function subirContrato(Request $request, Inversion $inversion)
+    {
+        if ($inversion->estado !== 'aprobado') {
+            return back()->withErrors(['inversion' => 'El contrato solo puede subirse cuando la inversión está aprobada.']);
+        }
+
+        $request->validate([
+            'contrato_pdf' => 'required|file|mimes:pdf|max:10240',
+        ]);
+
+        if ($inversion->contrato_pdf) {
+            Storage::disk('public')->delete($inversion->contrato_pdf);
+        }
+
+        $inversion->update([
+            'contrato_pdf' => $request->file('contrato_pdf')->store('inversiones/contratos', 'public'),
+        ]);
+
+        return back()->with('exito', 'Contrato de inversión subido correctamente.');
+    }
+
+    public function descargarContrato(Inversion $inversion)
+    {
+        if (! $inversion->contrato_pdf || ! Storage::disk('public')->exists($inversion->contrato_pdf)) {
+            return back()->withErrors(['inversion' => 'No hay contrato adjunto.']);
+        }
+
+        return Storage::disk('public')->download($inversion->contrato_pdf);
     }
 
     private function actualizarFinanciamiento(Proyecto $proyecto, float $nuevoDisponible): void

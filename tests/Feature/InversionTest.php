@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Models\Inversion;
 use App\Models\MetodoPago;
+use App\Models\Pago;
 use App\Models\Proyecto;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -204,6 +205,74 @@ class InversionTest extends TestCase
             ->assertDontSee('2,000.00');
     }
 
+    public function test_inversion_de_invitado_con_mismo_email_aparece_al_iniciar_sesion()
+    {
+        $user = User::factory()->create(['email' => 'maria@test.com']);
+        $proyecto = $this->crearProyecto();
+        $metodo = $this->crearMetodo();
+
+        Inversion::create([
+            'proyecto_id' => $proyecto->id,
+            'nombre' => 'María', 'email' => 'maria@test.com', 'monto' => 5000,
+            'metodo_pago_id' => $metodo->id, 'estado' => 'aprobado',
+        ]);
+
+        $this->actingAs($user)
+            ->get(route('inversiones.mis'))
+            ->assertOk()
+            ->assertSee('5,000.00')
+            ->assertSee('Planta Solar Trujillo');
+
+        // La relación usuario-inversión queda establecida
+        $this->assertDatabaseHas('inversiones', [
+            'proyecto_id' => $proyecto->id,
+            'email'       => 'maria@test.com',
+            'user_id'     => $user->id,
+        ]);
+    }
+
+    public function test_inversion_de_invitado_con_otro_email_no_se_vincula_al_usuario()
+    {
+        $user = User::factory()->create(['email' => 'maria@test.com']);
+        $proyecto = $this->crearProyecto();
+        $metodo = $this->crearMetodo();
+
+        Inversion::create([
+            'proyecto_id' => $proyecto->id,
+            'nombre' => 'Otra', 'email' => 'otra@test.com', 'monto' => 3000,
+            'metodo_pago_id' => $metodo->id, 'estado' => 'pendiente',
+        ]);
+
+        $this->actingAs($user)
+            ->get(route('inversiones.mis'))
+            ->assertOk()
+            ->assertDontSee('3,000.00');
+
+        $this->assertDatabaseHas('inversiones', [
+            'proyecto_id' => $proyecto->id,
+            'email'       => 'otra@test.com',
+            'user_id'     => null,
+        ]);
+    }
+
+    public function test_cliente_descarga_contrato_de_inversion_de_invitado_con_su_email()
+    {
+        Storage::fake('public');
+        $user = User::factory()->create(['email' => 'jairo@test.com']);
+        $proyecto = $this->crearProyecto();
+        $metodo = $this->crearMetodo();
+
+        $inversion = Inversion::create([
+            'proyecto_id' => $proyecto->id,
+            'nombre' => 'Jairo', 'email' => 'jairo@test.com', 'monto' => 1000,
+            'metodo_pago_id' => $metodo->id, 'estado' => 'aprobado',
+            'contrato_pdf' => 'inversiones/contratos/contrato-invitado.pdf',
+        ]);
+        Storage::disk('public')->put('inversiones/contratos/contrato-invitado.pdf', 'pdf');
+
+        $this->actingAs($user)->get(route('inversiones.contrato', $inversion))->assertOk();
+    }
+
     public function test_admin_puede_aprobar_y_descuenta_disponible()
     {
         $admin = $this->crearAdmin();
@@ -343,5 +412,195 @@ class InversionTest extends TestCase
 
         $proyecto2 = $this->crearProyecto(['inversion_roi' => 'sin numero', 'slug' => 'planta-solar-trujillo-2']);
         $this->assertNull($proyecto2->inversion_roi_numero);
+    }
+
+    public function test_inversion_registra_un_pago_vinculado_con_ocr()
+    {
+        Storage::fake('public');
+        $proyecto = $this->crearProyecto();
+        $metodo = $this->crearMetodo();
+
+        $this->post(route('inversiones.store', $proyecto), [
+            'nombre'           => 'María Pérez',
+            'email'            => 'maria@test.com',
+            'monto'            => 5000,
+            'metodo_pago_id'   => $metodo->id,
+            'numero_operacion' => 'OP-456',
+            'comprobante'      => UploadedFile::fake()->create('comprobante.pdf', 200, 'application/pdf'),
+        ])->assertRedirect(route('inversiones.gracias', $proyecto));
+
+        $inversion = Inversion::first();
+        $this->assertNotNull($inversion);
+
+        $this->assertDatabaseHas('pagos', [
+            'inversion_id'     => $inversion->id,
+            'pedido_id'        => null,
+            'user_id'          => null,
+            'monto'            => 5000,
+            'metodo_pago'      => $metodo->clave,
+            'numero_operacion' => 'OP-456',
+            'estado_pago'      => 'pendiente',
+        ]);
+
+        $pago = Pago::where('inversion_id', $inversion->id)->first();
+        $this->assertNotNull($pago->ocr_resultado);
+    }
+
+    public function test_inversion_sin_comprobante_registra_pago_sin_ocr()
+    {
+        $proyecto = $this->crearProyecto();
+        $metodo = $this->crearMetodo();
+
+        $this->post(route('inversiones.store', $proyecto), [
+            'nombre'         => 'Juan López',
+            'email'          => 'juan@test.com',
+            'monto'          => 3000,
+            'metodo_pago_id' => $metodo->id,
+        ])->assertRedirect(route('inversiones.gracias', $proyecto));
+
+        $this->assertDatabaseHas('pagos', [
+            'inversion_id'     => Inversion::first()->id,
+            'comprobante_pago' => null,
+            'ocr_resultado'    => null,
+            'estado_pago'      => 'pendiente',
+        ]);
+    }
+
+    public function test_aprobar_inversion_confirma_el_pago_vinculado()
+    {
+        $admin = $this->crearAdmin();
+        $proyecto = $this->crearProyecto();
+        $metodo = $this->crearMetodo();
+
+        $inversion = Inversion::create([
+            'proyecto_id' => $proyecto->id,
+            'nombre' => 'María', 'email' => 'maria@test.com', 'monto' => 10000,
+            'metodo_pago_id' => $metodo->id, 'estado' => 'pendiente',
+        ]);
+
+        $pago = Pago::create([
+            'inversion_id' => $inversion->id,
+            'user_id'      => null,
+            'monto'        => 10000,
+            'metodo_pago'  => $metodo->clave,
+            'estado_pago'  => 'pendiente',
+        ]);
+
+        $this->actingAs($admin)
+            ->post(route('admin.inversiones.aprobar', $inversion))
+            ->assertSessionHas('exito');
+
+        $pago->refresh();
+        $this->assertEquals('aprobado', $pago->estado_pago);
+        $this->assertNotNull($pago->fecha_pago);
+        $this->assertEquals($admin->id, $pago->aprobado_por);
+    }
+
+    public function test_rechazar_inversion_rechaza_el_pago_vinculado()
+    {
+        $admin = $this->crearAdmin();
+        $proyecto = $this->crearProyecto();
+        $metodo = $this->crearMetodo();
+
+        $inversion = Inversion::create([
+            'proyecto_id' => $proyecto->id,
+            'nombre' => 'María', 'email' => 'maria@test.com', 'monto' => 5000,
+            'metodo_pago_id' => $metodo->id, 'estado' => 'pendiente',
+        ]);
+
+        $pago = Pago::create([
+            'inversion_id' => $inversion->id,
+            'user_id'      => null,
+            'monto'        => 5000,
+            'metodo_pago'  => $metodo->clave,
+            'estado_pago'  => 'pendiente',
+        ]);
+
+        $this->actingAs($admin)
+            ->post(route('admin.inversiones.rechazar', $inversion), [
+                'notas_admin' => 'Documentación incompleta',
+            ])->assertSessionHas('exito');
+
+        $pago->refresh();
+        $this->assertEquals('rechazado', $pago->estado_pago);
+        $this->assertEquals('Documentación incompleta', $pago->observaciones_admin);
+    }
+
+    public function test_admin_subir_y_descargar_contrato_de_inversion()
+    {
+        Storage::fake('public');
+        $admin = $this->crearAdmin();
+        $proyecto = $this->crearProyecto();
+        $metodo = $this->crearMetodo();
+
+        $inversion = Inversion::create([
+            'proyecto_id' => $proyecto->id,
+            'nombre' => 'María', 'email' => 'maria@test.com', 'monto' => 10000,
+            'metodo_pago_id' => $metodo->id, 'estado' => 'aprobado',
+        ]);
+
+        $pdf = UploadedFile::fake()->create('contrato-inversion.pdf', 500, 'application/pdf');
+
+        $this->actingAs($admin)
+            ->post(route('admin.inversiones.contrato', $inversion), ['contrato_pdf' => $pdf])
+            ->assertSessionHas('exito');
+
+        $inversion->refresh();
+        $this->assertNotNull($inversion->contrato_pdf);
+        Storage::disk('public')->assertExists($inversion->contrato_pdf);
+
+        $this->actingAs($admin)
+            ->get(route('admin.inversiones.contrato.descargar', $inversion))
+            ->assertOk();
+    }
+
+    public function test_contrato_solo_se_puede_subir_si_inversion_aprobada()
+    {
+        Storage::fake('public');
+        $admin = $this->crearAdmin();
+        $proyecto = $this->crearProyecto();
+        $metodo = $this->crearMetodo();
+
+        $inversion = Inversion::create([
+            'proyecto_id' => $proyecto->id,
+            'nombre' => 'María', 'email' => 'maria@test.com', 'monto' => 10000,
+            'metodo_pago_id' => $metodo->id, 'estado' => 'pendiente',
+        ]);
+
+        $pdf = UploadedFile::fake()->create('contrato-inversion.pdf', 500, 'application/pdf');
+
+        $this->actingAs($admin)
+            ->post(route('admin.inversiones.contrato', $inversion), ['contrato_pdf' => $pdf])
+            ->assertSessionHasErrors('inversion');
+
+        $inversion->refresh();
+        $this->assertNull($inversion->contrato_pdf);
+    }
+
+    public function test_cliente_descarga_contrato_solo_de_sus_inversiones()
+    {
+        Storage::fake('public');
+        $user = User::factory()->create();
+        $otro = User::factory()->create();
+        $proyecto = $this->crearProyecto();
+        $metodo = $this->crearMetodo();
+
+        $mi = Inversion::create([
+            'user_id' => $user->id, 'proyecto_id' => $proyecto->id,
+            'nombre' => 'Juan', 'email' => 'juan@test.com', 'monto' => 1000,
+            'metodo_pago_id' => $metodo->id, 'estado' => 'aprobado',
+            'contrato_pdf' => 'inversiones/contratos/contrato.pdf',
+        ]);
+        $ajena = Inversion::create([
+            'user_id' => $otro->id, 'proyecto_id' => $proyecto->id,
+            'nombre' => 'Otro', 'email' => 'otro@test.com', 'monto' => 1000,
+            'metodo_pago_id' => $metodo->id, 'estado' => 'aprobado',
+            'contrato_pdf' => 'inversiones/contratos/contrato-otro.pdf',
+        ]);
+        Storage::disk('public')->put('inversiones/contratos/contrato.pdf', 'pdf');
+        Storage::disk('public')->put('inversiones/contratos/contrato-otro.pdf', 'pdf');
+
+        $this->actingAs($user)->get(route('inversiones.contrato', $mi))->assertOk();
+        $this->actingAs($user)->get(route('inversiones.contrato', $ajena))->assertForbidden();
     }
 }

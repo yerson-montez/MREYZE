@@ -2,11 +2,16 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\EstadoValidacionOcr;
+use App\Jobs\ProcesarComprobanteJob;
 use App\Models\Inversion;
 use App\Models\MetodoPago;
+use App\Models\Pago;
 use App\Models\Proyecto;
 use App\Rules\ComprobanteValido;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 
 class InversionController extends Controller
 {
@@ -66,7 +71,29 @@ class InversionController extends Controller
         $data['proyecto_id'] = $proyecto->id;
         $data['user_id'] = $request->user()?->id;
 
-        $inversion = Inversion::create($data);
+        $inversion = null;
+        $pago = null;
+
+        DB::transaction(function () use ($data, $metodo, &$inversion, &$pago) {
+            $inversion = Inversion::create($data);
+
+            $pago = Pago::create([
+                'inversion_id'     => $inversion->id,
+                'user_id'          => $data['user_id'],
+                'monto'            => $data['monto'],
+                'metodo_pago'      => $metodo->clave,
+                'numero_operacion' => $data['numero_operacion'] ?? null,
+                'comprobante_pago' => $data['comprobante'] ?? null,
+                'ocr_resultado'    => isset($data['comprobante'])
+                    ? EstadoValidacionOcr::Pendiente->value
+                    : null,
+                'estado_pago'      => 'pendiente',
+            ]);
+        });
+
+        if ($pago && $pago->comprobante_pago) {
+            ProcesarComprobanteJob::dispatch($pago);
+        }
 
         return redirect()->route('inversiones.gracias', $proyecto)
             ->with('inversion', $inversion->id);
@@ -78,7 +105,7 @@ class InversionController extends Controller
 
         $inversionId = $request->session()->pull('inversion');
         $inversion = $inversionId
-            ? Inversion::where('id', $inversionId)->where('proyecto_id', $proyecto->id)->first()
+            ? Inversion::where('id', $inversionId)->where('proyecto_id', $proyecto->id)->with('ultimoPago')->first()
             : null;
 
         if (! $inversion) {
@@ -90,11 +117,34 @@ class InversionController extends Controller
 
     public function misInversiones()
     {
-        $inversiones = Inversion::with('proyecto', 'metodoPago')
-            ->where('user_id', auth()->id())
+        $user = auth()->user();
+
+        // Vincular al usuario las inversiones registradas como invitado
+        // con su mismo email (relación usuario-inversión).
+        Inversion::whereNull('user_id')
+            ->whereRaw('LOWER(email) = ?', [mb_strtolower($user->email)])
+            ->update(['user_id' => $user->id]);
+
+        $inversiones = Inversion::with('proyecto', 'metodoPago', 'ultimoPago')
+            ->where('user_id', $user->id)
             ->latest()
             ->paginate(10);
 
         return view('inversiones.mis', compact('inversiones'));
+    }
+
+    public function descargarContrato(Inversion $inversion)
+    {
+        $user = auth()->user();
+
+        if ($inversion->user_id !== $user->id && strtolower($inversion->email ?? '') !== strtolower($user->email)) {
+            abort(403);
+        }
+
+        if (! $inversion->contrato_pdf || ! Storage::disk('public')->exists($inversion->contrato_pdf)) {
+            return back()->withErrors(['inversion' => 'No hay contrato disponible.']);
+        }
+
+        return Storage::disk('public')->download($inversion->contrato_pdf);
     }
 }

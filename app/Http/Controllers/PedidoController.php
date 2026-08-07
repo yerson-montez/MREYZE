@@ -82,4 +82,25 @@ class PedidoController extends Controller
 
         return view('pedidos.show', compact('pedido'));
     }
+
+    public function cancelar(Pedido $pedido)
+    {
+        if ($pedido->user_id !== auth()->id()) {
+            abort(403);
+        }
+
+        if (! in_array($pedido->estado, ['pendiente', 'pago_confirmado'])) {
+            return back()->withErrors(['pedido' => 'Este pedido ya no puede ser cancelado.']);
+        }
+
+        $pedido->update(['estado' => 'cancelado']);
+
+        $pedido->estados()->create([
+            'estado'      => 'cancelado',
+            'descripcion' => 'Cancelado por el cliente.',
+        ]);
+
+        return redirect()->route('pedidos.mis')
+            ->with('success', 'Tu pedido fue cancelado correctamente.');
+    }
 }

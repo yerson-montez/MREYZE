@@ -62,11 +62,14 @@
 <div class="mis-inv">
   <h1>Mis <span>inversiones</span></h1>
 
-  @forelse ($inversiones as $inversion)
+    @forelse ($inversiones as $inversion)
     @php
       $proyecto = $inversion->proyecto;
       $tiempo = (int) $proyecto->inversion_tiempo_estimado ?: 12;
       $inicio = $proyecto->fecha_inicio?->copy() ?? now();
+      $pago = $inversion->ultimoPago;
+      $pagoAprobado = $pago && $pago->estado_pago === 'aprobado';
+      $pagoRechazado = $pago && $pago->estado_pago === 'rechazado';
       $pasos = [
         ['fecha' => $inicio->format('M Y'), 'nombre' => 'Aporte confirmado'],
         ['fecha' => $inicio->copy()->addMonths(ceil($tiempo / 3))->format('M Y'), 'nombre' => 'Avance 1'],
@@ -81,7 +84,12 @@
           <div class="inv-titulo">{{ $proyecto->titulo }}</div>
           <div class="inv-fecha">Solicitada el {{ $inversion->created_at->format('d/m/Y H:i') }}</div>
         </div>
-        <span class="estado-badge {{ $inversion->estado }}">{{ $inversion->estado_label }}</span>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;">
+          <span class="estado-badge {{ $inversion->estado }}">{{ $inversion->estado_label }}</span>
+          @if($pago)
+            <span class="estado-badge {{ $pago->estado_pago }}">{{ $inversion->estado_pago_label }}</span>
+          @endif
+        </div>
       </div>
 
       <div class="inv-datos">
@@ -120,13 +128,42 @@
         </div>
       @endif
 
-      @if($inversion->estado === 'rechazado' && $inversion->notas_admin)
+      @if($pagoAprobado)
+        <div class="inv-pago-info">
+          <strong style="color:var(--success);">✅ Pago confirmado correctamente.</strong><br>
+          Hemos recibido y validado tu inversión de <strong style="color:#fff;">S/ {{ number_format($inversion->monto, 2) }}</strong>.
+          @if($inversion->estado === 'aprobado')
+            Ya eres parte del proyecto. Tu contrato de inversión está disponible en esta sección.
+          @else
+            Tu inversión está registrada y en proceso de formalización.
+          @endif
+        </div>
+      @elseif($pagoRechazado)
+        <div class="inv-pago-info">
+          Tu pago fue rechazado. Verifica los datos e inténtalo nuevamente.
+          @if($inversion->notas_admin)
+            Motivo: <strong>{{ $inversion->notas_admin }}</strong>
+          @endif
+        </div>
+      @elseif($pago)
+        <div class="inv-pago-info">
+          Tu pago está siendo verificado automáticamente. Te contactaremos en cuanto se confirme tu aporte.
+        </div>
+      @endif
+
+      @if($inversion->participacion_activa)
+        <div class="inv-pago-info" style="border-color:rgba(0,212,170,.3);">
+          Tu participación está <strong style="color:var(--success);">activa</strong>. El proyecto avanza según su cronograma y se encuentra {{ strtolower($inversion->estado_proyecto_label) }}.
+        </div>
+      @endif
+
+      @if($inversion->estado === 'rechazado' && $inversion->notas_admin && !$pagoRechazado)
         <div class="inv-pago-info">
           Motivo: <strong>{{ $inversion->notas_admin }}</strong>
         </div>
       @endif
 
-      @if($inversion->estado === 'pendiente')
+      @if($inversion->estado === 'pendiente' && !$pago)
         <div class="inv-pago-info">
           Tu solicitud está en revisión. Te contactaremos por correo o WhatsApp para confirmar tu aporte.
         </div>
@@ -134,6 +171,9 @@
 
       <div class="inv-actions">
         <a href="{{ route('proyectos.show', $proyecto) }}" class="btn-ver">Ver proyecto</a>
+        @if($inversion->contrato_pdf)
+          <a href="{{ route('inversiones.contrato', $inversion) }}" class="btn-ver">📄 Descargar contrato</a>
+        @endif
         @if($proyecto->whatsapp_numero)
           <a href="{{ $proyecto->whatsapp_link }}" target="_blank" rel="noopener noreferrer" class="btn-ver">Contactar</a>
         @endif

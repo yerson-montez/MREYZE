@@ -101,23 +101,38 @@
 
 <div class="inv-gracias">
     <div class="inv-gracias-card reveal visible">
+        @php $pago = $inversion->ultimoPago; $pagoConfirmado = $pago && $pago->estado_pago === 'aprobado'; @endphp
         <div class="inv-gracias-icon">
             <svg viewBox="0 0 24 24" fill="currentColor" style="width:40px;height:40px"><path d="M9 16.17 4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
         </div>
 
-        <h1>¡Solicitud <span>enviada</span>!</h1>
+        <h1>@if($pagoConfirmado)¡Pago <span>confirmado</span>!@else¡Solicitud <span>enviada</span>!@endif</h1>
+
+        @if($pagoConfirmado)
+        <p>
+            <strong style="color:#fff;">✅ Pago confirmado correctamente.</strong><br>
+            Hemos recibido y validado tu inversión de <strong style="color:#fff;">S/ {{ number_format($inversion->monto, 2) }}</strong>
+            en <strong style="color:#fff;">{{ $inversion->proyecto->titulo }}</strong>.
+            Tu solicitud quedó registrada y nuestro equipo formalizará tu participación.
+        </p>
+        @else
         <p>
             Gracias por tu interés en invertir en <strong style="color:#fff;">{{ $inversion->proyecto->titulo }}</strong>.
-            Hemos recibido tu solicitud y nuestro equipo la revisará para confirmar tu participación.
+            Tu pago está siendo verificado automáticamente; en cuanto se confirme, tu inversión quedará registrada
+            y podrás seguirla desde <strong style="color:#fff;">Mis inversiones</strong>.
         </p>
+        @endif
 
         <div class="inv-gracias-resumen">
             <div>Proyecto<strong>{{ $inversion->proyecto->titulo }}</strong></div>
             <div>Monto invertido<strong>S/ {{ number_format($inversion->monto, 2) }}</strong></div>
             <div>Medio de pago<strong>{{ $inversion->metodoPago->emoji ?? '' }} {{ $inversion->metodoPago->nombre ?? 'Por confirmar' }}</strong></div>
-            <div>Estado<strong style="color:#fbbf24;">Pendiente de confirmación</strong></div>
+            <div>Estado<strong style="color:{{ $pagoConfirmado ? '#4ade80' : '#fbbf24' }};">{{ $pagoConfirmado ? 'Pago confirmado' : 'Pendiente de confirmación' }}</strong></div>
         </div>
 
+        <a href="{{ route('inversiones.mis') }}" class="inv-gracias-btn">
+            Mis inversiones
+        </a>
         <a href="{{ route('proyectos.show', $inversion->proyecto) }}" class="inv-gracias-btn">
             Ver proyecto
         </a>

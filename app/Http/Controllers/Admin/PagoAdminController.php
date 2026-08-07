@@ -16,22 +16,26 @@ class PagoAdminController extends Controller
     public function index(): View
     {
         $pagos = Pago::with(['pedido.producto', 'user'])
+            ->whereNotNull('pedido_id')
             ->latest()
             ->paginate(20);
 
-        $pendientes = Pago::where('estado_pago', 'pendiente')->count();
+        $pendientes = Pago::where('estado_pago', 'pendiente')->whereNotNull('pedido_id')->count();
 
         return view('admin.pagos.index', compact('pagos', 'pendientes'));
     }
 
     public function show(Pago $pago): View
     {
+        abort_unless($pago->pedido_id !== null, 404);
         $pago->load(['pedido.producto', 'user', 'aprobador']);
         return view('admin.pagos.show', compact('pago'));
     }
 
     public function aprobar(Pago $pago, AprobarPagoRequest $request, BoletaService $boletaService): RedirectResponse
     {
+        abort_unless($pago->pedido_id !== null, 404);
+
         $accion = $request->input('accion');
 
         try {

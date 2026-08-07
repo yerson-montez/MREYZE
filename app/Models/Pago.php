@@ -9,6 +9,7 @@ class Pago extends Model
 {
     protected $fillable = [
         'pedido_id',
+        'inversion_id',
         'user_id',
         'numero_operacion',
         'comprobante_pago',
@@ -73,6 +74,11 @@ class Pago extends Model
     public function pedido(): BelongsTo
     {
         return $this->belongsTo(Pedido::class);
+    }
+
+    public function inversion(): BelongsTo
+    {
+        return $this->belongsTo(Inversion::class);
     }
 
     public function user(): BelongsTo

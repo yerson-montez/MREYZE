@@ -863,77 +863,18 @@
     <div class="proyectos-bg"></div>
     <div class="proyectos-container">
 
-        {{-- ══════════════════════════════════
-             PARTE 1: PROYECTOS CULMINADOS
-        ══════════════════════════════════ --}}
-
-        <div class="proyectos-header reveal">
-            <div class="proyectos-header-left">
-                <div class="section-label">Portafolio</div>
-                <h2 class="section-title">Proyectos <span>Culminados</span></h2>
-            </div>
+        <div class="proyectos-header reveal" style="justify-content:flex-end; margin-bottom:1.5rem;">
+            @auth
+                <a href="{{ route('inversiones.mis') }}" class="proyectos-ver-todos">
+                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 13h2v-2H3v2zm0 4h2v-2H3v2zm0-8h2V7H3v2zm4 4h14v-2H7v2zm0 4h14v-2H7v2zM7 7v2h14V7H7z"/></svg>
+                    Mis inversiones
+                </a>
+            @endauth
             <a href="{{ url('/proyectos') }}" class="proyectos-ver-todos">
                 Ver todos los proyectos
                 <svg viewBox="0 0 24 24" fill="currentColor"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6z"/></svg>
             </a>
         </div>
-
-        <div class="proyectos-filtros reveal">
-            <button class="filtro-btn active" onclick="filtrarProyectos('todos', this)">Todos</button>
-            @foreach($categorias as $cat)
-                @php
-                    $label = $catLabels[$cat] ?? ucfirst($cat);
-                    $cssClass = $catCssClasses[$cat] ?? 'web';
-                @endphp
-                <button class="filtro-btn" onclick="filtrarProyectos('{{ $cat }}', this)">{{ $label }}</button>
-            @endforeach
-        </div>
-
-        <div class="proyectos-grid" id="proyectosGrid">
-
-            @forelse($portafolio as $idx => $proyecto)
-                @php
-                    $cat = $proyecto->categoria;
-                    $tagClass = $catCssClasses[$cat] ?? 'web';
-                    $tagLabel = $catLabels[$cat] ?? ucfirst($cat);
-                    $emoji = $catEmojis[$cat] ?? '📁';
-                    $iconStyle = $catIconStyles[$cat] ?? 'background:rgba(74,144,217,0.1);border:1px solid rgba(74,144,217,0.3)';
-                    $iconFill = $catIconFills[$cat] ?? 'rgba(122,184,245,0.9)';
-                    $estadoClass = $proyecto->estado === 'completado' ? 'completado' : 'en-curso';
-                    $isDestacado = $idx === 0 && $proyecto->categoria === 'automatizacion';
-                    $revealClass = $idx <= 1 ? 'reveal' : ($idx === 2 ? 'reveal reveal-delay-1' : 'reveal reveal-delay-2');
-                @endphp
-                <a href="{{ route('proyectos.show', $proyecto->slug) }}" class="proyecto-card{{ $isDestacado ? ' destacado' : '' }} {{ $revealClass }}" data-categoria="{{ $cat }}" style="text-decoration:none;color:inherit">
-                    <div class="proyecto-preview">
-                        @if($proyecto->imagen_principal_url)
-                            <img src="{{ $proyecto->imagen_principal_url }}" alt="{{ $proyecto->titulo }}" class="proyecto-preview-img" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
-                            <div class="proyecto-preview-bg" style="display:none">{{ $emoji }}</div>
-                        @else
-                            <div class="proyecto-preview-bg">{{ $emoji }}</div>
-                        @endif
-                        <div class="proyecto-preview-icon" style="{{ $iconStyle }}">
-                            <svg viewBox="0 0 24 24" fill="{{ $iconFill }}"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58z"/></svg>
-                        </div>
-                        <div class="proyecto-tags">
-                            <span class="proyecto-tag {{ $tagClass }}">{{ $tagLabel }}</span>
-                        </div>
-                        <div class="proyecto-status {{ $estadoClass }}">
-                            <span class="proyecto-status-dot"></span> {{ ucfirst($proyecto->estado) }}
-                        </div>
-                    </div>
-                    <div class="proyecto-body">
-                        <div class="proyecto-nombre">{{ $proyecto->titulo }}</div>
-                        <p class="proyecto-desc">{{ $proyecto->descripcion_corta }}</p>
-                    </div>
-                </a>
-            @empty
-                <div style="grid-column:1/-1;text-align:center;padding:4rem 1rem;color:var(--ice-300)">
-                    <p style="font-size:1rem;">No hay proyectos en el portafolio por el momento.</p>
-                </div>
-            @endforelse
-
-        </div>{{-- /proyectos-grid --}}
-
 
         {{-- ══════════════════════════════════
              DIVISOR
@@ -1084,49 +1025,72 @@
         </section>
         @endif
 
+        {{-- ══════════════════════════════════
+             PARTE 1: PROYECTOS CULMINADOS
+        ══════════════════════════════════ --}}
 
-        {{-- CTA final Telegram --}}
-        <div class="invertir-cta reveal">
-            <div class="invertir-cta-bg"></div>
-            <div class="invertir-cta-lines"></div>
-            <div class="invertir-cta-content">
-                <div class="invertir-cta-icon">
-                    <svg viewBox="0 0 24 24" fill="rgba(0,212,255,0.9)">
-                        <path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/>
-                    </svg>
-                </div>
-                <h3 class="invertir-cta-titulo">¿Listo para ser parte de <span>algo grande</span>?</h3>
-                <p class="invertir-cta-desc">Únete a nuestro grupo de Telegram y coordina directamente la inversión que más te interese. Te enviamos el prospecto completo con detalles técnicos, financieros y contrato.</p>
-                <div class="invertir-cta-btns">
-                    <a href="https://t.me/+6k2JGfEJzvY1ZWNh" target="_blank" rel="noopener noreferrer" class="btn-telegram-grande">
-                        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/></svg>
-                        Unirme al grupo de Telegram
-                    </a>
-                    <a href="{{ url('/contacto') }}" class="btn-secundario-invert">
-                        <svg viewBox="0 0 24 24" fill="currentColor" style="width:16px;height:16px"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>
-                        Solicitar prospecto por correo
-                    </a>
-                </div>
-                <div class="invertir-trust">
-                    <div class="trust-item">
-                        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
-                        Información sin costo
-                    </div>
-                    <div class="trust-item">
-                        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
-                        Prospecto completo en 24h
-                    </div>
-                    <div class="trust-item">
-                        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
-                        Contrato claro y detallado
-                    </div>
-                    <div class="trust-item">
-                        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
-                        Reportes de avance semanales
-                    </div>
-                </div>
+        <div class="proyectos-header reveal">
+            <div class="proyectos-header-left">
+                <div class="section-label">Portafolio</div>
+                <h2 class="section-title">Proyectos <span>Culminados</span></h2>
             </div>
         </div>
+
+        <div class="proyectos-filtros reveal">
+            <button class="filtro-btn active" onclick="filtrarProyectos('todos', this)">Todos</button>
+            @foreach($categorias as $cat)
+                @php
+                    $label = $catLabels[$cat] ?? ucfirst($cat);
+                    $cssClass = $catCssClasses[$cat] ?? 'web';
+                @endphp
+                <button class="filtro-btn" onclick="filtrarProyectos('{{ $cat }}', this)">{{ $label }}</button>
+            @endforeach
+        </div>
+
+        <div class="proyectos-grid" id="proyectosGrid">
+
+            @forelse($portafolio as $idx => $proyecto)
+                @php
+                    $cat = $proyecto->categoria;
+                    $tagClass = $catCssClasses[$cat] ?? 'web';
+                    $tagLabel = $catLabels[$cat] ?? ucfirst($cat);
+                    $emoji = $catEmojis[$cat] ?? '📁';
+                    $iconStyle = $catIconStyles[$cat] ?? 'background:rgba(74,144,217,0.1);border:1px solid rgba(74,144,217,0.3)';
+                    $iconFill = $catIconFills[$cat] ?? 'rgba(122,184,245,0.9)';
+                    $estadoClass = $proyecto->estado === 'completado' ? 'completado' : 'en-curso';
+                    $isDestacado = $idx === 0 && $proyecto->categoria === 'automatizacion';
+                    $revealClass = $idx <= 1 ? 'reveal' : ($idx === 2 ? 'reveal reveal-delay-1' : 'reveal reveal-delay-2');
+                @endphp
+                <a href="{{ route('proyectos.show', $proyecto->slug) }}" class="proyecto-card{{ $isDestacado ? ' destacado' : '' }} {{ $revealClass }}" data-categoria="{{ $cat }}" style="text-decoration:none;color:inherit">
+                    <div class="proyecto-preview">
+                        @if($proyecto->imagen_principal_url)
+                            <img src="{{ $proyecto->imagen_principal_url }}" alt="{{ $proyecto->titulo }}" class="proyecto-preview-img" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+                            <div class="proyecto-preview-bg" style="display:none">{{ $emoji }}</div>
+                        @else
+                            <div class="proyecto-preview-bg">{{ $emoji }}</div>
+                        @endif
+                        <div class="proyecto-preview-icon" style="{{ $iconStyle }}">
+                            <svg viewBox="0 0 24 24" fill="{{ $iconFill }}"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58z"/></svg>
+                        </div>
+                        <div class="proyecto-tags">
+                            <span class="proyecto-tag {{ $tagClass }}">{{ $tagLabel }}</span>
+                        </div>
+                        <div class="proyecto-status {{ $estadoClass }}">
+                            <span class="proyecto-status-dot"></span> {{ ucfirst($proyecto->estado) }}
+                        </div>
+                    </div>
+                    <div class="proyecto-body">
+                        <div class="proyecto-nombre">{{ $proyecto->titulo }}</div>
+                        <p class="proyecto-desc">{{ $proyecto->descripcion_corta }}</p>
+                    </div>
+                </a>
+            @empty
+                <div style="grid-column:1/-1;text-align:center;padding:4rem 1rem;color:var(--ice-300)">
+                    <p style="font-size:1rem;">No hay proyectos en el portafolio por el momento.</p>
+                </div>
+            @endforelse
+
+        </div>{{-- /proyectos-grid --}}
 
         {{-- ══════════════════════════════════
              PARTE FINAL: PROYECTOS COMPLETADOS
@@ -1191,6 +1155,49 @@
             @endforeach
         </div>
         @endif
+
+        {{-- CTA final Telegram --}}
+        <div class="invertir-cta reveal">
+            <div class="invertir-cta-bg"></div>
+            <div class="invertir-cta-lines"></div>
+            <div class="invertir-cta-content">
+                <div class="invertir-cta-icon">
+                    <svg viewBox="0 0 24 24" fill="rgba(0,212,255,0.9)">
+                        <path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/>
+                    </svg>
+                </div>
+                <h3 class="invertir-cta-titulo">¿Listo para ser parte de <span>algo grande</span>?</h3>
+                <p class="invertir-cta-desc">Únete a nuestro grupo de Telegram y coordina directamente la inversión que más te interese. Te enviamos el prospecto completo con detalles técnicos, financieros y contrato.</p>
+                <div class="invertir-cta-btns">
+                    <a href="https://t.me/+6k2JGfEJzvY1ZWNh" target="_blank" rel="noopener noreferrer" class="btn-telegram-grande">
+                        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/></svg>
+                        Unirme al grupo de Telegram
+                    </a>
+                    <a href="{{ url('/contacto') }}" class="btn-secundario-invert">
+                        <svg viewBox="0 0 24 24" fill="currentColor" style="width:16px;height:16px"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>
+                        Solicitar prospecto por correo
+                    </a>
+                </div>
+                <div class="invertir-trust">
+                    <div class="trust-item">
+                        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+                        Información sin costo
+                    </div>
+                    <div class="trust-item">
+                        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+                        Prospecto completo en 24h
+                    </div>
+                    <div class="trust-item">
+                        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+                        Contrato claro y detallado
+                    </div>
+                    <div class="trust-item">
+                        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+                        Reportes de avance semanales
+                    </div>
+                </div>
+            </div>
+        </div>
 
     </div>
 </section>
