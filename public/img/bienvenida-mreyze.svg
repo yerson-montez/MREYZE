@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 1240 1754" width="1240" height="1754">
+  <defs>
+    <linearGradient id="barraAzul" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#0b3a6f"/>
+      <stop offset="100%" stop-color="#0088cc"/>
+    </linearGradient>
+    <path id="anilloSup" d="M 871,1495 a 89,89 0 1,1 178,0" fill="none"/>
+    <path id="anilloInf" d="M 871,1495 a 89,89 0 1,0 178,0" fill="none"/>
+  </defs>
+
+  <!-- Fondo del documento -->
+  <rect x="0" y="0" width="1240" height="1754" fill="#ffffff"/>
+
+  <!-- ═══════════════ MEMBRETE ═══════════════ -->
+  <image x="568" y="64" width="104" height="93" href="LOGOMREYZE1.png" preserveAspectRatio="xMidYMid meet"/>
+  <text x="620" y="218" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="42" font-weight="700" letter-spacing="10" fill="#0b3a6f">MREYZE</text>
+  <text x="620" y="252" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="18" letter-spacing="5" fill="#5b6f87">AUTOMATIZACIÓN Y SISTEMAS S.A.C.</text>
+  <text x="620" y="280" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="15" letter-spacing="3" fill="#8a97a8">RUC 20615935019</text>
+
+  <rect x="200" y="312" width="840" height="6" rx="3" fill="url(#barraAzul)"/>
+  <line x1="120" y1="326" x2="1120" y2="326" stroke="#d7e6f5" stroke-width="2"/>
+
+  <!-- ═══════════════ TÍTULO ═══════════════ -->
+  <text x="620" y="410" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="68" font-weight="800" letter-spacing="2" fill="#0b3a6f">¡BIENVENIDO!</text>
+  <text x="620" y="466" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="30" font-weight="600" fill="#3a5570">Gracias por confiar en nosotros</text>
+
+  <!-- ═══════════════ MENSAJE ═══════════════ -->
+  <text x="180" y="540" font-family="Segoe UI, Arial, sans-serif" font-size="25" font-weight="600" fill="#2b3f57">Estimado(a) inversionista:</text>
+  <text x="180" y="590" width="880" font-family="Segoe UI, Arial, sans-serif" font-size="23" fill="#2b3f57">
+    <tspan x="180" dy="0">Le damos la más cordial bienvenida a la familia MreyZe. Su confianza es el motor</tspan>
+    <tspan x="180" dy="34">que nos impulsa a seguir desarrollando proyectos tecnológicos con un impacto real</tspan>
+    <tspan x="180" dy="34">en la sociedad. Gracias por creer en nosotros y por ser parte de este camino.</tspan>
+    <tspan x="180" dy="34">Su inversión hoy es la semilla de las soluciones que transforman el mañana.</tspan>
+  </text>
+
+  <!-- ═══════════════ FRASE ═══════════════ -->
+  <line x1="150" y1="782" x2="430" y2="782" stroke="#cfe0f0" stroke-width="2"/>
+  <text x="620" y="794" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="30" font-style="italic" fill="#0088cc">“Crece con nosotros, invierte en el futuro.”</text>
+  <line x1="810" y1="782" x2="1090" y2="782" stroke="#cfe0f0" stroke-width="2"/>
+
+  <!-- ═══════════════ BLOQUES ═══════════════ -->
+  <g font-family="Segoe UI, Arial, sans-serif">
+    <!-- Bloque 1 -->
+    <rect x="128" y="840" width="488" height="120" rx="16" fill="#f5f9fd" stroke="#d7e6f5" stroke-width="2"/>
+    <rect x="348" y="852" width="48" height="48" rx="12" fill="#0b3a6f"/>
+    <g stroke="#ffffff" stroke-width="2" fill="none" transform="translate(372,876)">
+      <circle cx="0" cy="0" r="13"/>
+      <ellipse cx="0" cy="0" rx="6" ry="13"/>
+      <line x1="-13" y1="0" x2="13" y2="0"/>
+    </g>
+    <text x="372" y="934" text-anchor="middle" font-size="18" font-weight="700" letter-spacing="1.5" fill="#0b3a6f">PROYECTOS QUE GENERAN IMPACTO</text>
+
+    <!-- Bloque 2 -->
+    <rect x="640" y="840" width="488" height="120" rx="16" fill="#f5f9fd" stroke="#d7e6f5" stroke-width="2"/>
+    <rect x="860" y="852" width="48" height="48" rx="12" fill="#0b3a6f"/>
+    <g transform="translate(884,876)">
+      <path d="M0 -14 L11 -10 L11 2 C11 9 5 13 0 15 C-5 13 -11 9 -11 2 L-11 -10 Z" fill="none" stroke="#ffffff" stroke-width="2.5"/>
+      <polyline points="-5,0 -1,5 6,-3" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+    </g>
+    <text x="884" y="934" text-anchor="middle" font-size="18" font-weight="700" letter-spacing="1.5" fill="#0b3a6f">CONFIANZA Y TRANSPARENCIA</text>
+
+    <!-- Bloque 3 -->
+    <rect x="128" y="984" width="488" height="120" rx="16" fill="#f5f9fd" stroke="#d7e6f5" stroke-width="2"/>
+    <rect x="348" y="996" width="48" height="48" rx="12" fill="#0b3a6f"/>
+    <g transform="translate(372,1020)" fill="none" stroke="#ffffff" stroke-width="2.5">
+      <circle cx="0" cy="0" r="12"/>
+      <circle cx="0" cy="0" r="7"/>
+      <circle cx="0" cy="0" r="2.5" fill="#ffffff" stroke="none"/>
+    </g>
+    <text x="372" y="1078" text-anchor="middle" font-size="18" font-weight="700" letter-spacing="1.5" fill="#0b3a6f">COMPROMISO TOTAL</text>
+
+    <!-- Bloque 4 -->
+    <rect x="640" y="984" width="488" height="120" rx="16" fill="#f5f9fd" stroke="#d7e6f5" stroke-width="2"/>
+    <rect x="860" y="996" width="48" height="48" rx="12" fill="#0b3a6f"/>
+    <g transform="translate(884,1020)" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+      <polyline points="-12,10 -3,0 4,4 12,-6"/>
+      <polyline points="5,-6 12,-6 12,1"/>
+    </g>
+    <text x="884" y="1078" text-anchor="middle" font-size="18" font-weight="700" letter-spacing="1.5" fill="#0b3a6f">CRECIMIENTO JUNTOS</text>
+  </g>
+
+  <!-- ═══════════════ CANALES OFICIALES ═══════════════ -->
+  <rect x="360" y="1170" width="520" height="200" rx="18" fill="#f5f9fd" stroke="#d7e6f5" stroke-width="2"/>
+  <text x="620" y="1212" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="18" font-weight="700" letter-spacing="4" fill="#0b3a6f">CANALES OFICIALES</text>
+  <line x1="400" y1="1232" x2="840" y2="1232" stroke="#d7e6f5" stroke-width="2"/>
+  <g font-family="Segoe UI, Arial, sans-serif" font-size="23" fill="#1f3a5f">
+    <!-- Gmail -->
+    <g transform="translate(400,1260)" fill="none" stroke="#0b3a6f" stroke-width="2.5">
+      <rect x="-12" y="-8" width="24" height="16" rx="3"/>
+      <polyline points="-12,-8 0,2 12,-8"/>
+    </g>
+    <text x="450" y="1268">Gmail:  mreyze.sac@gmail.com</text>
+    <!-- Sitio web -->
+    <g transform="translate(400,1305)" fill="none" stroke="#0b3a6f" stroke-width="2.5">
+      <circle cx="0" cy="0" r="12"/>
+      <ellipse cx="0" cy="0" rx="5.5" ry="12"/>
+      <line x1="-12" y1="0" x2="12" y2="0"/>
+    </g>
+    <text x="450" y="1313">Sitio web:  mreyze.up.railway.app</text>
+    <!-- TikTok -->
+    <g transform="translate(400,1350)" fill="none" stroke="#0b3a6f" stroke-width="2.5" stroke-linecap="round">
+      <ellipse cx="-8" cy="8" rx="4.5" ry="3.5" fill="#0b3a6f" stroke="none"/>
+      <path d="M-8 8 L-8 -6 L6 -9 L6 4"/>
+      <ellipse cx="6" cy="4" rx="4.5" ry="3.5" fill="#0b3a6f" stroke="none"/>
+    </g>
+    <text x="450" y="1358">TikTok:  @veente20</text>
+  </g>
+
+  <!-- ═══════════════ FIRMA Y SELLO ═══════════════ -->
+  <image x="320" y="1404" width="233" height="92" href="firma.png" preserveAspectRatio="xMidYMid meet"/>
+  <line x1="200" y1="1504" x2="566" y2="1504" stroke="#0b3a6f" stroke-width="2.5"/>
+  <text x="200" y="1538" font-family="Segoe UI, Arial, sans-serif" font-size="25" font-weight="700" fill="#0b3a6f">MreyZe Automatización y Sistemas S.A.C.</text>
+  <text x="200" y="1574" font-family="Segoe UI, Arial, sans-serif" font-size="17" fill="#5b6f87">RUC: 20615935019</text>
+
+  <!-- Sello -->
+  <circle cx="960" cy="1495" r="98" fill="none" stroke="#1a4bb5" stroke-width="3.5"/>
+  <circle cx="960" cy="1495" r="80" fill="none" stroke="#1a4bb5" stroke-width="1.2"/>
+  <text font-family="Segoe UI, Arial, sans-serif" font-size="13" font-weight="700" letter-spacing="1.2" fill="#1a4bb5">
+    <textPath href="#anilloSup" startOffset="50%" text-anchor="middle">MREYZE AUTOMATIZACIÓN</textPath>
+  </text>
+  <text font-family="Segoe UI, Arial, sans-serif" font-size="12.5" font-weight="700" letter-spacing="1.2" fill="#1a4bb5">
+    <textPath href="#anilloInf" startOffset="50%" text-anchor="middle">Y SISTEMAS S.A.C.</textPath>
+  </text>
+  <image x="935" y="1473" width="50" height="44" href="LOGOMREYZE1.png" preserveAspectRatio="xMidYMid meet"/>
+  <text x="960" y="1526" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="11" font-weight="700" letter-spacing="0.5" fill="#1a4bb5">RUC 20615935019</text>
+  <polygon points="867,1495 871,1491 875,1495 871,1499" fill="#1a4bb5"/>
+  <polygon points="1045,1495 1049,1491 1053,1495 1049,1499" fill="#1a4bb5"/>
+
+  <!-- ═══════════════ PIE ═══════════════ -->
+  <line x1="380" y1="1690" x2="860" y2="1690" stroke="#d7e6f5" stroke-width="2"/>
+  <text x="620" y="1722" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="15" letter-spacing="1" fill="#9aa8ba">MREYZE · AUTOMATIZACIÓN Y SISTEMAS S.A.C. · RUC 20615935019</text>
+</svg>

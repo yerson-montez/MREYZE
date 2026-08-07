@@ -10,6 +10,8 @@ use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
+use Laravel\Socialite\Facades\Socialite;
+use Mockery;
 use Tests\TestCase;
 
 class InversionTest extends TestCase
@@ -55,56 +57,159 @@ class InversionTest extends TestCase
         return User::factory()->create(['role' => 'admin']);
     }
 
-    public function test_pagina_promocional_visible_para_invitados()
+    public function test_invitado_es_redirigido_a_login_al_entrar_a_invertir()
     {
         $proyecto = $this->crearProyecto();
         $this->crearMetodo();
 
-        $response = $this->get(route('inversiones.create', $proyecto));
+        $this->get(route('inversiones.create', $proyecto))
+            ->assertRedirect(route('auth.google'));
+    }
+
+    public function test_usuario_autenticado_ve_el_formulario_de_inversion_sin_simulacion()
+    {
+        $user = User::factory()->create();
+        $proyecto = $this->crearProyecto();
+        $this->crearMetodo();
+
+        $response = $this->actingAs($user)->get(route('inversiones.form', $proyecto));
 
         $response->assertOk();
         $response->assertSee($proyecto->titulo);
+        $response->assertSee('Solicita tu inversión');
+        $response->assertSee('Monto a invertir');
         $response->assertSee(route('inversiones.store', $proyecto), false);
+        $response->assertDontSee('Simulador de rendimiento');
+        $response->assertDontSee('Desliza para elegir cuánto quieres invertir');
+
+        // Cambio 1: datos bancarios del inversionista
+        $response->assertSee('Datos bancarios para recibir ganancias');
+        $response->assertSee('Banco *');
+        $response->assertSee('Número de cuenta *');
+        $response->assertSee('CCI *');
+        $response->assertSee('Titular de la cuenta *');
+
+        // Cambio 2: solo la cuenta BBVA
+        $response->assertSee('¿Cómo realizar tu pago?');
+        $response->assertSee('BBVA');
+        $response->assertSee('011-146-000100050182-83');
+        $response->assertSee('0011-0146-0100050182');
+        $response->assertSee('MReyze Automatización y Sistemas S.A.C.');
+
+        // Cambio 3: QR oculto por defecto
+        $response->assertSee('📱 Pagar con Yape / Plin');
+        $response->assertSee('id="inv-qr-wrap"', false);
+        $response->assertDontSee('inv-qr-wrap abierto', false);
+
+        // Adjuntar comprobante y firma
+        $response->assertSee('Adjuntar comprobante de pago');
+        $response->assertSee('Adjuntar firma');
+        $response->assertSee('name="comprobante"', false);
+        $response->assertSee('name="firma"', false);
+        $response->assertSee('accept="image/jpeg,image/png,image/webp"', false);
+
+        // El bloque informativo del proyecto ya no aparece en el formulario
+        $response->assertDontSee('Invierte en', false);
+        $response->assertDontSee('Financiamiento del proyecto');
+        $response->assertDontSee('Inversión total');
+        $response->assertDontSee('Disponible aún');
+        $response->assertDontSee('Tiempo de ejecución');
+        $response->assertDontSee('Retorno estimado');
+        $response->assertDontSee('Más oportunidades');
+        $response->assertDontSee('Otros proyectos');
     }
 
-    public function test_pagina_promocional_404_si_proyecto_no_visible_o_no_es_inversion()
+    public function test_usuario_autenticado_ve_la_bienvenida_antes_del_formulario()
     {
+        $user = User::factory()->create();
+        $proyecto = $this->crearProyecto();
+        $this->crearMetodo();
+
+        $response = $this->actingAs($user)->get(route('inversiones.create', $proyecto));
+
+        $response->assertOk();
+
+        // Solo la imagen de bienvenida y el botón continuar
+        $response->assertSee('img/bienvenida-mreyze.svg', false);
+        $response->assertSee('CONTINUAR CON LA INVERSIÓN');
+        $response->assertSee(route('inversiones.form', $proyecto), false);
+
+        // Sin formulario ni datos del proyecto
+        $response->assertDontSee('Solicita tu inversión');
+        $response->assertDontSee('Monto a invertir');
+        $response->assertDontSee('Datos bancarios para recibir ganancias');
+        $response->assertDontSee('Adjuntar firma');
+        $response->assertDontSee('Invierte en', false);
+        $response->assertDontSee('Financiamiento del proyecto');
+        $response->assertDontSee('Simulador de rendimiento');
+        $response->assertDontSee('Otros proyectos');
+    }
+
+    public function test_formulario_de_inversion_404_si_proyecto_no_visible_o_no_es_inversion()
+    {
+        $user = User::factory()->create();
+
         $oculto = $this->crearProyecto(['visible' => false]);
-        $this->get(route('inversiones.create', $oculto))->assertNotFound();
+        $this->actingAs($user)->get(route('inversiones.form', $oculto))->assertNotFound();
+
+        $portafolio = $this->crearProyecto(['tipo' => 'portafolio', 'slug' => 'portafolio-y']);
+        $this->actingAs($user)->get(route('inversiones.form', $portafolio))->assertNotFound();
+    }
+
+    public function test_pagina_inversion_404_si_proyecto_no_visible_o_no_es_inversion()
+    {
+        $user = User::factory()->create();
+
+        $oculto = $this->crearProyecto(['visible' => false]);
+        $this->actingAs($user)->get(route('inversiones.create', $oculto))->assertNotFound();
 
         $portafolio = $this->crearProyecto(['tipo' => 'portafolio', 'slug' => 'portafolio-x']);
-        $this->get(route('inversiones.create', $portafolio))->assertNotFound();
+        $this->actingAs($user)->get(route('inversiones.create', $portafolio))->assertNotFound();
     }
 
-    public function test_invitado_puede_registrar_solicitud_de_inversion()
+    public function test_usuario_autenticado_puede_registrar_solicitud_de_inversion()
     {
         Storage::fake('public');
+        $user = User::factory()->create();
         $proyecto = $this->crearProyecto();
         $metodo = $this->crearMetodo();
 
-        $response = $this->post(route('inversiones.store', $proyecto), [
+        $response = $this->actingAs($user)->post(route('inversiones.store', $proyecto), [
             'nombre'           => 'María Pérez',
             'email'            => 'maria@test.com',
             'telefono'         => '999111222',
             'dni'              => '12345678',
+            'banco'            => 'BBVA',
+            'cuenta_bancaria'  => '0011-0146-0100050182',
+            'cci_bancario'     => '011-146-000100050182-83',
+            'titular_cuenta'   => 'María Pérez',
             'monto'            => 5000,
             'metodo_pago_id'   => $metodo->id,
             'numero_operacion' => 'OP-123',
             'comprobante'      => UploadedFile::fake()->create('comprobante.pdf', 200, 'application/pdf'),
+            'firma'            => UploadedFile::fake()->image('firma.png', 400, 200),
         ]);
 
         $response->assertRedirect(route('inversiones.gracias', $proyecto));
 
         $this->assertDatabaseHas('inversiones', [
-            'proyecto_id' => $proyecto->id,
-            'user_id'     => null,
-            'monto'       => 5000,
-            'estado'      => 'pendiente',
+            'proyecto_id'     => $proyecto->id,
+            'user_id'         => $user->id,
+            'banco'           => 'BBVA',
+            'cuenta_bancaria' => '0011-0146-0100050182',
+            'cci_bancario'    => '011-146-000100050182-83',
+            'titular_cuenta'  => 'María Pérez',
+            'monto'           => 5000,
+            'estado'          => 'pendiente',
         ]);
 
         $inversion = Inversion::first();
         $this->assertNotNull($inversion->comprobante);
         Storage::disk('public')->assertExists($inversion->comprobante);
+
+        $this->assertNotNull($inversion->firma);
+        Storage::disk('public')->assertExists($inversion->firma);
+        $this->assertStringContainsString('inversiones/firmas/', $inversion->firma);
     }
 
     public function test_usuario_autenticado_se_vincula_a_su_solicitud()
@@ -114,10 +219,14 @@ class InversionTest extends TestCase
         $metodo = $this->crearMetodo();
 
         $this->actingAs($user)->post(route('inversiones.store', $proyecto), [
-            'nombre'         => 'Juan López',
-            'email'          => 'juan@test.com',
-            'monto'          => 3000,
-            'metodo_pago_id' => $metodo->id,
+            'nombre'          => 'Juan López',
+            'email'           => 'juan@test.com',
+            'banco'           => 'BCP',
+            'cuenta_bancaria' => '191-12345678-0-01',
+            'cci_bancario'    => '002-191-001234567801-10',
+            'titular_cuenta'  => 'Juan López',
+            'monto'           => 3000,
+            'metodo_pago_id'  => $metodo->id,
         ])->assertRedirect(route('inversiones.gracias', $proyecto));
 
         $this->assertDatabaseHas('inversiones', [
@@ -127,16 +236,129 @@ class InversionTest extends TestCase
         ]);
     }
 
+    public function test_datos_bancarios_son_obligatorios()
+    {
+        $user = User::factory()->create();
+        $proyecto = $this->crearProyecto();
+        $metodo = $this->crearMetodo();
+
+        $this->actingAs($user)->post(route('inversiones.store', $proyecto), [
+            'nombre'         => 'María Pérez',
+            'email'          => 'maria@test.com',
+            'monto'          => 3000,
+            'metodo_pago_id' => $metodo->id,
+        ])->assertSessionHasErrors(['banco', 'cuenta_bancaria', 'cci_bancario', 'titular_cuenta']);
+
+        $this->assertDatabaseCount('inversiones', 0);
+    }
+
+    public function test_datos_bancarios_se_guardan_con_la_solicitud()
+    {
+        $user = User::factory()->create();
+        $proyecto = $this->crearProyecto();
+        $metodo = $this->crearMetodo();
+
+        $this->actingAs($user)->post(route('inversiones.store', $proyecto), [
+            'nombre'          => 'María Pérez',
+            'email'           => 'maria@test.com',
+            'banco'           => 'BBVA',
+            'cuenta_bancaria' => '0011-0146-0100050182',
+            'cci_bancario'    => '011-146-000100050182-83',
+            'titular_cuenta'  => 'María Pérez',
+            'monto'           => 3000,
+            'metodo_pago_id'  => $metodo->id,
+        ])->assertRedirect(route('inversiones.gracias', $proyecto));
+
+        $this->assertDatabaseHas('inversiones', [
+            'banco'           => 'BBVA',
+            'cuenta_bancaria' => '0011-0146-0100050182',
+            'cci_bancario'    => '011-146-000100050182-83',
+            'titular_cuenta'  => 'María Pérez',
+        ]);
+    }
+
+    public function test_firma_es_opcional_y_se_guarda_sola()
+    {
+        Storage::fake('public');
+        $user = User::factory()->create();
+        $proyecto = $this->crearProyecto();
+        $metodo = $this->crearMetodo();
+
+        $this->actingAs($user)->post(route('inversiones.store', $proyecto), [
+            'nombre'          => 'María Pérez',
+            'email'           => 'maria@test.com',
+            'banco'           => 'BBVA',
+            'cuenta_bancaria' => '0011-0146-0100050182',
+            'cci_bancario'    => '011-146-000100050182-83',
+            'titular_cuenta'  => 'María Pérez',
+            'monto'           => 3000,
+            'metodo_pago_id'  => $metodo->id,
+            'firma'           => UploadedFile::fake()->image('firma.png', 400, 200),
+        ])->assertRedirect(route('inversiones.gracias', $proyecto));
+
+        $inversion = Inversion::first();
+        $this->assertNotNull($inversion->firma);
+        Storage::disk('public')->assertExists($inversion->firma);
+        $this->assertStringContainsString('inversiones/firmas/', $inversion->firma);
+    }
+
+    public function test_firma_sin_archivo_no_bloquea_la_solicitud()
+    {
+        $user = User::factory()->create();
+        $proyecto = $this->crearProyecto();
+        $metodo = $this->crearMetodo();
+
+        $this->actingAs($user)->post(route('inversiones.store', $proyecto), [
+            'nombre'          => 'María Pérez',
+            'email'           => 'maria@test.com',
+            'banco'           => 'BBVA',
+            'cuenta_bancaria' => '0011-0146-0100050182',
+            'cci_bancario'    => '011-146-000100050182-83',
+            'titular_cuenta'  => 'María Pérez',
+            'monto'           => 3000,
+            'metodo_pago_id'  => $metodo->id,
+        ])->assertRedirect(route('inversiones.gracias', $proyecto));
+
+        $this->assertDatabaseHas('inversiones', ['firma' => null]);
+    }
+
+    public function test_firma_con_formato_invalido_se_rechaza()
+    {
+        Storage::fake('public');
+        $user = User::factory()->create();
+        $proyecto = $this->crearProyecto();
+        $metodo = $this->crearMetodo();
+
+        $this->actingAs($user)->post(route('inversiones.store', $proyecto), [
+            'nombre'          => 'María Pérez',
+            'email'           => 'maria@test.com',
+            'banco'           => 'BBVA',
+            'cuenta_bancaria' => '0011-0146-0100050182',
+            'cci_bancario'    => '011-146-000100050182-83',
+            'titular_cuenta'  => 'María Pérez',
+            'monto'           => 3000,
+            'metodo_pago_id'  => $metodo->id,
+            'firma'           => UploadedFile::fake()->create('firma.pdf', 100, 'application/pdf'),
+        ])->assertSessionHasErrors('firma');
+
+        $this->assertDatabaseCount('inversiones', 0);
+    }
+
     public function test_monto_superior_al_disponible_se_rechaza()
     {
+        $user = User::factory()->create();
         $proyecto = $this->crearProyecto(['inversion_monto_disponible' => 1000]);
         $metodo = $this->crearMetodo();
 
-        $response = $this->post(route('inversiones.store', $proyecto), [
-            'nombre'         => 'María Pérez',
-            'email'          => 'maria@test.com',
-            'monto'          => 5000,
-            'metodo_pago_id' => $metodo->id,
+        $response = $this->actingAs($user)->post(route('inversiones.store', $proyecto), [
+            'nombre'          => 'María Pérez',
+            'email'           => 'maria@test.com',
+            'banco'           => 'BBVA',
+            'cuenta_bancaria' => '0011-0146-0100050182',
+            'cci_bancario'    => '011-146-000100050182-83',
+            'titular_cuenta'  => 'María Pérez',
+            'monto'           => 5000,
+            'metodo_pago_id'  => $metodo->id,
         ]);
 
         $response->assertSessionHasErrors('monto');
@@ -145,14 +367,19 @@ class InversionTest extends TestCase
 
     public function test_monto_minimo_se_valida()
     {
+        $user = User::factory()->create();
         $proyecto = $this->crearProyecto();
         $metodo = $this->crearMetodo();
 
-        $this->post(route('inversiones.store', $proyecto), [
-            'nombre'         => 'María Pérez',
-            'email'          => 'maria@test.com',
-            'monto'          => 10,
-            'metodo_pago_id' => $metodo->id,
+        $this->actingAs($user)->post(route('inversiones.store', $proyecto), [
+            'nombre'          => 'María Pérez',
+            'email'           => 'maria@test.com',
+            'banco'           => 'BBVA',
+            'cuenta_bancaria' => '0011-0146-0100050182',
+            'cci_bancario'    => '011-146-000100050182-83',
+            'titular_cuenta'  => 'María Pérez',
+            'monto'           => 10,
+            'metodo_pago_id'  => $metodo->id,
         ])->assertSessionHasErrors('monto');
 
         $this->assertDatabaseCount('inversiones', 0);
@@ -160,16 +387,21 @@ class InversionTest extends TestCase
 
     public function test_solo_metodo_activo_es_aceptado()
     {
+        $user = User::factory()->create();
         $proyecto = $this->crearProyecto();
         $inactivo = MetodoPago::create([
             'clave' => 'bizum', 'nombre' => 'Bizum', 'activo' => false, 'datos' => [], 'orden' => 2,
         ]);
 
-        $this->post(route('inversiones.store', $proyecto), [
-            'nombre'         => 'María Pérez',
-            'email'          => 'maria@test.com',
-            'monto'          => 5000,
-            'metodo_pago_id' => $inactivo->id,
+        $this->actingAs($user)->post(route('inversiones.store', $proyecto), [
+            'nombre'          => 'María Pérez',
+            'email'           => 'maria@test.com',
+            'banco'           => 'BBVA',
+            'cuenta_bancaria' => '0011-0146-0100050182',
+            'cci_bancario'    => '011-146-000100050182-83',
+            'titular_cuenta'  => 'María Pérez',
+            'monto'           => 5000,
+            'metodo_pago_id'  => $inactivo->id,
         ])->assertSessionHasErrors('metodo_pago_id');
 
         $this->assertDatabaseCount('inversiones', 0);
@@ -178,6 +410,28 @@ class InversionTest extends TestCase
     public function test_mis_inversiones_requiere_autenticacion()
     {
         $this->get(route('inversiones.mis'))->assertRedirect(route('auth.google'));
+    }
+
+    public function test_login_google_regresa_a_la_url_intentada()
+    {
+        $user = User::factory()->create(['email' => 'juan@test.com']);
+        $proyecto = $this->crearProyecto();
+
+        $googleUser = new \Laravel\Socialite\Two\User;
+        $googleUser->name = 'Juan';
+        $googleUser->email = 'juan@test.com';
+
+        Socialite::shouldReceive('driver')->with('google')->andReturn(
+            Mockery::mock([
+                'stateless' => Mockery::mock(['user' => $googleUser]),
+            ])
+        );
+
+        $this->withSession(['url.intended' => route('inversiones.create', $proyecto)])
+            ->get(route('auth.google.callback'))
+            ->assertRedirect(route('inversiones.create', $proyecto));
+
+        $this->assertAuthenticatedAs($user);
     }
 
     public function test_usuario_ve_solo_sus_inversiones()
@@ -417,12 +671,17 @@ class InversionTest extends TestCase
     public function test_inversion_registra_un_pago_vinculado_con_ocr()
     {
         Storage::fake('public');
+        $user = User::factory()->create();
         $proyecto = $this->crearProyecto();
         $metodo = $this->crearMetodo();
 
-        $this->post(route('inversiones.store', $proyecto), [
+        $this->actingAs($user)->post(route('inversiones.store', $proyecto), [
             'nombre'           => 'María Pérez',
             'email'            => 'maria@test.com',
+            'banco'            => 'BBVA',
+            'cuenta_bancaria'  => '0011-0146-0100050182',
+            'cci_bancario'     => '011-146-000100050182-83',
+            'titular_cuenta'   => 'María Pérez',
             'monto'            => 5000,
             'metodo_pago_id'   => $metodo->id,
             'numero_operacion' => 'OP-456',
@@ -435,7 +694,7 @@ class InversionTest extends TestCase
         $this->assertDatabaseHas('pagos', [
             'inversion_id'     => $inversion->id,
             'pedido_id'        => null,
-            'user_id'          => null,
+            'user_id'          => $user->id,
             'monto'            => 5000,
             'metodo_pago'      => $metodo->clave,
             'numero_operacion' => 'OP-456',
@@ -448,14 +707,19 @@ class InversionTest extends TestCase
 
     public function test_inversion_sin_comprobante_registra_pago_sin_ocr()
     {
+        $user = User::factory()->create();
         $proyecto = $this->crearProyecto();
         $metodo = $this->crearMetodo();
 
-        $this->post(route('inversiones.store', $proyecto), [
-            'nombre'         => 'Juan López',
-            'email'          => 'juan@test.com',
-            'monto'          => 3000,
-            'metodo_pago_id' => $metodo->id,
+        $this->actingAs($user)->post(route('inversiones.store', $proyecto), [
+            'nombre'          => 'Juan López',
+            'email'           => 'juan@test.com',
+            'banco'           => 'BCP',
+            'cuenta_bancaria' => '191-12345678-0-01',
+            'cci_bancario'    => '002-191-001234567801-10',
+            'titular_cuenta'  => 'Juan López',
+            'monto'           => 3000,
+            'metodo_pago_id'  => $metodo->id,
         ])->assertRedirect(route('inversiones.gracias', $proyecto));
 
         $this->assertDatabaseHas('pagos', [

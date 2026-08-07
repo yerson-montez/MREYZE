@@ -47,8 +47,6 @@ Route::get('/servicios', fn() => view('sections.servicios'))->name('servicios');
 Route::get('/proyectos', [ProyectoController::class, 'index'])->name('proyectos');
 Route::get('/proyectos/{proyecto:slug}', [ProyectoController::class, 'show'])->name('proyectos.show');
 Route::get('/proyectos-de-inversion', [ProyectoInversionController::class, 'index'])->name('proyectos.inversion');
-Route::get('/proyectos/{proyecto:slug}/invertir', [InversionController::class, 'create'])->name('inversiones.create');
-Route::post('/proyectos/{proyecto:slug}/invertir', [InversionController::class, 'store'])->name('inversiones.store');
 Route::get('/proyectos/{proyecto:slug}/invertir/gracias', [InversionController::class, 'gracias'])->name('inversiones.gracias');
 Route::get('/blog',      fn() => view('sections.blog'))->name('blog');
 Route::get('/contacto',  fn() => view('sections.contacto'))->name('contacto');
@@ -78,6 +76,10 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile',    [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile',  [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+
+    Route::get('/proyectos/{proyecto:slug}/invertir', [InversionController::class, 'bienvenida'])->name('inversiones.create');
+    Route::get('/proyectos/{proyecto:slug}/invertir/formulario', [InversionController::class, 'create'])->name('inversiones.form');
+    Route::post('/proyectos/{proyecto:slug}/invertir', [InversionController::class, 'store'])->name('inversiones.store');
 
     Route::get('/pedidos/crear/{producto:slug}',  [PedidoController::class, 'create'])->name('pedidos.create');
     Route::post('/pedidos/crear/{producto:slug}', [PedidoController::class, 'store'])->name('pedidos.store');

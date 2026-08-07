@@ -9,12 +9,20 @@ use App\Models\MetodoPago;
 use App\Models\Pago;
 use App\Models\Proyecto;
 use App\Rules\ComprobanteValido;
+use App\Rules\FirmaValido;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 
 class InversionController extends Controller
 {
+    public function bienvenida(Proyecto $proyecto)
+    {
+        abort_unless($proyecto->visible && $proyecto->tipo === 'inversion', 404);
+
+        return view('inversiones.bienvenida', compact('proyecto'));
+    }
+
     public function create(Proyecto $proyecto)
     {
         abort_unless($proyecto->visible && $proyecto->tipo === 'inversion', 404);
@@ -40,10 +48,15 @@ class InversionController extends Controller
             'email'              => 'required|email|max:200',
             'telefono'           => 'nullable|string|max:30',
             'dni'                => 'nullable|string|max:12',
+            'banco'              => 'required|string|max:100',
+            'cuenta_bancaria'    => 'required|string|max:40',
+            'cci_bancario'       => 'required|string|max:40',
+            'titular_cuenta'     => 'required|string|max:200',
             'monto'              => 'required|numeric|min:50',
             'metodo_pago_id'     => 'required|exists:metodos_pago,id',
             'numero_operacion'   => 'nullable|string|max:100',
             'comprobante'        => ['nullable', 'file', new ComprobanteValido],
+            'firma'              => ['nullable', 'file', new FirmaValido],
         ], [
             'monto.min' => 'El monto mínimo para invertir es S/ 50.00.',
         ]);
@@ -66,6 +79,10 @@ class InversionController extends Controller
 
         if ($request->hasFile('comprobante')) {
             $data['comprobante'] = $request->file('comprobante')->store('inversiones', 'public');
+        }
+
+        if ($request->hasFile('firma')) {
+            $data['firma'] = $request->file('firma')->store('inversiones/firmas', 'public');
         }
 
         $data['proyecto_id'] = $proyecto->id;
