@@ -289,7 +289,7 @@
     ═══════════════════════════════════════ */
     .inversion-grid {
         display: grid;
-        grid-template-columns: repeat(2, 1fr);
+        grid-template-columns: repeat(4, 1fr);
         gap: 1.25rem;
         margin-bottom: 3rem;
     }
@@ -882,16 +882,6 @@
     @keyframes pulse {
         0%, 100% { opacity: 1; }
         50%       { opacity: 0.4; }
-    }
-
-    @media (max-width: 1200px) {
-        .proyectos-grid { grid-template-columns: repeat(3, 1fr); }
-        .inversion-grid { grid-template-columns: repeat(2, 1fr); }
-    }
-
-    @media (max-width: 1024px) {
-        .proyectos-grid { grid-template-columns: repeat(2, 1fr); }
-        .inversion-grid { grid-template-columns: repeat(2, 1fr); }
     }
 
     @media (max-width: 640px) {
