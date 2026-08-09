@@ -244,16 +244,6 @@
                     @if($metodosPago->count())
                         <input type="hidden" name="metodo_pago_id" value="{{ $metodoPagoId }}">
 
-                        <div class="inv-pago-cuenta">
-                            <div class="inv-pago-cuenta-head">
-                                <span class="inv-pago-badge">BBVA</span>
-                            </div>
-                            <div class="inv-pago-fila"><span>Banco</span><strong>{{ config('empresa.pago.banco') }}</strong></div>
-                            <div class="inv-pago-fila"><span>CCI</span><strong>{{ config('empresa.pago.cci') }}</strong></div>
-                            <div class="inv-pago-fila"><span>N.º de cuenta</span><strong>{{ config('empresa.pago.cuenta') }}</strong></div>
-                            <div class="inv-pago-fila"><span>Titular</span><strong>{{ config('empresa.pago.titular') }}</strong></div>
-                        </div>
-
                         <button type="button" class="inv-qr-btn" id="inv-qr-btn" aria-expanded="false">
                             <span>📱 Pagar con Yape / Plin</span>
                             <svg class="flecha" viewBox="0 0 24 24" fill="currentColor" style="width:16px;height:16px"><path d="M16.59 8.59 12 13.17 7.41 8.59 6 10l6 6 6-6z"/></svg>

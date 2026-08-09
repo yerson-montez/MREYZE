@@ -89,12 +89,11 @@ class InversionTest extends TestCase
         $response->assertSee('CCI *');
         $response->assertSee('Titular de la cuenta *');
 
-        // Cambio 2: solo la cuenta BBVA
+        // Cambio 2: solo Yape / Plin con su QR (sin bloque de cuenta BBVA)
         $response->assertSee('¿Cómo realizar tu pago?');
-        $response->assertSee('BBVA');
-        $response->assertSee('011-146-000100050182-83');
-        $response->assertSee('0011-0146-0100050182');
-        $response->assertSee('MReyze Automatización y Sistemas S.A.C.');
+        $response->assertDontSee('class="inv-pago-cuenta"', false);
+        $response->assertDontSee('class="inv-pago-badge"', false);
+        $response->assertDontSee('MReyze Automatización y Sistemas S.A.C.');
 
         // Cambio 3: QR oculto por defecto
         $response->assertSee('📱 Pagar con Yape / Plin');
