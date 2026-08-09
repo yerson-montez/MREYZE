@@ -289,7 +289,7 @@
     ═══════════════════════════════════════ */
     .inversion-grid {
         display: grid;
-        grid-template-columns: repeat(4, 1fr);
+        grid-template-columns: repeat(2, 1fr);
         gap: 1.25rem;
         margin-bottom: 3rem;
     }
@@ -676,6 +676,24 @@
     .sim-fila-val.gain { color: #4ade80; }
     .sim-fila-val.total { color: var(--accent); }
 
+    .sim-btn {
+        display: inline-flex; align-items: center; justify-content: center; gap: 10px;
+        width: 100%; padding: .85rem 1.4rem; border-radius: 12px; border: none; cursor: pointer;
+        font-size: .95rem; font-weight: 700; color: #fff; letter-spacing: .02em;
+        background: linear-gradient(135deg, #0088cc, #00a8e8);
+        box-shadow: 0 8px 26px rgba(0,136,204,.4);
+        transition: all .25s; text-decoration: none; -webkit-tap-highlight-color: transparent;
+    }
+    .sim-btn:hover { transform: translateY(-2px); box-shadow: 0 12px 34px rgba(0,136,204,.55); background: linear-gradient(135deg, #0099dd, #00bbff); }
+    .sim-btn:active { transform: translateY(0); }
+    .sim-btn.simulando { animation: simPulse .5s ease; }
+
+    @keyframes simPulse {
+        0%   { transform: scale(1); }
+        50%  { transform: scale(.97); }
+        100% { transform: scale(1); }
+    }
+
     @media (max-width: 900px) {
         .sim-grid { grid-template-columns: 1fr; }
     }
@@ -868,7 +886,7 @@
 
     @media (max-width: 1200px) {
         .proyectos-grid { grid-template-columns: repeat(3, 1fr); }
-        .inversion-grid { grid-template-columns: repeat(3, 1fr); }
+        .inversion-grid { grid-template-columns: repeat(2, 1fr); }
     }
 
     @media (max-width: 1024px) {
@@ -882,6 +900,14 @@
         .inversion-grid { grid-template-columns: 1fr; }
         .invertir-cta-titulo { font-size: 1.4rem; }
         .invertir-trust { gap: 1rem; }
+        .simulador { padding: 1.8rem 1.1rem; }
+        .sim-titulo { font-size: 1.35rem; }
+        .sim-fila { padding: .8rem .9rem; }
+        .sim-fila-val { font-size: .95rem; }
+    }
+
+    @media (max-width: 768px) {
+        .sim-campo input, .sim-campo select { font-size: 16px; }
     }
 </style>
 
@@ -1107,11 +1133,17 @@
                     </div>
                     <div class="sim-campo">
                         <label for="simMonto">Monto a invertir (S/)</label>
-                        <input type="number" id="simMonto" min="50" step="50" value="1000">
+                        <input type="number" id="simMonto" min="50" step="any" value="1000" inputmode="decimal">
                     </div>
                     <div class="sim-campo">
                         <label for="simPeriodo">Periodo de inversión</label>
                         <select id="simPeriodo"></select>
+                    </div>
+                    <div class="sim-campo">
+                        <button type="button" id="simBtn" class="sim-btn">
+                            <svg viewBox="0 0 24 24" fill="currentColor" style="width:18px;height:18px"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58z"/></svg>
+                            Simular
+                        </button>
                     </div>
                 </div>
                 <div class="sim-resultados">
@@ -1332,12 +1364,14 @@
     var selProy = document.getElementById('simProyecto');
     var selPer  = document.getElementById('simPeriodo');
     var monto   = document.getElementById('simMonto');
+    var simBtn  = document.getElementById('simBtn');
     var base    = document.getElementById('simBase');
     var gan     = document.getElementById('simGanancia');
     var total   = document.getElementById('simTotal');
     var roiLbl  = document.getElementById('simRoiLabel');
+    var res     = document.querySelector('.sim-resultados');
 
-    if (!selProy || !selPer) return;
+    if (!selProy || !selPer || !monto) return;
 
     function fmt(n) {
         return 'S/ ' + n.toLocaleString('es-PE', { maximumFractionDigits: 2 });
@@ -1352,32 +1386,57 @@
         };
     }
 
+    function montoParseado() {
+        var v = parseFloat(String(monto.value).replace(',', '.'));
+        return isNaN(v) ? 0 : v;
+    }
+
+    function montoValido(v) {
+        var max = Math.max(50, proyecto().max);
+        v = Math.max(50, v);
+        return Math.min(v, max);
+    }
+
     function refreshPeriodo() {
         var p = proyecto();
         selPer.innerHTML = '<option>' + p.meses + ' meses</option>';
         roiLbl.textContent = p.roi + '%';
         monto.max = Math.max(50, p.max);
-        if (parseFloat(monto.value) > p.max) {
+        if (montoParseado() > p.max) {
             monto.value = Math.max(50, Math.floor(p.max));
         }
     }
 
-    function update() {
-        var p = proyecto();
-        var v = parseFloat(monto.value) || 0;
-        if (v < 50) v = 50;
-        if (v > p.max) v = p.max;
-        monto.value = v;
+    function update(normalizar) {
+        var v = montoValido(montoParseado());
+        if (normalizar) {
+            monto.value = v;
+        }
         base.textContent = fmt(v);
-        var g = v * (p.roi / 100);
+        var g = v * (proyecto().roi / 100);
         gan.textContent = fmt(g);
         total.textContent = fmt(v + g);
     }
 
-    selProy.addEventListener('change', function () { refreshPeriodo(); update(); });
-    monto.addEventListener('input', update);
+    selProy.addEventListener('change', function () { refreshPeriodo(); update(true); });
+    monto.addEventListener('input', function () { update(false); });
+    monto.addEventListener('change', function () { update(true); });
+    monto.addEventListener('blur', function () { update(true); });
+
+    if (simBtn) {
+        simBtn.addEventListener('click', function () {
+            update(true);
+            simBtn.classList.remove('simulando');
+            void simBtn.offsetWidth;
+            simBtn.classList.add('simulando');
+            if (res) {
+                res.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }
+        });
+    }
+
     refreshPeriodo();
-    update();
+    update(true);
 })();
 </script>
 @endpush

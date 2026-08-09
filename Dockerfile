@@ -31,4 +31,4 @@ COPY --from=assets /app/public/build ./public/build
 
 RUN composer install --optimize-autoloader --no-interaction
 
-CMD php artisan serve --host=0.0.0.0 --port=8080
+CMD php artisan storage:link --force && php artisan serve --host=0.0.0.0 --port=8080
