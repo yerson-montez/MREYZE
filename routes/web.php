@@ -159,11 +159,13 @@ Route::post('/productos/importar',
         Route::get('pedidos',                    [PedidoAdminController::class, 'index'])->name('pedidos.index');
         Route::get('pedidos/{pedido}',           [PedidoAdminController::class, 'show'])->name('pedidos.show');
         Route::patch('pedidos/{pedido}/estado',  [PedidoAdminController::class, 'actualizarEstado'])->name('pedidos.estado');
+        Route::delete('pedidos/{pedido}',        [PedidoAdminController::class, 'destroy'])->name('pedidos.destroy');
 
         // Pagos admin
         Route::get('pagos',                    [PagoAdminController::class, 'index'])->name('pagos.index');
         Route::get('pagos/{pago}',             [PagoAdminController::class, 'show'])->name('pagos.show');
         Route::post('pagos/{pago}/aprobar',    [PagoAdminController::class, 'aprobar'])->name('pagos.aprobar');
+        Route::delete('pagos/{pago}',          [PagoAdminController::class, 'destroy'])->name('pagos.destroy');
 
         // Boletas admin
         Route::get('boletas/{boleta}',         [BoletaController::class, 'show'])->name('boletas.show');

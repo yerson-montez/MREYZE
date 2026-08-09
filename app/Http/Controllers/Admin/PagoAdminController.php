@@ -32,6 +32,17 @@ class PagoAdminController extends Controller
         return view('admin.pagos.show', compact('pago'));
     }
 
+    public function destroy(Pago $pago): RedirectResponse
+    {
+        abort_unless($pago->pedido_id !== null, 404);
+
+        $pago->delete();
+
+        return redirect()
+            ->route('admin.pagos.index')
+            ->with('success', 'Pago eliminado correctamente.');
+    }
+
     public function aprobar(Pago $pago, AprobarPagoRequest $request, BoletaService $boletaService): RedirectResponse
     {
         abort_unless($pago->pedido_id !== null, 404);

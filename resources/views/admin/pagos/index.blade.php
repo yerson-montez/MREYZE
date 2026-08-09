@@ -1,5 +1,9 @@
 <x-admin-layout>
 
+@if(session('success'))
+  <div class="adm-alert adm-alert-success">✓ {{ session('success') }}</div>
+@endif
+
 <div class="adm-page-header">
   <div>
     <h1 class="adm-page-title">Pagos</h1>
@@ -71,7 +75,16 @@
             <span class="adm-pill {{ $pillClass }}">{{ ucfirst($pago->estado_pago) }}</span>
           </td>
           <td style="font-size:.8rem;color:var(--muted);">{{ $pago->created_at->format('d/m/Y H:i') }}</td>
-          <td><a href="{{ route('admin.pagos.show', $pago) }}" class="adm-btn adm-btn-primary" style="padding:.35rem .75rem; font-size:.72rem;">Revisar</a></td>
+          <td>
+            <a href="{{ route('admin.pagos.show', $pago) }}" class="adm-btn adm-btn-primary" style="padding:.35rem .75rem; font-size:.72rem;">Revisar</a>
+            <form method="POST" action="{{ route('admin.pagos.destroy', $pago) }}"
+                  onsubmit="return confirm('¿Eliminar este pago? Esta acción no se puede deshacer.');"
+                  style="display: inline-block; margin-left: .35rem;">
+              @csrf
+              @method('DELETE')
+              <button type="submit" class="adm-btn adm-btn-danger" style="padding:.35rem .75rem; font-size:.72rem;">Eliminar</button>
+            </form>
+          </td>
         </tr>
       @empty
         <tr><td colspan="8" style="text-align:center;padding:32px;color:var(--muted);">No hay pagos registrados.</td></tr>

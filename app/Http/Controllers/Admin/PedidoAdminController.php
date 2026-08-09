@@ -45,6 +45,15 @@ class PedidoAdminController extends Controller
         return view('admin.pedidos.show', compact('pedido'));
     }
 
+    public function destroy(Pedido $pedido): RedirectResponse
+    {
+        $pedido->delete();
+
+        return redirect()
+            ->route('admin.pedidos.index')
+            ->with('success', 'Pedido eliminado correctamente.');
+    }
+
     public function actualizarEstado(Request $request, Pedido $pedido, BoletaService $boletaService): RedirectResponse
     {
         $request->validate([

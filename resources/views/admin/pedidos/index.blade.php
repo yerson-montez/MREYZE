@@ -6,6 +6,10 @@
 
 @section('content')
 
+@if(session('success'))
+    <div class="adm-alert adm-alert-success">✓ {{ session('success') }}</div>
+@endif
+
 <div class="adm-page-header" style="margin-bottom: 1.5rem;">
     <div>
         <h1 class="adm-page-title">Pedidos</h1>
@@ -113,6 +117,15 @@ default => 'adm-pill-pending',
                     <a href="{{ route('admin.pedidos.show', $pedido) }}" class="adm-btn adm-btn-ghost" style="padding: .35rem .75rem; font-size: .78rem;">
                         Ver →
                     </a>
+                    <form method="POST" action="{{ route('admin.pedidos.destroy', $pedido) }}"
+                          onsubmit="return confirm('¿Eliminar este pedido? Esta acción no se puede deshacer.');"
+                          style="display: inline-block; margin-left: .35rem;">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit" class="adm-btn adm-btn-danger" style="padding: .35rem .75rem; font-size: .78rem;">
+                            Eliminar
+                        </button>
+                    </form>
                 </td>
             </tr>
             @empty
