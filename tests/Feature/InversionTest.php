@@ -118,6 +118,23 @@ class InversionTest extends TestCase
         $response->assertDontSee('Otros proyectos');
     }
 
+    public function test_formulario_muestra_qr_yape_plin_aunque_no_haya_metodos_en_bd()
+    {
+        $user = User::factory()->create();
+        $proyecto = $this->crearProyecto();
+
+        $this->assertDatabaseCount('metodos_pago', 0);
+
+        $response = $this->actingAs($user)->get(route('inversiones.form', $proyecto));
+
+        $response->assertOk();
+        $response->assertSee('¿Cómo realizar tu pago?');
+        $response->assertSee('📱 Pagar con Yape / Plin');
+        $response->assertSee('Código QR Yape / Plin', false);
+        $response->assertDontSee('no hay medios de pago habilitados');
+        $response->assertDontSee('name="metodo_pago_id"', false);
+    }
+
     public function test_usuario_autenticado_ve_la_bienvenida_antes_del_formulario()
     {
         $user = User::factory()->create();

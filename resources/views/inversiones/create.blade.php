@@ -243,6 +243,7 @@
 
                     @if($metodosPago->count())
                         <input type="hidden" name="metodo_pago_id" value="{{ $metodoPagoId }}">
+                    @endif
 
                         <button type="button" class="inv-qr-btn" id="inv-qr-btn" aria-expanded="false">
                             <span>📱 Pagar con Yape / Plin</span>
@@ -259,9 +260,6 @@
                                 </div>
                             </div>
                         </div>
-                    @else
-                        <p class="inv-error" style="margin-top:1.4rem;">Por el momento no hay medios de pago habilitados. Escríbenos por WhatsApp para coordinar tu aporte.</p>
-                    @endif
                 </div>
 
                 <div class="inv-campo" style="margin-top:1.4rem;">
