@@ -1,4 +1,16 @@
-﻿FROM php:8.2-cli
+﻿# Stage 1: Compilar assets frontend (Vite/Tailwind/Alpine) con Node
+FROM node:22 AS assets
+
+WORKDIR /app
+
+COPY package.json package-lock.json ./
+RUN npm ci
+
+COPY . .
+RUN npm run build
+
+# Stage 2: Runtime PHP
+FROM php:8.2-cli
 
 RUN apt-get update && apt-get install -y \
     libpng-dev \
@@ -15,6 +27,7 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 WORKDIR /app
 
 COPY . .
+COPY --from=assets /app/public/build ./public/build
 
 RUN composer install --optimize-autoloader --no-interaction
 
