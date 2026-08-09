@@ -31,7 +31,9 @@ Route::get('/', function () {
 
     $productosHome = Producto::where('activo', true)
         ->where('estado', 'disponible')
-        ->take(8)
+        ->inRandomOrder()
+        ->with('imagenes')
+        ->take(4)
         ->get();
 
     $metodosPago = MetodoPago::where('activo', true)->get();

@@ -475,10 +475,12 @@
             <div class="td-hero-text">
                 <span class="td-kicker reveal">Gracias por visitarnos</span>
                 <h1 class="td-hero-title reveal reveal-delay-1">
-                    Descubre las <span>oportunidades</span> con MreyZe
+                    MREYZE
+                    <span>Invierte. Crece. Sé parte.</span>
                 </h1>
                 <p class="td-hero-sub reveal reveal-delay-1">
-                    Solicita tu Tarjeta Débito Visa y descubre nuevas oportunidades para crecer junto a Mreyze.
+                    Compra acciones.<br>
+                    Construye el futuro.
                 </p>
                 <div class="td-hero-cta reveal reveal-delay-2">
                     <a href="{{ route('tarjeta.debito.solicitar') }}" class="td-btn td-btn-primary">
@@ -491,9 +493,13 @@
                     </a>
                 </div>
                 <p class="td-disclaimer reveal reveal-delay-2">
-                    La Tarjeta Débito MReyze es una propuesta de producto en desarrollo. Su emisión estará sujeta a la
-                    formalización con aliados financieros y no representa aún una relación oficial con Visa ni con
-                    ninguna entidad bancaria.
+                    <strong>MREYZE</strong><br>
+                    <strong>NO SOLO MIRES EL CRECIMIENTO.</strong><br>
+                    <strong>SÉ PARTE DE ÉL.</strong><br><br>
+                    Construye tu futuro.<br>
+                    <strong>Compra acciones.</strong><br>
+                    <strong>CRECE CON MREYZE.</strong><br>
+                    <em>El futuro se construye juntos.</em>
                 </p>
             </div>
 

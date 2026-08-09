@@ -411,6 +411,45 @@
         .hero-actions, .stats-row { justify-content:center; }
         .hero-right   { display:none; }
     }
+
+    @media (max-width: 480px) {
+        .hero-grid {
+            padding: 5rem 1.25rem 3rem;
+        }
+        .hero-title {
+            font-size: clamp(1.75rem, 7vw, 2.4rem);
+            word-break: break-word;
+        }
+        .terminal-line {
+            font-size: .68rem;
+            max-width: 100%;
+            overflow: hidden;
+        }
+        .hero-desc {
+            font-size: .95rem;
+        }
+        .hero-actions {
+            flex-direction: column;
+            align-items: stretch;
+        }
+        .hero-actions .btn-primary,
+        .hero-actions .btn-secondary {
+            justify-content: center;
+            width: 100%;
+        }
+        .stats-row {
+            gap: 1.25rem;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        .stat-num {
+            font-size: 1.45rem;
+        }
+        .stat-label {
+            font-size: .62rem;
+            letter-spacing: .02em;
+        }
+    }
 </style>
 
 <!-- Canvas de fondo (circuitos + binario) -->
@@ -723,5 +762,7 @@
 </script>
 
 {{-- @include('components.tienda-section') --}}
+
+@include('sections.partials._productos-destacados')
 
 @endsection
