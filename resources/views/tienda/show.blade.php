@@ -430,7 +430,8 @@ $fallbackSrc = $producto->icono_imagen
 
     <img :src="imagenActual"
          :alt="nombreProducto"
-         class="max-w-full max-h-[85vh] object-contain rounded-lg select-none"
+         class="max-w-full object-contain rounded-lg select-none"
+         style="max-width:min(720px,88vw);max-height:min(72vh,620px)"
          @click.stop>
 
     @if($imgs->count() > 1)
