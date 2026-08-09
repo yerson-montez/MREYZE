@@ -895,7 +895,7 @@
     }
 
     @media (max-width: 640px) {
-        .proyectos-grid { grid-template-columns: 1fr; }
+        .proyectos-grid { grid-template-columns: repeat(2, 1fr); }
         .proyectos-header { flex-direction: column; align-items: flex-start; }
         .inversion-grid { grid-template-columns: 1fr; }
         .invertir-cta-titulo { font-size: 1.4rem; }
@@ -1381,8 +1381,7 @@
         var opt = selProy.options[selProy.selectedIndex];
         return {
             roi: parseFloat(opt.dataset.roi) || 0,
-            meses: parseInt(opt.dataset.meses, 10) || 0,
-            max: parseFloat(opt.dataset.max) || 0
+            meses: parseInt(opt.dataset.meses, 10) || 0
         };
     }
 
@@ -1391,25 +1390,15 @@
         return isNaN(v) ? 0 : v;
     }
 
-    function montoValido(v) {
-        var max = Math.max(50, proyecto().max);
-        v = Math.max(50, v);
-        return Math.min(v, max);
-    }
-
     function refreshPeriodo() {
         var p = proyecto();
         selPer.innerHTML = '<option>' + p.meses + ' meses</option>';
         roiLbl.textContent = p.roi + '%';
-        monto.max = Math.max(50, p.max);
-        if (montoParseado() > p.max) {
-            monto.value = Math.max(50, Math.floor(p.max));
-        }
     }
 
     function update(normalizar) {
-        var v = montoValido(montoParseado());
-        if (normalizar) {
+        var v = Math.max(0, montoParseado());
+        if (normalizar && v > 0) {
             monto.value = v;
         }
         base.textContent = fmt(v);

@@ -306,7 +306,7 @@
                 <div style="margin-top:2rem;display:flex;flex-wrap:wrap;gap:12px;align-items:center;">
                     <button type="submit" class="inv-btn">
                         <svg viewBox="0 0 24 24" fill="currentColor" style="width:18px;height:18px"><path d="M2.01 21 23 12 2.01 3 2 10l15 2-15 2z"/></svg>
-                        Enviar solicitud de inversión
+                        Solicitar contrato
                     </button>
                     <span class="inv-hint">Al enviar aceptas los términos y condiciones de MREYZE.</span>
                 </div>

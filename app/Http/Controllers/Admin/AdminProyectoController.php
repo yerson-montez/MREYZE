@@ -56,6 +56,16 @@ class AdminProyectoController extends Controller
                 ->store('proyectos', 'public');
         }
 
+        if ($request->hasFile('contrato_pdf')) {
+            $data['contrato_pdf'] = $request->file('contrato_pdf')
+                ->store('contratos', 'public');
+        }
+
+        if ($request->hasFile('detalle_pdf')) {
+            $data['detalle_pdf'] = $request->file('detalle_pdf')
+                ->store('proyectos', 'public');
+        }
+
         $data['visible'] = $request->boolean('visible');
 
         DB::transaction(function () use ($data, $request) {
@@ -94,6 +104,22 @@ class AdminProyectoController extends Controller
                 Storage::disk('public')->delete($proyecto->imagen_principal);
             }
             $data['imagen_principal'] = $request->file('imagen_principal')
+                ->store('proyectos', 'public');
+        }
+
+        if ($request->hasFile('contrato_pdf')) {
+            if ($proyecto->contrato_pdf) {
+                Storage::disk('public')->delete($proyecto->contrato_pdf);
+            }
+            $data['contrato_pdf'] = $request->file('contrato_pdf')
+                ->store('contratos', 'public');
+        }
+
+        if ($request->hasFile('detalle_pdf')) {
+            if ($proyecto->detalle_pdf) {
+                Storage::disk('public')->delete($proyecto->detalle_pdf);
+            }
+            $data['detalle_pdf'] = $request->file('detalle_pdf')
                 ->store('proyectos', 'public');
         }
 
@@ -291,6 +317,8 @@ class AdminProyectoController extends Controller
             'inversion_etiqueta' => 'nullable|string|max:100',
             'whatsapp_numero'    => 'nullable|string|max:20',
             'whatsapp_mensaje'   => 'nullable|string|max:500',
+            'contrato_pdf'       => 'nullable|file|mimes:pdf|max:10240',
+            'detalle_pdf'        => 'nullable|file|mimes:pdf|max:20480',
             'nuevas_imagenes'       => 'nullable|array|max:10',
             'nuevas_imagenes.*'     => 'image|mimes:jpg,jpeg,png,webp|max:5120',
         ]);

@@ -2,8 +2,11 @@
 
 namespace Tests\Feature;
 
+use App\Models\Proyecto;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
 class AdminProyectoTest extends TestCase
@@ -66,5 +69,38 @@ class AdminProyectoTest extends TestCase
             'inversion_estado'  => 'disponible',
             'inversion_roi'     => '30%',
         ]);
+    }
+
+    public function test_formulario_de_creacion_muestra_campos_de_pdf()
+    {
+        $admin = $this->crearAdmin();
+
+        $response = $this->actingAs($admin)->get(route('admin.proyectos.create'));
+        $response->assertOk();
+        $response->assertSee('name="contrato_pdf"', false);
+        $response->assertSee('name="detalle_pdf"', false);
+    }
+
+    public function test_admin_puede_crear_proyecto_con_contrato_y_detalle_pdf()
+    {
+        Storage::fake('public');
+        $admin = $this->crearAdmin();
+
+        $this->actingAs($admin)->post(route('admin.proyectos.store'), [
+            'titulo'          => 'Proyecto con documentos',
+            'categoria'       => 'iot',
+            'estado'          => 'en_curso',
+            'tipo'            => 'inversion',
+            'inversion_estado' => 'disponible',
+            'visible'         => '1',
+            'contrato_pdf'    => UploadedFile::fake()->create('contrato.pdf', 500, 'application/pdf'),
+            'detalle_pdf'     => UploadedFile::fake()->create('detalle.pdf', 500, 'application/pdf'),
+        ])->assertRedirect(route('admin.proyectos.index'));
+
+        $proyecto = Proyecto::where('titulo', 'Proyecto con documentos')->firstOrFail();
+        $this->assertNotNull($proyecto->contrato_pdf);
+        $this->assertNotNull($proyecto->detalle_pdf);
+        Storage::disk('public')->assertExists($proyecto->contrato_pdf);
+        Storage::disk('public')->assertExists($proyecto->detalle_pdf);
     }
 }

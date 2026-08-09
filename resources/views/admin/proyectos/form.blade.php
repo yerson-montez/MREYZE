@@ -521,6 +521,27 @@
                     </div>
                 </div>
 
+                {{-- DOCUMENTOS (solo al crear; al editar se usan las tarjetas de abajo) --}}
+                @unless(isset($proyecto))
+                <hr class="adm-divider">
+                <div class="adm-section-label">Documentos del proyecto</div>
+
+                <div class="adm-form-row">
+                    <div class="adm-form-group">
+                        <label class="adm-label" for="contrato_pdf">Contrato de inversión (PDF)</label>
+                        <input id="contrato_pdf" name="contrato_pdf" type="file" accept="application/pdf" class="adm-input">
+                        <div class="adm-input-hint">Sube el PDF del contrato que los inversionistas podrán consultar.</div>
+                        @error('contrato_pdf')<div class="adm-error">{{ $message }}</div>@enderror
+                    </div>
+                    <div class="adm-form-group">
+                        <label class="adm-label" for="detalle_pdf">Detalle del proyecto (PDF)</label>
+                        <input id="detalle_pdf" name="detalle_pdf" type="file" accept="application/pdf" class="adm-input">
+                        <div class="adm-input-hint">Sube el documento informativo que se mostrará como "Ver detalle del proyecto".</div>
+                        @error('detalle_pdf')<div class="adm-error">{{ $message }}</div>@enderror
+                    </div>
+                </div>
+                @endunless
+
                 {{-- WHATSAPP --}}
                 <hr class="adm-divider">
                 <div class="adm-section-label">Configuración WhatsApp</div>
