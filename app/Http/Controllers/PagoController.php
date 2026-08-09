@@ -115,20 +115,28 @@ class PagoController extends Controller
             'ocr_resultado'     => EstadoValidacionOcr::Pendiente->value,
         ];
 
-        if ($request->hasFile('comprobante')) {
+        $comprobanteSubido = $request->hasFile('comprobante');
+
+        if ($comprobanteSubido) {
             $path = $request->file('comprobante')->store('comprobantes', 'public');
             $data['comprobante_pago'] = $path;
         }
 
         $pago = $pedido->pagos()->create($data);
 
-        $pedido->update(['estado' => 'pendiente']);
+        if ($comprobanteSubido) {
+            $pedido->update(['estado' => 'pendiente']);
 
-        ProcesarComprobanteJob::dispatch($pago);
+            ProcesarComprobanteJob::dispatch($pago);
 
-        $mensaje = $totalPagado > 0
-            ? 'Comprobante del saldo enviado. El pago será verificado automáticamente.'
-            : 'Comprobante enviado. El pago será verificado automáticamente.';
+            $mensaje = $totalPagado > 0
+                ? 'Comprobante del saldo enviado. El pago será verificado automáticamente.'
+                : 'Comprobante enviado. El pago será verificado automáticamente.';
+        } else {
+            $mensaje = $totalPagado > 0
+                ? 'Comprobante del saldo registrado. El pago quedará pendiente de verificación.'
+                : 'Pago registrado. Quedará pendiente de verificación.';
+        }
 
         return redirect()->route('pedidos.pago', $pedido)->with('success', $mensaje);
     }

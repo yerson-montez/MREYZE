@@ -81,9 +81,11 @@ class ProcesarComprobanteJob implements ShouldQueue
 
         $codigoIngresado = $this->pago->numero_operacion ?? '';
 
-        $montoEsperado = $pedido !== null
-            ? (float) $pedido->adelanto
-            : (float) $inversion->monto;
+        $montoEsperado = $this->pago->monto !== null
+            ? (float) $this->pago->monto
+            : ($pedido !== null
+                ? (float) $pedido->adelanto
+                : (float) $inversion->monto);
 
         $estadoValidacion = $validacionService->validar(
             $resultado,
