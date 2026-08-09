@@ -241,6 +241,16 @@
                     </h3>
                     <p class="inv-hint" style="margin:0;">Deposita o transfiere a nuestra cuenta y envía tu comprobante.</p>
 
+                    <div class="inv-pago-cuenta">
+                        <div class="inv-pago-cuenta-head">
+                            <span class="inv-pago-badge">🏦 Transferencia bancaria</span>
+                        </div>
+                        <div class="inv-pago-fila"><span>Banco</span><strong>{{ config('empresa.pago.banco') }}</strong></div>
+                        <div class="inv-pago-fila"><span>Número de cuenta</span><strong>{{ config('empresa.pago.cuenta') }}</strong></div>
+                        <div class="inv-pago-fila"><span>CCI</span><strong>{{ config('empresa.pago.cci') }}</strong></div>
+                        <div class="inv-pago-fila"><span>Titular de la cuenta</span><strong>{{ config('empresa.pago.titular') }}</strong></div>
+                    </div>
+
                     @if($metodosPago->count())
                         <input type="hidden" name="metodo_pago_id" value="{{ $metodoPagoId }}">
                     @endif

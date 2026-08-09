@@ -89,11 +89,14 @@ class InversionTest extends TestCase
         $response->assertSee('CCI *');
         $response->assertSee('Titular de la cuenta *');
 
-        // Cambio 2: solo Yape / Plin con su QR (sin bloque de cuenta BBVA)
+        // Cambio 2: datos bancarios de MReyze para el pago + solo Yape/Plin con QR
         $response->assertSee('¿Cómo realizar tu pago?');
-        $response->assertDontSee('class="inv-pago-cuenta"', false);
-        $response->assertDontSee('class="inv-pago-badge"', false);
-        $response->assertDontSee('MReyze Automatización y Sistemas S.A.C.');
+        $response->assertSee('🏦 Transferencia bancaria');
+        $response->assertSee('class="inv-pago-cuenta"', false);
+        $response->assertSee(config('empresa.pago.banco'));
+        $response->assertSee(config('empresa.pago.cuenta'));
+        $response->assertSee(config('empresa.pago.cci'));
+        $response->assertSee(config('empresa.pago.titular'));
 
         // Cambio 3: QR oculto por defecto
         $response->assertSee('📱 Pagar con Yape / Plin');
@@ -129,6 +132,8 @@ class InversionTest extends TestCase
 
         $response->assertOk();
         $response->assertSee('¿Cómo realizar tu pago?');
+        $response->assertSee('🏦 Transferencia bancaria');
+        $response->assertSee(config('empresa.pago.titular'));
         $response->assertSee('📱 Pagar con Yape / Plin');
         $response->assertSee('Código QR Yape / Plin', false);
         $response->assertDontSee('no hay medios de pago habilitados');
