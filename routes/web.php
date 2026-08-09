@@ -149,6 +149,7 @@ Route::post('/productos/importar',
         Route::get('/productos/{producto}/editar',    [AdminProductoController::class, 'edit'])->name('productos.edit');
         Route::put('/productos/{producto}',           [AdminProductoController::class, 'update'])->name('productos.update');
         Route::delete('/productos/{producto}',        [AdminProductoController::class, 'destroy'])->name('productos.destroy');
+        Route::post('/productos/eliminar-todos',      [AdminProductoController::class, 'eliminarTodos'])->name('productos.eliminarTodos');
         Route::patch('/productos/{producto}/toggle',  [AdminProductoController::class, 'toggleActivo'])->name('productos.toggle');
         Route::patch('/productos/{producto}/stock',   [AdminProductoController::class, 'actualizarStock'])->name('productos.stock');
 

@@ -156,6 +156,31 @@ class AdminProductoController extends Controller
             ->with('exito', 'Producto eliminado.');
     }
 
+    public function eliminarTodos()
+    {
+        $productos = Producto::with('imagenes')->get();
+        $total = $productos->count();
+
+        DB::transaction(function () use ($productos) {
+            foreach ($productos as $producto) {
+                foreach ($producto->imagenes as $imagen) {
+                    Storage::disk('public')->delete($imagen->ruta);
+                }
+
+                $producto->imagenes()->delete();
+
+                if ($producto->icono_imagen) {
+                    Storage::disk('public')->delete($producto->icono_imagen);
+                }
+
+                $producto->delete();
+            }
+        });
+
+        return redirect()->route('admin.productos.index')
+            ->with('exito', "Se eliminaron $total productos.");
+    }
+
     public function toggleActivo(Producto $producto)
     {
         $producto->update(['activo' => !$producto->activo]);

@@ -1248,10 +1248,28 @@
                     $cat = $inv->categoria;
                     $invStyle = $catInversionStyles[$cat] ?? $catInversionStyles['software'];
                     $emoji = $catEmojis[$cat] ?? '📁';
-                    $retornoFinal = $inv->inversion_retorno_final_label ?? $inv->inversion_roi_label;
                     $revealDelay = $idx === 0 ? 'reveal' : ($idx === 1 ? 'reveal reveal-delay-1' : 'reveal reveal-delay-2');
                 @endphp
-                <a href="{{ route('proyectos.show', $inv) }}" class="inversion-card {{ $revealDelay }}" style="text-decoration:none;color:inherit;">
+                <div class="inversion-card {{ $revealDelay }}">
+                    @if($inv->ubicacion || $inv->aviso_apertura || $inv->fecha_apertura)
+                    <div class="inversion-info-extra inversion-info-extra-top">
+                        @if($inv->ubicacion)
+                        <div class="inversion-info-fila">
+                            <span>📍</span> {{ $inv->ubicacion }}
+                        </div>
+                        @endif
+                        @if($inv->aviso_apertura || $inv->fecha_apertura)
+                        <div class="inversion-info-fila inversion-info-aviso">
+                            @if($inv->aviso_apertura)
+                            <span class="inversion-info-aviso-titulo">📢 {{ $inv->aviso_apertura }}</span>
+                            @endif
+                            @if($inv->fecha_apertura)
+                            <span class="inversion-info-aviso-fecha">{{ $inv->fecha_apertura_texto }}</span>
+                            @endif
+                        </div>
+                        @endif
+                    </div>
+                    @endif
                     <span class="inversion-badge-top completado">✓ Completado</span>
                     <div class="inversion-card-header" style="{{ $invStyle['header'] }}">
                         <div class="inversion-card-header-bg" style="{{ $invStyle['bg'] }}"></div>
@@ -1266,21 +1284,48 @@
                     <div class="inversion-card-body">
                         <div class="inversion-card-nombre">{{ $inv->titulo }}</div>
                         <p class="inversion-card-desc">{{ $inv->descripcion_corta }}</p>
-                        <div class="inversion-datos">
-                            <div class="inversion-dato">
-                                <div class="inversion-dato-val verde">{{ $retornoFinal }}</div>
-                                <div class="inversion-dato-label">Retorno final</div>
+                        <div class="inversion-financiamiento">
+                            <div class="inversion-financiamiento-header">
+                                <span>Financiado</span>
+                                <strong>{{ $inv->inversion_porcentaje_financiado }}%</strong>
                             </div>
-                            <div class="inversion-dato">
-                                <div class="inversion-dato-val">{{ $inv->fecha_fin?->format('d/m/Y') }}</div>
-                                <div class="inversion-dato-label">Fecha de finalización</div>
+                            <div class="inversion-barra-bg">
+                                <div class="inversion-barra-fill" style="width:{{ $inv->inversion_porcentaje_financiado }}%;background:{{ $invStyle['fill'] }};"></div>
                             </div>
                         </div>
+                        <div class="inversion-datos">
+                            <div class="inversion-dato">
+                                <div class="inversion-dato-val amarillo">S/ <span>{{ number_format($inv->inversion_monto_total, 0, ',', ',') }}</span></div>
+                                <div class="inversion-dato-label">Inversión total</div>
+                            </div>
+                            <div class="inversion-dato">
+                                <div class="inversion-dato-val">S/ <span>{{ number_format($inv->inversion_monto_disponible, 0, ',', ',') }}</span></div>
+                                <div class="inversion-dato-label">Disponible aún</div>
+                            </div>
+                            <div class="inversion-dato">
+                                <div class="inversion-dato-val">{{ (int) $inv->inversion_tiempo_estimado }}<span> meses</span></div>
+                                <div class="inversion-dato-label">Tiempo de ejecución</div>
+                            </div>
+                            <div class="inversion-dato">
+                                <div class="inversion-dato-val">{{ $inv->inversion_roi_label }}</div>
+                                <div class="inversion-dato-label">Retorno estimado</div>
+                            </div>
+                        </div>
+                        @if($inv->detalle_pdf)
+                        <div class="inversion-detalle-bottom">
+                            <a href="{{ $inv->detalle_pdf_url }}" target="_blank" rel="noopener noreferrer" class="btn-detalle-pdf">
+                                📄 Ver detalle del proyecto
+                            </a>
+                        </div>
+                        @endif
                     </div>
                     <div class="inversion-card-footer">
-                        <span class="btn-invertir">Ver proyecto</span>
+                        <span class="btn-invertir">
+                            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M9 16.17 4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+                            Proyecto finalizado
+                        </span>
                     </div>
-                </a>
+                </div>
             @endforeach
         </div>
         @endif
