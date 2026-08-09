@@ -181,6 +181,33 @@ class AdminProyectoController extends Controller
         return back()->with('exito', 'Contrato eliminado.');
     }
 
+    public function subirDetallePdf(Request $request, Proyecto $proyecto)
+    {
+        $request->validate([
+            'detalle_pdf' => 'required|file|mimes:pdf|max:20480',
+        ]);
+
+        if ($proyecto->detalle_pdf) {
+            Storage::disk('public')->delete($proyecto->detalle_pdf);
+        }
+
+        $proyecto->update([
+            'detalle_pdf' => $request->file('detalle_pdf')->store('proyectos', 'public'),
+        ]);
+
+        return back()->with('exito', 'Detalle del proyecto actualizado correctamente.');
+    }
+
+    public function eliminarDetallePdf(Proyecto $proyecto)
+    {
+        if ($proyecto->detalle_pdf) {
+            Storage::disk('public')->delete($proyecto->detalle_pdf);
+            $proyecto->update(['detalle_pdf' => null]);
+        }
+
+        return back()->with('exito', 'Detalle del proyecto eliminado.');
+    }
+
     public function setPrincipal(ProyectoImagen $imagen)
     {
         $imagen->proyecto->imagenes()->update(['es_principal' => false]);
@@ -247,6 +274,9 @@ class AdminProyectoController extends Controller
             'imagen_principal'      => 'nullable|image|mimes:jpg,jpeg,png,webp|max:5120',
             'tecnologias'  => 'nullable|string|max:500',
             'cliente'      => 'nullable|string|max:200',
+            'ubicacion'    => 'nullable|string|max:255',
+            'aviso_apertura' => 'nullable|string|max:255',
+            'fecha_apertura' => 'nullable|date',
             'fecha_inicio' => 'nullable|date',
             'fecha_fin'    => 'nullable|date',
             'visible'      => 'boolean',

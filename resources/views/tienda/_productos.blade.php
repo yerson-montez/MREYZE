@@ -9,10 +9,11 @@
     @php
         $imagenes = $p->imagenes;
         $imgUrl = $p->imagen_principal_url;
+        $urlRuta = fn ($ruta) => str_starts_with($ruta, 'http') ? $ruta : asset('storage/' . $ruta);
     @endphp
 
     @if($imagenes->count())
-        <img src="{{ $imagenes->first()->ruta }}"
+        <img src="{{ $urlRuta($imagenes->first()->ruta) }}"
              alt="{{ $p->nombre }}"
              class="producto-img-full"
              loading="lazy">
@@ -38,12 +39,13 @@
     @if($p->imagenes->count() > 1)
     <div class="producto-thumbs">
         @foreach($p->imagenes->sortBy('orden')->take(4) as $thumb)
-        <img src="{{ asset('storage/' . $thumb->ruta) }}"
+        <img src="{{ $urlRuta($thumb->ruta) }}"
              class="producto-thumb"
              alt=""
              loading="lazy"
              onmouseover="catalogHover(this)"
-             onmouseout="catalogUnhover(this)">
+             onmouseout="catalogUnhover(this)"
+             onclick="event.preventDefault();event.stopPropagation();abrirProductoLightbox(this, '{{ addslashes($p->nombre) }}')">
         @endforeach
     </div>
     @endif
@@ -53,10 +55,11 @@
         <div class="producto-nombre">{{ $p->nombre }}</div>
         <p class="producto-desc">{{ Str::limit($p->descripcion, 80) }}</p>
         <div class="producto-footer">
-            <div class="producto-precio">
-                <div class="producto-precio-actual">
-                    S/ {{ number_format($p->precio, 0) }}<span>.{{ substr(number_format($p->precio, 2), -2) }}</span>
-                </div>
+                <div class="producto-precio">
+                    <div class="producto-precio-actual">
+                        @php($precioFmt = number_format($p->precio, 2))
+                        S/ {{ explode('.', $precioFmt)[0] }}<span>.{{ explode('.', $precioFmt)[1] }}</span>
+                    </div>
                 @if($p->precio_anterior)
                 <div class="producto-precio-anterior">S/ {{ number_format($p->precio_anterior, 2) }}</div>
                 @endif
@@ -106,6 +109,49 @@
     border-color: rgba(0,212,255,0.4);
     box-shadow: 0 0 8px rgba(0,212,255,0.15);
 }
+
+/* ── Visor de imagen (miniaturas) ── */
+.producto-lightbox {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 10000;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0,8,20,0.92);
+    backdrop-filter: blur(12px);
+    cursor: zoom-out;
+    animation: prodLbFade 0.25s ease;
+}
+.producto-lightbox.open { display: flex; }
+@keyframes prodLbFade { from { opacity: 0; } to { opacity: 1; } }
+.producto-lightbox img {
+    max-width: 88vw;
+    max-height: 85vh;
+    object-fit: contain;
+    border-radius: 12px;
+    box-shadow: 0 30px 80px rgba(0,0,0,0.7), 0 0 0 1px rgba(0,212,255,0.15);
+    animation: prodLbScale 0.3s cubic-bezier(0.34,1.56,0.64,1);
+}
+@keyframes prodLbScale { from { transform: scale(0.85); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+.producto-lightbox-close {
+    position: absolute;
+    top: 1.2rem;
+    right: 1.2rem;
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.15);
+    color: #fff;
+    font-size: 1.3rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.2s;
+}
+.producto-lightbox-close:hover { background: rgba(0,212,255,0.18); transform: scale(1.1); }
 </style>
 @endpush
 @endonce
@@ -133,5 +179,43 @@ function catalogUnhover(el) {
         mainImg.removeAttribute('data-original-src');
     }
 }
+
+/* ── Visor de imagen al hacer clic en una miniatura ── */
+function productoLightboxEl() {
+    var lb = document.getElementById('productoLightbox');
+    if (lb) return lb;
+    lb = document.createElement('div');
+    lb.id = 'productoLightbox';
+    lb.className = 'producto-lightbox';
+    lb.addEventListener('click', function (e) { if (e.target === lb) cerrarProductoLightbox(); });
+    var close = document.createElement('button');
+    close.type = 'button';
+    close.className = 'producto-lightbox-close';
+    close.innerHTML = '&times;';
+    close.setAttribute('aria-label', 'Cerrar');
+    close.addEventListener('click', cerrarProductoLightbox);
+    var img = document.createElement('img');
+    img.id = 'productoLightboxImg';
+    img.alt = '';
+    lb.appendChild(close);
+    lb.appendChild(img);
+    document.body.appendChild(lb);
+    return lb;
+}
+function abrirProductoLightbox(img, nombre) {
+    var src = img.currentSrc || img.src;
+    if (!src) return;
+    var lb = productoLightboxEl();
+    document.getElementById('productoLightboxImg').src = src;
+    document.getElementById('productoLightboxImg').alt = nombre || '';
+    lb.classList.add('open');
+    document.body.style.overflow = 'hidden';
+}
+function cerrarProductoLightbox() {
+    var lb = document.getElementById('productoLightbox');
+    if (lb) lb.classList.remove('open');
+    document.body.style.overflow = '';
+}
+document.addEventListener('keydown', function (e) { if (e.key === 'Escape') cerrarProductoLightbox(); });
 </script>
 @endonce

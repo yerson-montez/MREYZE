@@ -92,8 +92,8 @@
     /* Grid de proyectos culminados */
     .proyectos-grid {
         display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        gap: 1.5rem;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 1.25rem;
     }
 
     .proyecto-card {
@@ -113,7 +113,7 @@
     }
 
     .proyecto-preview {
-        height: 180px;
+        height: 130px;
         background: rgba(10,22,40,0.8);
         position: relative;
         overflow: hidden;
@@ -138,22 +138,22 @@
     .proyecto-preview-icon {
         position: relative;
         z-index: 2;
-        width: 64px;
-        height: 64px;
-        border-radius: 16px;
+        width: 48px;
+        height: 48px;
+        border-radius: 14px;
         display: flex;
         align-items: center;
         justify-content: center;
         transition: all 0.3s;
     }
 
-    .proyecto-preview-icon svg { width: 32px; height: 32px; }
+    .proyecto-preview-icon svg { width: 24px; height: 24px; }
     .proyecto-card:hover .proyecto-preview-icon { transform: scale(1.12); }
 
     .proyecto-tags {
         position: absolute;
-        bottom: 12px;
-        left: 12px;
+        bottom: 10px;
+        left: 10px;
         display: flex;
         gap: 6px;
     }
@@ -195,22 +195,22 @@
         animation: pulse 2s infinite;
     }
 
-    .proyecto-body { padding: 1.5rem; }
+    .proyecto-body { padding: 1rem 1.1rem; }
 
     .proyecto-nombre {
         font-family: 'Exo 2', sans-serif;
-        font-size: 1rem;
+        font-size: 0.92rem;
         font-weight: 700;
         color: #fff;
-        margin-bottom: 0.5rem;
+        margin-bottom: 0.4rem;
         letter-spacing: -0.01em;
     }
 
     .proyecto-desc {
-        font-size: 0.83rem;
+        font-size: 0.75rem;
         color: var(--ice-200);
-        line-height: 1.65;
-        margin-bottom: 1.2rem;
+        line-height: 1.55;
+        margin-bottom: 0.8rem;
     }
 
     .proyecto-metrics {
@@ -289,15 +289,15 @@
     ═══════════════════════════════════════ */
     .inversion-grid {
         display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        gap: 1.5rem;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 1.25rem;
         margin-bottom: 3rem;
     }
 
     .inversion-card {
         background: rgba(13,31,60,0.65);
         border: 1px solid rgba(74,144,217,0.18);
-        border-radius: 20px;
+        border-radius: 18px;
         overflow: hidden;
         transition: all 0.35s;
         display: flex;
@@ -339,14 +339,14 @@
 
     /* Cabecera visual de la tarjeta */
     .inversion-card-header {
-        height: 160px;
+        height: 120px;
         position: relative;
         overflow: hidden;
         display: flex;
         align-items: center;
         justify-content: center;
         flex-direction: column;
-        gap: 0.5rem;
+        gap: 0.4rem;
     }
 
     .inversion-card-header-bg {
@@ -358,9 +358,9 @@
     .inversion-card-icon-wrap {
         position: relative;
         z-index: 2;
-        width: 60px;
-        height: 60px;
-        border-radius: 16px;
+        width: 48px;
+        height: 48px;
+        border-radius: 14px;
         display: flex;
         align-items: center;
         justify-content: center;
@@ -369,12 +369,12 @@
 
     .inversion-card:hover .inversion-card-icon-wrap { transform: scale(1.1); }
 
-    .inversion-card-icon-wrap svg { width: 28px; height: 28px; }
+    .inversion-card-icon-wrap svg { width: 24px; height: 24px; }
 
     .inversion-card-categoria {
         position: relative;
         z-index: 2;
-        font-size: 0.68rem;
+        font-size: 0.62rem;
         padding: 3px 10px;
         border-radius: 20px;
         font-weight: 600;
@@ -384,31 +384,107 @@
 
     /* Cuerpo */
     .inversion-card-body {
-        padding: 1.4rem 1.4rem 0;
+        padding: 1rem 1.1rem 0;
         flex: 1;
         display: flex;
         flex-direction: column;
-        gap: 0.6rem;
+        gap: 0.5rem;
     }
 
     .inversion-card-nombre {
         font-family: 'Exo 2', sans-serif;
-        font-size: 1rem;
+        font-size: 0.92rem;
         font-weight: 700;
         color: #fff;
         line-height: 1.3;
     }
 
     .inversion-card-desc {
-        font-size: 0.8rem;
+        font-size: 0.75rem;
         color: var(--ice-200);
-        line-height: 1.6;
+        line-height: 1.55;
         flex: 1;
+    }
+
+    /* Info extra: ubicación, aviso de apertura y detalle PDF */
+    .inversion-info-extra {
+        display: flex;
+        flex-direction: column;
+        gap: 0.4rem;
+        padding: 0.6rem 0.85rem;
+        margin-top: 0.3rem;
+        border-radius: 12px;
+        background: rgba(7,26,46,0.45);
+        border: 1px solid rgba(74,144,217,0.12);
+    }
+
+    /* Fila de ubicación y aviso en la parte superior de la tarjeta */
+    .inversion-info-extra-top { margin: 0.6rem 0.85rem 0; }
+
+    /* Botón de detalle en la penúltima posición de la tarjeta */
+    .inversion-detalle-bottom { padding: 0.2rem 0 0.8rem; }
+
+    .inversion-info-fila {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 0.76rem;
+        font-weight: 600;
+        letter-spacing: 0.04em;
+        color: var(--ice-200);
+    }
+
+    .inversion-info-aviso {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 3px;
+    }
+
+    .inversion-info-aviso-titulo {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 0.66rem;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--accent);
+    }
+
+    .inversion-info-aviso-fecha {
+        font-family: 'Exo 2', sans-serif;
+        font-size: 0.8rem;
+        font-weight: 700;
+        color: #fff;
+        text-transform: uppercase;
+    }
+
+    .btn-detalle-pdf {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        width: 100%;
+        padding: 0.5rem 0.9rem;
+        border-radius: 10px;
+        font-size: 0.74rem;
+        font-weight: 600;
+        text-decoration: none;
+        color: var(--ice-100);
+        border: 1px solid rgba(74,144,217,0.25);
+        background: rgba(0,212,255,0.06);
+        transition: all 0.25s;
+    }
+
+    .btn-detalle-pdf:hover {
+        background: rgba(0,212,255,0.14);
+        border-color: rgba(0,212,255,0.45);
+        color: #fff;
     }
 
     /* Barra de financiamiento */
     .inversion-financiamiento {
-        margin-top: 0.6rem;
+        margin-top: 0.4rem;
     }
 
     .inversion-financiamiento-header {
@@ -416,19 +492,19 @@
         justify-content: space-between;
         align-items: center;
         margin-bottom: 6px;
-        font-size: 0.72rem;
+        font-size: 0.68rem;
         color: var(--ice-300);
     }
 
     .inversion-financiamiento-header strong {
         font-family: 'Exo 2', sans-serif;
-        font-size: 0.85rem;
+        font-size: 0.78rem;
         color: #fff;
         font-weight: 700;
     }
 
     .inversion-barra-bg {
-        height: 6px;
+        height: 5px;
         border-radius: 10px;
         background: rgba(74,144,217,0.15);
         overflow: hidden;
@@ -444,15 +520,15 @@
     .inversion-datos {
         display: grid;
         grid-template-columns: 1fr 1fr;
-        gap: 0.8rem;
-        padding: 1rem 0;
+        gap: 0.6rem;
+        padding: 0.7rem 0;
         border-top: 1px solid rgba(74,144,217,0.1);
-        margin-top: 0.8rem;
+        margin-top: 0.5rem;
     }
 
     .inversion-dato-val {
         font-family: 'Exo 2', sans-serif;
-        font-size: 1rem;
+        font-size: 0.9rem;
         font-weight: 700;
         color: #fff;
     }
@@ -462,17 +538,17 @@
     .inversion-dato-val.verde { color: #4ade80; }
 
     .inversion-dato-label {
-        font-size: 0.7rem;
+        font-size: 0.66rem;
         color: var(--ice-300);
         margin-top: 1px;
     }
 
     /* Footer de la tarjeta */
     .inversion-card-footer {
-        padding: 1rem 1.4rem 1.4rem;
+        padding: 0.85rem 1.1rem 1.1rem;
         display: flex;
         flex-direction: column;
-        gap: 10px;
+        gap: 8px;
     }
 
     .btn-invertir {
@@ -481,9 +557,9 @@
         justify-content: center;
         gap: 8px;
         width: 100%;
-        padding: 0.7rem 1rem;
+        padding: 0.58rem 0.9rem;
         border-radius: 10px;
-        font-size: 0.82rem;
+        font-size: 0.78rem;
         font-weight: 700;
         text-decoration: none;
         background: linear-gradient(135deg, #0088cc, #00a8e8);
@@ -522,9 +598,9 @@
         justify-content: center;
         gap: 8px;
         width: 100%;
-        padding: 0.7rem 1rem;
+        padding: 0.58rem 0.9rem;
         border-radius: 10px;
-        font-size: 0.82rem;
+        font-size: 0.78rem;
         font-weight: 700;
         text-decoration: none;
         color: var(--ice-200);
@@ -790,6 +866,11 @@
         50%       { opacity: 0.4; }
     }
 
+    @media (max-width: 1200px) {
+        .proyectos-grid { grid-template-columns: repeat(3, 1fr); }
+        .inversion-grid { grid-template-columns: repeat(3, 1fr); }
+    }
+
     @media (max-width: 1024px) {
         .proyectos-grid { grid-template-columns: repeat(2, 1fr); }
         .inversion-grid { grid-template-columns: repeat(2, 1fr); }
@@ -918,6 +999,25 @@
                     $revealDelay = $idx === 0 ? 'reveal' : ($idx === 1 ? 'reveal reveal-delay-1' : 'reveal reveal-delay-2');
                 @endphp
                 <div class="inversion-card{{ $esDestacada ? ' destacada' : '' }} {{ $revealDelay }}">
+                    @if($inv->ubicacion || $inv->aviso_apertura || $inv->fecha_apertura)
+                    <div class="inversion-info-extra inversion-info-extra-top">
+                        @if($inv->ubicacion)
+                        <div class="inversion-info-fila">
+                            <span>📍</span> {{ $inv->ubicacion }}
+                        </div>
+                        @endif
+                        @if($inv->aviso_apertura || $inv->fecha_apertura)
+                        <div class="inversion-info-fila inversion-info-aviso">
+                            @if($inv->aviso_apertura)
+                            <span class="inversion-info-aviso-titulo">📢 {{ $inv->aviso_apertura }}</span>
+                            @endif
+                            @if($inv->fecha_apertura)
+                            <span class="inversion-info-aviso-fecha">{{ $inv->fecha_apertura_texto }}</span>
+                            @endif
+                        </div>
+                        @endif
+                    </div>
+                    @endif
                     <span class="inversion-badge-top disponible">● Disponible</span>
                     <div class="inversion-card-header" style="{{ $invStyle['header'] }}">
                         <div class="inversion-card-header-bg" style="{{ $invStyle['bg'] }}"></div>
@@ -959,6 +1059,13 @@
                                 <div class="inversion-dato-label">Retorno estimado</div>
                             </div>
                         </div>
+                        @if($inv->detalle_pdf)
+                        <div class="inversion-detalle-bottom">
+                            <a href="{{ $inv->detalle_pdf_url }}" target="_blank" rel="noopener noreferrer" class="btn-detalle-pdf">
+                                📄 Ver detalle del proyecto
+                            </a>
+                        </div>
+                        @endif
                     </div>
                     <div class="inversion-card-footer">
                         <a href="{{ route('inversiones.create', $inv) }}" class="btn-invertir">

@@ -577,8 +577,26 @@
             @endif
         </a>
 
+        <a href="{{ route('admin.solicitudes-tarjeta.index') }}" class="adm-nav-link {{ request()->routeIs('admin.solicitudes-tarjeta*') ? 'active' : '' }}">
+            <span class="adm-nav-icon">💳</span> Tarjeta MReyze
+            @php $tarjetaPendientes = \App\Models\SolicitudTarjeta::where('estado','pendiente')->count() @endphp
+            @if($tarjetaPendientes > 0)
+                <span class="adm-badge">{{ $tarjetaPendientes }}</span>
+            @endif
+        </a>
+
         <a href="{{ route('admin.metodos-pago.index') }}" class="adm-nav-link {{ request()->routeIs('admin.metodos-pago*') ? 'active' : '' }}">
             <span class="adm-nav-icon">💳</span> Métodos de Pago
+        </a>
+
+        <div class="adm-nav-group">Contacto</div>
+
+        <a href="{{ route('admin.contacto.index') }}" class="adm-nav-link {{ request()->routeIs('admin.contacto*') ? 'active' : '' }}">
+            <span class="adm-nav-icon">📨</span> Mensajes de Contacto
+            @php $contactoNuevos = \App\Models\MensajeContacto::where('estado','nuevo')->count() @endphp
+            @if($contactoNuevos > 0)
+                <span class="adm-badge">{{ $contactoNuevos }}</span>
+            @endif
         </a>
     </nav>
 

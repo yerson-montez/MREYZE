@@ -35,29 +35,47 @@
 
 .proyecto-gallery-main {
     position: relative;
-    border-radius: 18px;
+    border-radius: 24px;
     overflow: hidden;
-    aspect-ratio: 16/10;
-    background: rgba(13,31,60,0.8);
-    border: 1px solid rgba(74,144,217,0.15);
+    aspect-ratio: 4/3;
+    background: rgba(13,31,60,0.85);
+    border: 1px solid rgba(74,144,217,0.18);
     cursor: crosshair;
-    transition: border-color 0.3s;
+    transition: border-color 0.3s, box-shadow 0.3s;
+    box-shadow:
+        0 24px 50px rgba(0,0,0,0.4),
+        0 0 0 1px rgba(0,212,255,0.05),
+        0 0 70px rgba(0,212,255,0.07);
+}
+
+.proyecto-gallery-main::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    pointer-events: none;
+    background: linear-gradient(180deg, rgba(7,20,40,0.30) 0%, rgba(7,20,40,0) 28%, rgba(7,20,40,0) 60%, rgba(7,20,40,0.45) 100%);
+    border-radius: inherit;
 }
 
 .proyecto-gallery-main:hover {
-    border-color: rgba(0,212,255,0.3);
+    border-color: rgba(0,212,255,0.4);
+    box-shadow:
+        0 28px 60px rgba(0,0,0,0.5),
+        0 0 0 1px rgba(0,212,255,0.12),
+        0 0 90px rgba(0,212,255,0.12);
 }
 
 .proyecto-gallery-main img {
     width: 100%;
     height: 100%;
-    object-fit: contain;
+    object-fit: cover;
     display: block;
-    transition: transform 0.3s;
+    transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .proyecto-gallery-main:hover img {
-    transform: scale(1.02);
+    transform: scale(1.03);
 }
 
 .proyecto-gallery-fallback {
@@ -199,6 +217,77 @@
     font-size: 0.95rem;
     color: var(--ice-200);
     line-height: 1.75;
+}
+
+/* Ubicación y aviso de apertura */
+.proyecto-aviso-block {
+    display: flex;
+    flex-direction: column;
+    gap: 0.55rem;
+    margin-top: 1.2rem;
+    padding: 1rem 1.2rem;
+    border-radius: 12px;
+    background: rgba(13,31,60,0.65);
+    border: 1px solid rgba(74,144,217,0.14);
+}
+
+.proyecto-aviso-fila {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    color: var(--ice-200);
+}
+
+.proyecto-aviso-fila.aviso {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 3px;
+}
+
+.proyecto-aviso-titulo {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--accent);
+}
+
+.proyecto-aviso-fecha {
+    font-family: 'Exo 2', sans-serif;
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: #fff;
+    text-transform: uppercase;
+}
+
+.btn-detalle-proyecto {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 0.75rem 1.6rem;
+    border-radius: 10px;
+    font-size: 0.88rem;
+    font-weight: 600;
+    text-decoration: none;
+    color: var(--ice-100);
+    border: 1px solid rgba(74,144,217,0.25);
+    background: rgba(0,212,255,0.06);
+    transition: all 0.25s;
+    margin-top: 1.2rem;
+    margin-bottom: 10px;
+}
+
+.btn-detalle-proyecto:hover {
+    background: rgba(0,212,255,0.14);
+    border-color: rgba(0,212,255,0.45);
+    color: #fff;
 }
 
 .proyecto-info-meta {
@@ -601,6 +690,26 @@
                     {{ $proyecto->descripcion_completa ?: $proyecto->descripcion_corta }}
                 </p>
 
+                @if($proyecto->ubicacion || $proyecto->aviso_apertura || $proyecto->fecha_apertura)
+                <div class="proyecto-aviso-block">
+                    @if($proyecto->ubicacion)
+                    <div class="proyecto-aviso-fila">
+                        <span>📍</span> {{ $proyecto->ubicacion }}
+                    </div>
+                    @endif
+                    @if($proyecto->aviso_apertura || $proyecto->fecha_apertura)
+                    <div class="proyecto-aviso-fila aviso">
+                        @if($proyecto->aviso_apertura)
+                        <span class="proyecto-aviso-titulo">📢 {{ $proyecto->aviso_apertura }}</span>
+                        @endif
+                        @if($proyecto->fecha_apertura)
+                        <span class="proyecto-aviso-fecha">{{ $proyecto->fecha_apertura_texto }}</span>
+                        @endif
+                    </div>
+                    @endif
+                </div>
+                @endif
+
                 {{-- Meta info --}}
                 <div class="proyecto-info-meta">
                     @if($proyecto->fecha_inicio)
@@ -699,6 +808,12 @@
                     @else
                         Contactar por WhatsApp
                     @endif
+                </a>
+                @endif
+
+                @if($proyecto->detalle_pdf)
+                <a href="{{ $proyecto->detalle_pdf_url }}" target="_blank" rel="noopener noreferrer" class="btn-detalle-proyecto">
+                    📄 Ver detalle del proyecto
                 </a>
                 @endif
 

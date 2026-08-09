@@ -36,6 +36,13 @@ class ProductosImport implements ToModel, WithHeadingRow
             ?? null;
 
 
+        // Precio de distribuidor (PREC US $ del Excel) + margen automático
+        $precioDistribuidor = (float)(
+            $row['prec_us']
+            ?? $row['prec_us_']
+            ?? 0
+        );
+
         $producto = new Producto([
 
             'codigo' => $codigo,
@@ -46,11 +53,9 @@ class ProductosImport implements ToModel, WithHeadingRow
                 'Marca: '.($row['marca'] ?? '').
                 ' Garantía: '.($row['garan'] ?? ''),
 
-            'precio' => (float)(
-                $row['prec_us']
-                ?? $row['prec_us_']
-                ?? 0
-            ),
+            'precio_distribuidor' => $precioDistribuidor,
+
+            'precio' => Producto::calcularPrecioVenta($precioDistribuidor),
 
             'stock' => (int)$stock,
 

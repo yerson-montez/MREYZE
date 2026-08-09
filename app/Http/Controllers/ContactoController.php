@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\MensajeContacto;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
 
@@ -9,11 +10,23 @@ class ContactoController extends Controller
 {
     public function enviar(Request $request)
     {
-        $request->validate([
-            'nombre' => 'required',
+        $validated = $request->validate([
+            'nombre' => 'required|string|max:255',
+            'empresa' => 'nullable|string|max:255',
             'email' => 'required|email',
-            'servicio' => 'required',
-            'mensaje' => 'required',
+            'telefono' => 'nullable|string|max:30',
+            'servicio' => 'required|string',
+            'mensaje' => 'required|string',
+        ]);
+
+        MensajeContacto::create([
+            'nombre' => $validated['nombre'],
+            'empresa' => $validated['empresa'] ?? null,
+            'email' => $validated['email'],
+            'telefono' => $validated['telefono'] ?? null,
+            'servicio' => $validated['servicio'],
+            'mensaje' => $validated['mensaje'],
+            'estado' => 'nuevo',
         ]);
 
         try {

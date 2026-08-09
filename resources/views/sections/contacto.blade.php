@@ -558,8 +558,8 @@
                     <div class="form-success-icon">
                         <svg viewBox="0 0 24 24" fill="currentColor"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
                     </div>
-                    <div class="form-success-title">¡Mensaje enviado!</div>
-                    <p class="form-success-desc">Gracias por contactarnos. Te responderemos en menos de 24 horas a tu correo.</p>
+                    <div class="form-success-title">¡Mensaje recibido correctamente!</div>
+                    <p class="form-success-desc">Gracias por contactar con MReyze Automatización y Sistemas S.A.C.<br><br>Nuestro equipo ha recibido tu solicitud y uno de nuestros ejecutivos revisará la información proporcionada. Nos pondremos en contacto contigo para conocer mejor tu necesidad y brindarte una propuesta técnica personalizada.<br><br>Te responderemos en un plazo máximo de 24 horas hábiles.</p>
                 </div>
 
             </div>
@@ -567,31 +567,51 @@
     </div>
 </section>
  <script>
+ function enviarFormulario() {
+     const nombre     = document.getElementById('f-nombre').value.trim();
+     const empresa    = document.getElementById('f-empresa').value.trim();
+     const email      = document.getElementById('f-email').value.trim();
+     const telefono   = document.getElementById('f-telefono').value.trim();
+     const servicio   = document.getElementById('f-servicio').value;
+     const mensaje    = document.getElementById('f-mensaje').value.trim();
+     const privacidad = document.getElementById('f-privacidad').checked;
 
- fetch('/api/contacto', {
-    method: 'POST',
-    headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json'
-    },
-    body: JSON.stringify({ nombre, email, servicio, mensaje })
-})
-.then(async res => {
-    const text = await res.text();
-    console.log("RESPUESTA RAW:", text);
+     if (!nombre || !email || !servicio || !mensaje) {
+         alert('Por favor completa los campos obligatorios (*).');
+         return;
+     }
+     if (!privacidad) {
+         alert('Debes aceptar la política de privacidad para continuar.');
+         return;
+     }
 
-    try {
-        const data = JSON.parse(text);
-        return data;
-    } catch (e) {
-        throw new Error("El backend no está devolviendo JSON");
-    }
-})
-.then(data => {
-    console.log("OK:", data);
-})
-.catch(err => {
-    console.error("ERROR REAL:", err);
-});
-</script>
+     const btn = document.querySelector('.form-submit');
+     if (btn) { btn.disabled = true; btn.textContent = 'Enviando...'; }
+
+     fetch('/api/contacto', {
+         method: 'POST',
+         headers: {
+             'Content-Type': 'application/json',
+             'Accept': 'application/json',
+             'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || ''
+         },
+         body: JSON.stringify({ nombre, empresa, email, telefono, servicio, mensaje })
+     })
+     .then(res => res.json())
+     .then(data => {
+         if (data.ok) {
+             document.getElementById('contactoForm').style.display = 'none';
+             document.getElementById('formSuccess').style.display = 'block';
+         } else {
+             alert(data.error || 'Ocurrió un error. Inténtalo de nuevo.');
+             if (btn) { btn.disabled = false; btn.innerHTML = '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg> Enviar Mensaje'; }
+         }
+     })
+     .catch(err => {
+         console.error('ERROR REAL:', err);
+         alert('No se pudo enviar el mensaje. Inténtalo de nuevo.');
+         if (btn) { btn.disabled = false; btn.innerHTML = '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg> Enviar Mensaje'; }
+     });
+ }
+ </script>
 @endsection

@@ -20,6 +20,8 @@ use App\Http\Controllers\ProyectoController;
 use App\Http\Controllers\ProyectoInversionController;
 use App\Http\Controllers\InversionController;
 use App\Http\Controllers\SolicitudColaboradorController;
+use App\Http\Controllers\TarjetaDebitoController;
+use App\Http\Controllers\Admin\AdminSolicitudTarjetaController;
 
 // ─── HOME ────────────────────────────────────────────────────────
 use App\Models\Producto;
@@ -50,6 +52,12 @@ Route::get('/proyectos-de-inversion', [ProyectoInversionController::class, 'inde
 Route::get('/proyectos/{proyecto:slug}/invertir/gracias', [InversionController::class, 'gracias'])->name('inversiones.gracias');
 Route::get('/blog',      fn() => view('sections.blog'))->name('blog');
 Route::get('/contacto',  fn() => view('sections.contacto'))->name('contacto');
+
+// ─── TARJETA DÉBITO (sección independiente) ──────────────────────
+Route::get('/tarjeta-debito',            [TarjetaDebitoController::class, 'index'])->name('tarjeta.debito');
+Route::get('/tarjeta-debito/solicitar',  [TarjetaDebitoController::class, 'solicitar'])->name('tarjeta.debito.solicitar');
+Route::post('/tarjeta-debito/solicitar', [TarjetaDebitoController::class, 'store'])->name('tarjeta.debito.store');
+Route::get('/tarjeta-debito/gracias',    [TarjetaDebitoController::class, 'gracias'])->name('tarjeta.debito.gracias');
 
 // ─── SUBSERVICIOS ────────────────────────────────────────────────
 Route::get('/servicios/automatizacion', fn() => view('sections.servicios.automatizacion'))->name('servicios.automatizacion');
@@ -108,6 +116,11 @@ Route::prefix('admin')
     ->group(function () {
 
         Route::get('/', [AdminController::class, 'dashboard'])->name('dashboard');
+
+        Route::get('/contacto',                          [\App\Http\Controllers\Admin\AdminContactoController::class, 'index'])->name('contacto.index');
+        Route::get('/contacto/{mensaje}',                [\App\Http\Controllers\Admin\AdminContactoController::class, 'show'])->name('contacto.show');
+        Route::patch('/contacto/{mensaje}/leido',        [\App\Http\Controllers\Admin\AdminContactoController::class, 'marcarLeido'])->name('contacto.leido');
+        Route::delete('/contacto/{mensaje}',             [\App\Http\Controllers\Admin\AdminContactoController::class, 'destroy'])->name('contacto.destroy');
 
         Route::get('/metodos-pago',                       [MetodoPagoController::class, 'index'])->name('metodos-pago.index');
         Route::put('/metodos-pago/{metodoPago}',          [MetodoPagoController::class, 'update'])->name('metodos-pago.update');
@@ -175,6 +188,9 @@ Route::post('/productos/importar',
         Route::post('/proyectos/{proyecto}/contrato',       [AdminProyectoController::class, 'subirContrato'])->name('proyectos.contrato');
         Route::delete('/proyectos/{proyecto}/contrato',     [AdminProyectoController::class, 'eliminarContrato'])->name('proyectos.contrato.eliminar');
 
+        Route::post('/proyectos/{proyecto}/detalle-pdf',    [AdminProyectoController::class, 'subirDetallePdf'])->name('proyectos.detalle-pdf');
+        Route::delete('/proyectos/{proyecto}/detalle-pdf',  [AdminProyectoController::class, 'eliminarDetallePdf'])->name('proyectos.detalle-pdf.eliminar');
+
         Route::get('/proyectos-inversion',                             [AdminProyectoInversionController::class, 'index'])->name('proyectos-inversion.index');
         Route::get('/proyectos-inversion/crear',                       [AdminProyectoInversionController::class, 'create'])->name('proyectos-inversion.create');
         Route::post('/proyectos-inversion',                            [AdminProyectoInversionController::class, 'store'])->name('proyectos-inversion.store');
@@ -190,6 +206,12 @@ Route::post('/productos/importar',
         Route::get('/inversiones/{inversion}/comprobante',  [AdminInversionController::class, 'descargarComprobante'])->name('inversiones.comprobante');
         Route::post('/inversiones/{inversion}/contrato',    [AdminInversionController::class, 'subirContrato'])->name('inversiones.contrato');
         Route::get('/inversiones/{inversion}/contrato',     [AdminInversionController::class, 'descargarContrato'])->name('inversiones.contrato.descargar');
+
+        // Solicitudes de Tarjeta MReyze
+        Route::get('/solicitudes-tarjeta',                            [AdminSolicitudTarjetaController::class, 'index'])->name('solicitudes-tarjeta.index');
+        Route::get('/solicitudes-tarjeta/{solicitud}',                [AdminSolicitudTarjetaController::class, 'show'])->name('solicitudes-tarjeta.show');
+        Route::patch('/solicitudes-tarjeta/{solicitud}/estado',       [AdminSolicitudTarjetaController::class, 'cambiarEstado'])->name('solicitudes-tarjeta.estado');
+        Route::delete('/solicitudes-tarjeta/{solicitud}',             [AdminSolicitudTarjetaController::class, 'destroy'])->name('solicitudes-tarjeta.destroy');
     });
 
 Route::get('/dashboard', fn() => view('dashboard'))->middleware('auth')->name('dashboard');

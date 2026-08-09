@@ -721,9 +721,6 @@
         }, 700);
     });
 </script>
-<div style="background:red;color:white;padding:20px;font-size:30px;">
-    PRUEBA HOME MREYZE
-</div>
 
 {{-- @include('components.tienda-section') --}}
 

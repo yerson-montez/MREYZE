@@ -269,6 +269,12 @@
                     </a>
                 </li>
                 <li>
+                    <a href="{{ url('/tarjeta-debito') }}" @class(['active' => request()->is('tarjeta-debito*')])>
+                        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 2v2H4V6h16zm0 12H4v-6h16v6zM7 16h6v2H7v-2z"/></svg>
+                        Tarjeta Débito
+                    </a>
+                </li>
+                <li>
                     <a href="{{ url('/tienda') }}" @class(['active' => request()->is('tienda*')])>
                         <svg viewBox="0 0 24 24" fill="currentColor"><path d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zM1 2v2h2l3.6 7.59-1.35 2.45c-.16.28-.25.61-.25.96C5 16.1 6.9 18 9 18h12v-2H9.42c-.14 0-.25-.11-.25-.25l.03-.12.9-1.63H19c.75 0 1.41-.41 1.75-1.03l3.58-6.49c.08-.14.12-.31.12-.48 0-.55-.45-1-1-1H5.21l-.94-2H1zm16 16c-1.1 0-1.99.9-1.99 2s.89 2 1.99 2 2-.9 2-2-.9-2-2-2z"/></svg>
                         Tienda
@@ -360,6 +366,10 @@
                 <a href="{{ url('/proyectos') }}" class="nav-mobile-link @class(['active' => request()->is('proyectos*')])">
                     <span class="nav-mobile-icon"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M20 6h-2.18c.07-.44.18-.87.18-1.33C18 2.54 16.46 1 14.67 1c-1.06 0-1.96.54-2.67 1.4L12 2.5l-.33-.4C10.96 1.54 10 1 9.33 1 7.54 1 6 2.54 6 4.33c0 .43.1.86.18 1.3H4c-1.1 0-2 .9-2 2v11c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2z"/></svg></span>
                     Proyectos &amp; Invertir
+                </a>
+                <a href="{{ url('/tarjeta-debito') }}" class="nav-mobile-link @class(['active' => request()->is('tarjeta-debito*')])">
+                    <span class="nav-mobile-icon"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 2v2H4V6h16zm0 12H4v-6h16v6zM7 16h6v2H7v-2z"/></svg></span>
+                    Tarjeta Débito
                 </a>
                 <a href="{{ url('/tienda') }}" class="nav-mobile-link @class(['active' => request()->is('tienda*')])">
                     <span class="nav-mobile-icon"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zM1 2v2h2l3.6 7.59-1.35 2.45c-.16.28-.25.61-.25.96C5 16.1 6.9 18 9 18h12v-2H9.42c-.14 0-.25-.11-.25-.25l.03-.12.9-1.63H19c.75 0 1.41-.41 1.75-1.03l3.58-6.49c.08-.14.12-.31.12-.48 0-.55-.45-1-1-1H5.21l-.94-2H1zm16 16c-1.1 0-1.99.9-1.99 2s.89 2 1.99 2 2-.9 2-2-.9-2-2-2z"/></svg></span>

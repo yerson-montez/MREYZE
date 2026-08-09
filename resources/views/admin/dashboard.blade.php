@@ -380,6 +380,24 @@
         <div class="kpi-value yellow">{{ $pagosPendientes ?? 0 }}</div>
         <div class="kpi-sub">esperando revisión</div>
     </div>
+
+    <div class="kpi-card {{ ($tarjetaPendientes ?? 0) > 0 ? 'yellow' : 'blue' }}">
+        <div class="kpi-icon {{ ($tarjetaPendientes ?? 0) > 0 ? 'yellow' : 'blue' }}">
+            <svg viewBox="0 0 24 24" fill="rgba(251,191,36,0.9)">
+                <path d="M20 4H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2zm0 2v2H4V6h16zM4 18v-6h16v6H4zm2-3h4v2H6v-2z"/>
+            </svg>
+        </div>
+        <div class="kpi-label">Solicitudes Tarjeta MReyze</div>
+        <div class="kpi-value {{ ($tarjetaPendientes ?? 0) > 0 ? 'yellow' : 'blue' }}">{{ $tarjetaPendientes ?? 0 }}</div>
+        <div class="kpi-sub">
+            @if(($tarjetaPendientes ?? 0) > 0)
+                ⚠ pendiente{{ ($tarjetaPendientes ?? 0) > 1 ? 's' : '' }} por revisar
+            @else
+                sin solicitudes pendientes
+            @endif
+            · {{ $tarjetaTotal ?? 0 }} en total
+        </div>
+    </div>
 </div>
 
 {{-- ── FILA PRINCIPAL ──────────────────────── --}}
@@ -587,9 +605,81 @@
                 <div class="shortcut-label">Contacto</div>
             </a>
 
+            <a href="{{ route('admin.solicitudes-tarjeta.index') }}" class="shortcut-btn">
+                <div class="shortcut-icon" style="background:rgba(0,212,255,.12);border:1px solid rgba(0,212,255,.25);">💳</div>
+                <div class="shortcut-label">Tarjeta MReyze</div>
+            </a>
+
         </div>
     </div>
 
+</div>
+
+{{-- ── SOLICITUDES TARJETA MReyze ───────────── --}}
+<div class="dash-row">
+    <div class="dash-panel accent-blue" style="grid-column:1 / -1;">
+        <div class="dash-panel-title">
+            <span class="dot dot-blue"></span>
+            Solicitudes de Tarjeta MReyze (Recientes)
+        </div>
+
+        <div style="width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; margin-bottom: 0.5rem;">
+            <table class="dash-mini-table">
+                <thead>
+                    <tr>
+                        <th>Solicitante</th>
+                        <th>Documento</th>
+                        <th>Estado</th>
+                        <th>Fecha</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @forelse($ultimasTarjetas ?? [] as $st)
+                    <tr>
+                        <td>
+                            <div style="font-weight:600;font-size:.82rem;">#{{ $st->id }} · {{ $st->nombreCompleto() }}</div>
+                            <div style="font-size:.7rem;color:var(--dash-muted);">{{ $st->email }}</div>
+                        </td>
+                        <td style="font-size:.75rem;color:var(--dash-muted);">
+                            {{ $st->tipoDocumentoLabel() }} · {{ $st->numero_documento }}
+                        </td>
+                        <td>
+                            <span class="mini-pill
+                                @if($st->estado === 'pendiente') pill-pending
+                                @elseif($st->estado === 'en_revision') pill-nuevo
+                                @elseif($st->estado === 'aprobada') pill-approved
+                                @else pill-rejected @endif">
+                                {{ $st->estadoLabel() }}
+                            </span>
+                        </td>
+                        <td style="font-size:.75rem;color:var(--dash-muted);white-space:nowrap;">
+                            {{ $st->created_at->format('d M Y') }}
+                        </td>
+                    </tr>
+                    @empty
+                    <tr>
+                        <td colspan="4" style="text-align:center;color:var(--dash-muted);font-size:.8rem;padding:1.5rem 0;">
+                            Sin solicitudes de tarjeta aún
+                        </td>
+                    </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
+
+        <div class="dash-info-row">
+            @if(($tarjetaPendientes ?? 0) > 0)
+                <div class="dash-info-tag" style="color:#fbbf24;">
+                    ⚠ {{ $tarjetaPendientes }} solicitud{{ ($tarjetaPendientes ?? 0) > 1 ? 'es' : '' }} por revisar
+                </div>
+            @else
+                <div class="dash-info-tag">Todo al día ✓</div>
+            @endif
+            <a href="{{ route('admin.solicitudes-tarjeta.index') }}" style="font-size:.75rem;color:var(--dash-accent);text-decoration:none;font-weight:600;">
+                Ver todas →
+            </a>
+        </div>
+    </div>
 </div>
 
 <script>

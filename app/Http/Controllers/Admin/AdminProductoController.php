@@ -45,6 +45,7 @@ class AdminProductoController extends Controller
     public function store(Request $request)
     {
         $data = $this->validar($request);
+        $this->aplicarPrecioVenta($data);
 
         if ($request->hasFile('icono_imagen')) {
             $data['icono_imagen'] = $request->file('icono_imagen')
@@ -82,6 +83,7 @@ class AdminProductoController extends Controller
     public function update(Request $request, Producto $producto)
     {
         $data = $this->validar($request, $producto->id);
+        $this->aplicarPrecioVenta($data);
 
         if ($request->hasFile('icono_imagen')) {
             if ($producto->icono_imagen) {
@@ -217,13 +219,25 @@ class AdminProductoController extends Controller
         }
     }
 
+    /**
+     * Si se registró el precio de distribuidor, calcula el precio de venta
+     * aplicando el margen automático (20%).
+     */
+    private function aplicarPrecioVenta(array &$data): void
+    {
+        if (!empty($data['precio_distribuidor'])) {
+            $data['precio'] = Producto::calcularPrecioVenta((float) $data['precio_distribuidor']);
+        }
+    }
+
             private function validar(Request $request, $id = null)
     {
         return $request->validate([
-            'nombre'          => 'required|string|max:120',
-            'descripcion'     => 'nullable|string|max:500',
-            'precio'          => 'required|numeric|min:0',
-            'precio_anterior' => 'nullable|numeric|min:0',
+            'nombre'              => 'required|string|max:120',
+            'descripcion'         => 'nullable|string|max:500',
+            'precio'              => 'required|numeric|min:0',
+            'precio_distribuidor' => 'nullable|numeric|min:0',
+            'precio_anterior'     => 'nullable|numeric|min:0',
             'stock'           => 'required|integer|min:0',
             'categoria'       => 'required|in:iot,software,kits',
             'estado'          => 'required|in:nuevo,disponible,agotado',

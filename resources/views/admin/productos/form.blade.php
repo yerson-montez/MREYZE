@@ -221,7 +221,18 @@
 
                 <div class="adm-form-row">
                     <div class="adm-form-group">
-                        <label class="adm-label" for="precio">Precio actual (S/) *</label>
+                        <label class="adm-label" for="precio_distribuidor">
+                            Precio distribuidor (S/) <span style="opacity:.5">(opcional)</span>
+                        </label>
+                        <input id="precio_distribuidor" name="precio_distribuidor" type="number" step="0.01" min="0"
+                               class="adm-input"
+                               value="{{ old('precio_distribuidor', $producto->precio_distribuidor ?? '') }}"
+                               placeholder="0.00">
+                        <div class="adm-input-hint">Si se llena, el precio de venta se calcula automáticamente (+20%).</div>
+                        @error('precio_distribuidor')<div class="adm-error">{{ $message }}</div>@enderror
+                    </div>
+                    <div class="adm-form-group">
+                        <label class="adm-label" for="precio">Precio de venta (S/) *</label>
                         <input id="precio" name="precio" type="number" step="0.01" min="0"
                                class="adm-input"
                                value="{{ old('precio', $producto->precio ?? '') }}"

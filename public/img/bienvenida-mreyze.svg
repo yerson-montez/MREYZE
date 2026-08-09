@@ -5,8 +5,6 @@
       <stop offset="0%" stop-color="#0b3a6f"/>
       <stop offset="100%" stop-color="#0088cc"/>
     </linearGradient>
-    <path id="anilloSup" d="M 871,1495 a 89,89 0 1,1 178,0" fill="none"/>
-    <path id="anilloInf" d="M 871,1495 a 89,89 0 1,0 178,0" fill="none"/>
   </defs>
 
   <!-- Fondo del documento -->
@@ -107,25 +105,10 @@
     <text x="450" y="1358">TikTok:  @veente20</text>
   </g>
 
-  <!-- ═══════════════ FIRMA Y SELLO ═══════════════ -->
-  <image x="320" y="1404" width="233" height="92" href="firma.png" preserveAspectRatio="xMidYMid meet"/>
+  <!-- ═══════════════ DATOS DE LA EMPRESA ═══════════════ -->
   <line x1="200" y1="1504" x2="566" y2="1504" stroke="#0b3a6f" stroke-width="2.5"/>
   <text x="200" y="1538" font-family="Segoe UI, Arial, sans-serif" font-size="25" font-weight="700" fill="#0b3a6f">MreyZe Automatización y Sistemas S.A.C.</text>
   <text x="200" y="1574" font-family="Segoe UI, Arial, sans-serif" font-size="17" fill="#5b6f87">RUC: 20615935019</text>
-
-  <!-- Sello -->
-  <circle cx="960" cy="1495" r="98" fill="none" stroke="#1a4bb5" stroke-width="3.5"/>
-  <circle cx="960" cy="1495" r="80" fill="none" stroke="#1a4bb5" stroke-width="1.2"/>
-  <text font-family="Segoe UI, Arial, sans-serif" font-size="13" font-weight="700" letter-spacing="1.2" fill="#1a4bb5">
-    <textPath href="#anilloSup" startOffset="50%" text-anchor="middle">MREYZE AUTOMATIZACIÓN</textPath>
-  </text>
-  <text font-family="Segoe UI, Arial, sans-serif" font-size="12.5" font-weight="700" letter-spacing="1.2" fill="#1a4bb5">
-    <textPath href="#anilloInf" startOffset="50%" text-anchor="middle">Y SISTEMAS S.A.C.</textPath>
-  </text>
-  <image x="935" y="1473" width="50" height="44" href="LOGOMREYZE1.png" preserveAspectRatio="xMidYMid meet"/>
-  <text x="960" y="1526" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="11" font-weight="700" letter-spacing="0.5" fill="#1a4bb5">RUC 20615935019</text>
-  <polygon points="867,1495 871,1491 875,1495 871,1499" fill="#1a4bb5"/>
-  <polygon points="1045,1495 1049,1491 1053,1495 1049,1499" fill="#1a4bb5"/>
 
   <!-- ═══════════════ PIE ═══════════════ -->
   <line x1="380" y1="1690" x2="860" y2="1690" stroke="#d7e6f5" stroke-width="2"/>

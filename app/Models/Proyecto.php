@@ -17,11 +17,12 @@ class Proyecto extends Model
         'titulo', 'slug', 'descripcion_corta', 'descripcion_completa',
         'categoria', 'estado', 'tipo', 'imagen_principal', 'tecnologias',
         'cliente', 'fecha_inicio', 'fecha_fin', 'visible', 'orden',
+        'ubicacion', 'aviso_apertura', 'fecha_apertura',
         'inversion_monto_total', 'inversion_monto_disponible',
         'inversion_porcentaje_financiado', 'inversion_tiempo_estimado',
         'inversion_roi', 'inversion_retorno_final',
         'inversion_estado', 'inversion_etiqueta',
-        'whatsapp_numero', 'whatsapp_mensaje', 'contrato_pdf',
+        'whatsapp_numero', 'whatsapp_mensaje', 'contrato_pdf', 'detalle_pdf',
     ];
 
     protected $casts = [
@@ -32,6 +33,7 @@ class Proyecto extends Model
         'inversion_retorno_final'        => 'decimal:2',
         'fecha_inicio'                   => 'date',
         'fecha_fin'                      => 'date',
+        'fecha_apertura'                 => 'date',
     ];
 
     public const INVERSION_ESTADOS = [
@@ -149,6 +151,27 @@ class Proyecto extends Model
         return $this->contrato_pdf
             ? \Illuminate\Support\Facades\Storage::disk('public')->url($this->contrato_pdf)
             : null;
+    }
+
+    public function getDetallePdfUrlAttribute(): ?string
+    {
+        return $this->detalle_pdf
+            ? \Illuminate\Support\Facades\Storage::disk('public')->url($this->detalle_pdf)
+            : null;
+    }
+
+    public function getFechaAperturaTextoAttribute(): ?string
+    {
+        if (!$this->fecha_apertura) {
+            return null;
+        }
+
+        $meses = [
+            'enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio',
+            'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre',
+        ];
+
+        return $this->fecha_apertura->day . ' de ' . $meses[$this->fecha_apertura->month - 1] . ' de ' . $this->fecha_apertura->year;
     }
 
     public function getInversionRoiNumeroAttribute(): ?float

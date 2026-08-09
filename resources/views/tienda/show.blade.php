@@ -171,12 +171,14 @@
                             'orden' => 0,
                         ]]);
                     }
+                    $imgs = $imgs->map(function ($img) {
+                        $img->url = str_starts_with($img->ruta, 'http')
+                            ? $img->ruta
+                            : asset('storage/' . $img->ruta);
+                        return $img;
+                    });
                     $imgPrincipal = $imgs->firstWhere('es_principal') ?? $imgs->first();
-                    $mainSrc = $imgPrincipal 
-    ? (str_starts_with($imgPrincipal->ruta, 'http') 
-        ? $imgPrincipal->ruta 
-        : asset('storage/' . $imgPrincipal->ruta))
-    : null;
+                    $mainSrc = $imgPrincipal?->url;
 
 $fallbackSrc = $producto->icono_imagen 
     ? (str_starts_with($producto->icono_imagen, 'http') 
@@ -184,6 +186,8 @@ $fallbackSrc = $producto->icono_imagen
         : asset('storage/' . $producto->icono_imagen))
     : null;
                     $displaySrc = $mainSrc ?? $fallbackSrc;
+                    $imagenesJson = $imgs->values()->map(fn($img) => $img->url)->values()->all();
+                    $primeraImagen = $imagenesJson[0] ?? null;
                 @endphp
 
                 <div class="relative rounded-2xl overflow-hidden cursor-crosshair group"
@@ -226,7 +230,7 @@ $fallbackSrc = $producto->icono_imagen
 <div class="absolute bottom-3 right-3 w-20 h-20 rounded-xl overflow-hidden z-10"
      style="background:rgba(0,0,0,0.5);border:2px solid rgba(0,212,255,0.5)">
     
-    <img src="{{ $displaySrc }}"
+    <img :src="imagenActual"
          alt="{{ $producto->nombre }}"
          style="width:100%;height:100%;object-fit:cover;">
          
@@ -239,25 +243,18 @@ $fallbackSrc = $producto->icono_imagen
                     @foreach($imgs as $idx => $img)
                     <button type="button"
                             class="flex-shrink-0 w-16 h-16 md:w-[70px] md:h-[70px] rounded-xl overflow-hidden border-2 transition-all duration-200 cursor-pointer p-0"
-                            :class="imagenActual === '{{ asset('storage/' . $img->ruta) }}'
+                            :class="indiceActual === {{ $idx }}
                                 ? 'border-cyan-400 opacity-100'
                                 : 'border-transparent opacity-50 hover:opacity-75'"
-                            :style="imagenActual === '{{ asset('storage/' . $img->ruta) }}'
+                            :style="indiceActual === {{ $idx }}
                                 ? 'box-shadow:0 0 12px rgba(0,212,255,0.25)'
                                 : ''"
-                            @click="seleccionar({{ $idx }}, '{{ asset('storage/' . $img->ruta) }}')">
-                        @php
-    $rutaImagen = str_starts_with($img->ruta, 'http')
-        ? $img->ruta
-        : asset('storage/' . $img->ruta);
-@endphp
+                            @click="seleccionar({{ $idx }})">
 
-<div @click="seleccionar({{ $idx }}, '{{ $rutaImagen }}')">
-    <img src="{{ $rutaImagen }}"
-         alt="Imagen {{ $idx + 1 }}"
-         class="w-full h-full object-cover"
-         loading="lazy">
-</div>
+                        <img src="{{ $img->url }}"
+                             alt="Imagen {{ $idx + 1 }}"
+                             class="w-full h-full object-cover"
+                             loading="lazy">
                     </button>
                     @endforeach
                 </div>
@@ -433,7 +430,7 @@ $fallbackSrc = $producto->icono_imagen
     <div class="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2 px-3 py-2 rounded-full"
          style="background:rgba(0,0,0,0.6);backdrop-filter:blur(8px)">
         @foreach($imgs as $idx => $img)
-        <button @click="seleccionar({{ $idx }}, '{{ asset('storage/' . $img->ruta) }}')"
+        <button @click="seleccionar({{ $idx }})"
                 class="w-2.5 h-2.5 rounded-full transition-all duration-200 p-0 border-0 cursor-pointer"
                 :class="indiceActual === {{ $idx }} ? 'scale-125' : 'opacity-50 hover:opacity-75'"
                 :style="indiceActual === {{ $idx }} ? 'background:#00d4ff;box-shadow:0 0 8px rgba(0,212,255,0.5)' : 'background:#fff'">
@@ -452,13 +449,15 @@ $fallbackSrc = $producto->icono_imagen
 <script>
 function productoDetalle() {
     return {
-        imagenActual: @js($displaySrc),
+        imagenActual: @js($primeraImagen),
         indiceActual: 0,
         lightboxAbierto: false,
         nombreProducto: @js($producto->nombre),
-        todasLasImagenes: @js($imgs->values()->map(fn($img) => asset('storage/' . $img->ruta))->values()->all()),
+        todasLasImagenes: @js($imagenesJson),
 
-        seleccionar(idx, src) {
+        seleccionar(idx) {
+            const src = this.todasLasImagenes[idx];
+            if (!src) return;
             this.imagenActual = src;
             this.indiceActual = idx;
         },

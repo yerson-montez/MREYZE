@@ -317,6 +317,56 @@
     @media (max-width: 768px)  { .tienda-grid { grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); } }
     @media (max-width: 480px)  { .tienda-grid { grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); } }
 
+    /* ── Celulares: catálogo compacto estilo AliExpress (4 productos por fila) ── */
+    @media (max-width: 520px) {
+        .tienda { padding: 4rem 0.5rem; }
+        .tienda-header { flex-direction: column; align-items: flex-start; gap: 0.75rem; margin-bottom: 1.5rem; }
+        .tienda-header > div { flex-wrap: wrap; }
+        .tienda-header .section-title { font-size: 1.35rem; }
+        .tienda-ver-mas { padding: 0.45rem 0.9rem; font-size: 0.72rem; }
+        .tienda-cats { gap: 0.35rem; margin-bottom: 1.5rem; flex-wrap: nowrap; overflow-x: auto; padding-bottom: 4px; }
+        .cat-btn { padding: 0.35rem 0.8rem; font-size: 0.72rem; flex-shrink: 0; }
+        .search-input { padding: 0.55rem 2.4rem 0.55rem 2.2rem; font-size: 0.82rem; }
+        .tienda-banner { padding: 1.4rem 1.2rem; gap: 1rem; }
+
+        .tienda-grid {
+            grid-template-columns: repeat(4, 1fr);
+            gap: 0.4rem;
+        }
+
+        .producto-card { border-radius: 10px; }
+        .producto-card:hover { transform: none; box-shadow: 0 8px 20px rgba(0,30,90,0.4); }
+        .producto-img { height: 84px; }
+        .producto-img-icon { width: 38px; height: 38px; border-radius: 10px; }
+        .producto-img-icon svg { width: 18px; height: 18px; }
+        .producto-stock { top: 5px; left: 5px; font-size: 0.52rem; padding: 2px 5px; }
+        .producto-descuento { top: 5px; right: 5px; font-size: 0.55rem; padding: 2px 5px; border-radius: 4px; }
+        .producto-body { padding: 0.5rem; }
+        .producto-cat { font-size: 0.52rem; margin-bottom: 0.2rem; }
+        .producto-nombre {
+            font-size: 0.68rem;
+            margin-bottom: 0.25rem;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        .producto-desc { display: none; }
+        .producto-footer { flex-direction: column; align-items: stretch; gap: 0.4rem; }
+        .producto-precio-actual { font-size: 0.82rem; }
+        .producto-precio-actual span { font-size: 0.6rem; }
+        .producto-precio-anterior { font-size: 0.6rem; }
+        .producto-btn { padding: 0.35rem 0.4rem; font-size: 0.62rem; justify-content: center; gap: 3px; }
+        .producto-btn svg { width: 11px; height: 11px; }
+        .producto-thumbs { display: none; }
+    }
+    @media (max-width: 360px) {
+        .tienda-grid { grid-template-columns: repeat(4, 1fr); gap: 0.3rem; }
+        .producto-img { height: 72px; }
+        .producto-nombre { font-size: 0.62rem; }
+        .producto-precio-actual { font-size: 0.76rem; }
+    }
+
     /* Buscador */
     .tienda-search { margin-bottom: 1.5rem; }
     .search-wrapper {

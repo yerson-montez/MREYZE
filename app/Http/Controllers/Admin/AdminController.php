@@ -7,6 +7,7 @@ use App\Models\Pago;
 use App\Models\Pedido;
 use App\Models\Producto;
 use App\Models\SolicitudColaborador;
+use App\Models\SolicitudTarjeta;
 
 class AdminController extends Controller
 {
@@ -30,6 +31,10 @@ class AdminController extends Controller
         $totalPedidos     = Pedido::count();
         $pedidosPendientes = Pedido::where('estado', 'pendiente')->count();
 
+        $tarjetaTotal      = SolicitudTarjeta::count();
+        $tarjetaPendientes = SolicitudTarjeta::where('estado', 'pendiente')->count();
+        $ultimasTarjetas   = SolicitudTarjeta::latest()->take(5)->get();
+
         return view('admin.dashboard', compact(
             'totalProductos',
             'productosActivos',
@@ -44,7 +49,10 @@ class AdminController extends Controller
             'pagosAprobados',
             'pagosRechazados',
             'totalPedidos',
-            'pedidosPendientes'
+            'pedidosPendientes',
+            'tarjetaTotal',
+            'tarjetaPendientes',
+            'ultimasTarjetas'
         ));
     }
 }

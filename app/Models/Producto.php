@@ -13,16 +13,20 @@ class Producto extends Model
     use HasFactory;
 
     protected $fillable = [
-        'codigo','nombre', 'descripcion', 'precio', 'precio_anterior',
+        'codigo','nombre', 'descripcion', 'precio', 'precio_distribuidor', 'precio_anterior',
         'stock', 'categoria', 'estado', 'icono_imagen',
         'icono_color', 'slug', 'activo',
     ];
 
     protected $casts = [
-        'precio'          => 'decimal:2',
-        'precio_anterior' => 'decimal:2',
-        'activo'          => 'boolean',
+        'precio'              => 'decimal:2',
+        'precio_distribuidor' => 'decimal:2',
+        'precio_anterior'     => 'decimal:2',
+        'activo'              => 'boolean',
     ];
+
+    /** Margen automático aplicado sobre el precio de distribuidor (20%). */
+    public const MARGEN_VENTA = 0.20;
 
     protected static function booted(): void
 {
@@ -126,6 +130,30 @@ class Producto extends Model
     public function getPrecioFormateadoAttribute(): string
     {
         return 'S/ ' . number_format($this->precio, 2);
+    }
+
+    /** Precio de distribuidor efectivo (con fallback al precio de venta). */
+    public function getPrecioDistribuidorEfectivoAttribute(): float
+    {
+        if (!is_null($this->precio_distribuidor)) {
+            return (float) $this->precio_distribuidor;
+        }
+        return (float) $this->precio;
+    }
+
+    /** Precio de venta = precio de distribuidor × (1 + MARGEN_VENTA). */
+    public static function calcularPrecioVenta(float $precioDistribuidor): float
+    {
+        return round($precioDistribuidor * (1 + self::MARGEN_VENTA), 2);
+    }
+
+    /** Porcentaje de margen aplicado (configurado automáticamente en el sistema). */
+    public function getMargenAplicadoAttribute(): ?int
+    {
+        if ((float) $this->precio <= 0) {
+            return null;
+        }
+        return (int) round(self::MARGEN_VENTA * 100);
     }
 
     public function tieneDescuento(): bool

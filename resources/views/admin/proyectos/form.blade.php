@@ -315,6 +315,37 @@
                     @error('tecnologias')<div class="adm-error">{{ $message }}</div>@enderror
                 </div>
 
+                {{-- UBICACIÓN Y APERTURA --}}
+                <hr class="adm-divider">
+                <div class="adm-section-label">Ubicación y apertura</div>
+
+                <div class="adm-form-group">
+                    <label class="adm-label" for="ubicacion">Ubicación</label>
+                    <input id="ubicacion" name="ubicacion" type="text" class="adm-input"
+                           value="{{ old('ubicacion', $proyecto->ubicacion ?? '') }}"
+                           placeholder="Ej: Madrid, España">
+                    <div class="adm-input-hint">Se mostrará en la tarjeta del proyecto en /proyectos.</div>
+                    @error('ubicacion')<div class="adm-error">{{ $message }}</div>@enderror
+                </div>
+
+                <div class="adm-form-row">
+                    <div class="adm-form-group">
+                        <label class="adm-label" for="aviso_apertura">Aviso de apertura</label>
+                        <input id="aviso_apertura" name="aviso_apertura" type="text" class="adm-input"
+                               value="{{ old('aviso_apertura', $proyecto->aviso_apertura ?? '') }}"
+                               placeholder="Ej: Apertura del proyecto">
+                        <div class="adm-input-hint">Título del aviso. Ej: Apertura del proyecto, Próxima apertura.</div>
+                        @error('aviso_apertura')<div class="adm-error">{{ $message }}</div>@enderror
+                    </div>
+                    <div class="adm-form-group">
+                        <label class="adm-label" for="fecha_apertura">Fecha de apertura</label>
+                        <input id="fecha_apertura" name="fecha_apertura" type="date" class="adm-input"
+                               value="{{ old('fecha_apertura', isset($proyecto) && $proyecto->fecha_apertura ? $proyecto->fecha_apertura->format('Y-m-d') : '') }}">
+                        <div class="adm-input-hint">Se muestra junto al aviso. Vacío para no mostrar fecha.</div>
+                        @error('fecha_apertura')<div class="adm-error">{{ $message }}</div>@enderror
+                    </div>
+                </div>
+
                 {{-- IMAGEN PRINCIPAL --}}
                 <hr class="adm-divider">
                 <div class="adm-section-label">Imagen principal</div>
@@ -555,6 +586,35 @@
                 @endif
             </form>
             <form id="eliminarContratoForm" method="POST" action="{{ route('admin.proyectos.contrato.eliminar', $proyecto) }}" onsubmit="return confirm('¿Eliminar el contrato del proyecto?')">
+                @csrf @method('DELETE')
+            </form>
+        </div>
+
+        <div class="adm-form-card" style="background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 1.6rem 1.7rem; margin-top: 1.2rem;">
+            <div class="adm-section-label" style="font-size:.78rem;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:.08em;margin-bottom:1.2rem;">
+                📄 Detalle del proyecto (PDF)
+            </div>
+
+            @if($proyecto->detalle_pdf_url)
+                <div class="adm-alert adm-alert-success" style="margin-bottom:1.2rem;">
+                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+                    Detalle cargado. <a href="{{ $proyecto->detalle_pdf_url }}" target="_blank" style="color:var(--accent);font-weight:700;">Ver detalle</a>
+                </div>
+            @else
+                <p style="font-size:.82rem;color:var(--muted);margin-bottom:1.2rem;">Aún no hay detalle en PDF para este proyecto. Sube el documento informativo que se mostrará como "Ver detalle del proyecto".</p>
+            @endif
+
+            <form method="POST" action="{{ route('admin.proyectos.detalle-pdf', $proyecto) }}" enctype="multipart/form-data" style="display:flex; gap:.75rem; flex-wrap:wrap; align-items:center;">
+                @csrf
+                <input type="file" name="detalle_pdf" accept="application/pdf" required class="adm-input" style="flex:1; min-width:200px;">
+                <button type="submit" class="adm-btn adm-btn-primary">
+                    {{ $proyecto->detalle_pdf ? 'Reemplazar detalle' : 'Subir detalle' }}
+                </button>
+                @if($proyecto->detalle_pdf)
+                <button type="submit" form="eliminarDetallePdfForm" class="adm-btn adm-btn-danger">Eliminar</button>
+                @endif
+            </form>
+            <form id="eliminarDetallePdfForm" method="POST" action="{{ route('admin.proyectos.detalle-pdf.eliminar', $proyecto) }}" onsubmit="return confirm('¿Eliminar el detalle PDF del proyecto?')">
                 @csrf @method('DELETE')
             </form>
         </div>

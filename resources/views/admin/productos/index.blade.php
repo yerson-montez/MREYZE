@@ -87,10 +87,12 @@
 .adm-table colgroup col:nth-child(2) { width: auto;  }
 .adm-table colgroup col:nth-child(3) { width: 110px; }
 .adm-table colgroup col:nth-child(4) { width: 100px; }
-.adm-table colgroup col:nth-child(5) { width: 130px; }
-.adm-table colgroup col:nth-child(6) { width: 100px; }
-.adm-table colgroup col:nth-child(7) { width: 72px;  }
-.adm-table colgroup col:nth-child(8) { width: 160px; }
+.adm-table colgroup col:nth-child(5) { width: 80px;  }
+.adm-table colgroup col:nth-child(6) { width: 90px;  }
+.adm-table colgroup col:nth-child(7) { width: 130px; }
+.adm-table colgroup col:nth-child(8) { width: 100px; }
+.adm-table colgroup col:nth-child(9) { width: 72px;  }
+.adm-table colgroup col:nth-child(10) { width: 160px; }
 
 /* Badges específicos de productos */
 .adm-badge-iot      { background: rgba(0,212,255,.12);   color:#00d4ff; border:1px solid rgba(0,212,255,.25); }
@@ -101,12 +103,12 @@
 .adm-estado-agotado     { background: rgba(244,63,94,.12);  color:#f43f5e; border:1px solid rgba(244,63,94,.3); }
 
 @media (max-width: 768px) {
-    .adm-table colgroup col:nth-child(5),
-    .adm-table colgroup col:nth-child(6) { display: none; }
+    .adm-table colgroup col:nth-child(4),
+    .adm-table colgroup col:nth-child(5) { display: none; }
+    .adm-table th:nth-child(4),
+    .adm-table td:nth-child(4),
     .adm-table th:nth-child(5),
-    .adm-table td:nth-child(5),
-    .adm-table th:nth-child(6),
-    .adm-table td:nth-child(6) { display: none; }
+    .adm-table td:nth-child(5) { display: none; }
 }
 </style>
 @endpush
@@ -245,14 +247,16 @@
         @if($productos->count())
         <table class="adm-table">
             <colgroup>
-                <col><col><col><col><col><col><col><col>
+                <col><col><col><col><col><col><col><col><col><col>
             </colgroup>
             <thead>
                 <tr>
                     <th style="text-align:center">Imagen</th>
                     <th>Producto</th>
                     <th>Categoría</th>
-                    <th>Precio</th>
+                    <th>Distribuidor</th>
+                    <th>Margen</th>
+                    <th>Venta</th>
                     <th>Stock</th>
                     <th>Estado</th>
                     <th style="text-align:center">Visible</th>
@@ -264,10 +268,12 @@
             <tr>
                 {{-- 1. Imagen --}}
                 <td style="text-align:center">
-                    @if($p->icono_imagen)
-                        <img src="{{ asset('storage/' . $p->icono_imagen) }}"
+                    @php $imgUrl = $p->imagen_principal_url; @endphp
+                    @if($imgUrl)
+                        <img src="{{ $imgUrl }}"
                              class="adm-prod-img"
                              alt="{{ $p->nombre }}"
+                             loading="lazy"
                              onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
                         <div class="adm-prod-emoji-fallback" style="display:none">
                             <svg viewBox="0 0 24 24" fill="currentColor" style="width:20px;height:20px;opacity:0.3"><path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/></svg>
@@ -292,12 +298,14 @@
                     </span>
                 </td>
 
-                {{-- 4. Precio --}}
+                {{-- 4. Precios (Distribuidor / Margen / Venta) --}}
                 <td>
-                    <div style="font-weight:700">S/ {{ number_format($p->precio,2) }}</div>
+                    <div style="font-size:.73rem;color:var(--muted)">Dist: S/ {{ number_format($p->precio_distribuidor_efectivo,2) }}</div>
+                    <div style="font-size:.73rem;color:var(--accent)">Margen: {{ $p->margen_aplicado ?? 0 }}%</div>
+                    <div style="font-weight:700;color:var(--text);margin-top:.1rem">S/ {{ number_format($p->precio,2) }}</div>
                     @if($p->precio_anterior)
                     <div style="font-size:.73rem;color:var(--muted);text-decoration:line-through">
-                        S/ {{ number_format($p->precio_anterior,2) }}
+                        Antes: S/ {{ number_format($p->precio_anterior,2) }}
                     </div>
                     @endif
                 </td>
