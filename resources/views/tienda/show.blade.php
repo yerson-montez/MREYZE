@@ -137,6 +137,13 @@
     box-shadow: none;
     color: var(--ice-300);
 }
+/* ── Imagen principal del detalle: tamaño moderado, centrada y proporcional ── */
+.producto-detalle-galeria {
+    width: 100%;
+    max-width: 460px;
+    margin-left: auto;
+    margin-right: auto;
+}
 </style>
 @endpush
 
@@ -161,7 +168,7 @@
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-start">
 
             {{-- GALERIA --}}
-            <div class="lg:sticky lg:top-24">
+            <div class="lg:sticky lg:top-24 producto-detalle-galeria">
                 @php
                     $imgs = $producto->imagenes->sortBy('orden');
                     if ($imgs->isEmpty() && $producto->icono_imagen) {
