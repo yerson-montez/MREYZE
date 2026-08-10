@@ -306,7 +306,7 @@
                 <li>
                     @auth
                         @php
-                            $colaborador = \App\Models\Colaborador::where('email', auth()->user()->email)->first();
+                            $colaborador = auth()->user()->colaborador;
                         @endphp
                         @if($colaborador)
                             <a href="{{ route('colaborador.link') }}">🔗 Mi link</a>
@@ -396,7 +396,7 @@
                 </a>
                 @auth
                     @php
-                        $colaborador = \App\Models\Colaborador::where('email', auth()->user()->email)->first();
+                        $colaborador = auth()->user()->colaborador;
                     @endphp
                     @if($colaborador)
                         <a href="{{ route('colaborador.link') }}" class="nav-mobile-link">🔗 Mi link</a>

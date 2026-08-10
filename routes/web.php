@@ -21,39 +21,21 @@ use App\Http\Controllers\ProyectoInversionController;
 use App\Http\Controllers\InversionController;
 use App\Http\Controllers\SolicitudColaboradorController;
 use App\Http\Controllers\TarjetaDebitoController;
+use App\Http\Controllers\HomeController;
 use App\Http\Controllers\Admin\AdminSolicitudTarjetaController;
 
 // ─── HOME ────────────────────────────────────────────────────────
-use App\Models\Producto;
-use App\Models\MetodoPago;
-
-Route::get('/', function () {
-
-    $productosHome = Producto::where('activo', true)
-        ->where('estado', 'disponible')
-        ->inRandomOrder()
-        ->with('imagenes')
-        ->take(4)
-        ->get();
-
-    $metodosPago = MetodoPago::where('activo', true)->get();
-
-    return view('sections.inicio', compact(
-        'productosHome',
-        'metodosPago'
-    ));
-
-})->name('inicio');
+Route::get('/', [HomeController::class, 'index'])->name('inicio');
 
 // ─── PÁGINAS ESTÁTICAS ──────────────────────────────────────────
-Route::get('/nosotros',  fn() => view('sections.nosotros'))->name('nosotros');
-Route::get('/servicios', fn() => view('sections.servicios'))->name('servicios');
+Route::view('/nosotros', 'sections.nosotros')->name('nosotros');
+Route::view('/servicios', 'sections.servicios')->name('servicios');
 Route::get('/proyectos', [ProyectoController::class, 'index'])->name('proyectos');
 Route::get('/proyectos/{proyecto:slug}', [ProyectoController::class, 'show'])->name('proyectos.show');
 Route::get('/proyectos-de-inversion', [ProyectoInversionController::class, 'index'])->name('proyectos.inversion');
 Route::get('/proyectos/{proyecto:slug}/invertir/gracias', [InversionController::class, 'gracias'])->name('inversiones.gracias');
-Route::get('/blog',      fn() => view('sections.blog'))->name('blog');
-Route::get('/contacto',  fn() => view('sections.contacto'))->name('contacto');
+Route::view('/blog', 'sections.blog')->name('blog');
+Route::view('/contacto', 'sections.contacto')->name('contacto');
 
 // ─── TARJETA DÉBITO (sección independiente) ──────────────────────
 Route::get('/tarjeta-debito',            [TarjetaDebitoController::class, 'index'])->name('tarjeta.debito');
@@ -62,10 +44,10 @@ Route::post('/tarjeta-debito/solicitar', [TarjetaDebitoController::class, 'store
 Route::get('/tarjeta-debito/gracias',    [TarjetaDebitoController::class, 'gracias'])->name('tarjeta.debito.gracias');
 
 // ─── SUBSERVICIOS ────────────────────────────────────────────────
-Route::get('/servicios/automatizacion', fn() => view('sections.servicios.automatizacion'))->name('servicios.automatizacion');
-Route::get('/servicios/iot',            fn() => view('sections.servicios.iot'))->name('servicios.iot');
-Route::get('/servicios/desarrollo',     fn() => view('sections.servicios.desarrollo'))->name('servicios.desarrollo');
-Route::get('/servicios/consultoria',    fn() => view('sections.servicios.consultoria'))->name('servicios.consultoria');
+Route::view('/servicios/automatizacion', 'sections.servicios.automatizacion')->name('servicios.automatizacion');
+Route::view('/servicios/iot',            'sections.servicios.iot')->name('servicios.iot');
+Route::view('/servicios/desarrollo',     'sections.servicios.desarrollo')->name('servicios.desarrollo');
+Route::view('/servicios/consultoria',    'sections.servicios.consultoria')->name('servicios.consultoria');
 
 // ─── TIENDA PÚBLICA ──────────────────────────────────────────────
 Route::get('/tienda',                 [TiendaController::class, 'index'])->name('tienda.index');
@@ -219,6 +201,6 @@ Route::post('/productos/importar',
         Route::delete('/solicitudes-tarjeta/{solicitud}',             [AdminSolicitudTarjetaController::class, 'destroy'])->name('solicitudes-tarjeta.destroy');
     });
 
-Route::get('/dashboard', fn() => view('dashboard'))->middleware('auth')->name('dashboard');
+Route::view('/dashboard', 'dashboard')->middleware('auth')->name('dashboard');
 
 require __DIR__.'/auth.php';

@@ -161,7 +161,7 @@
         
         @auth
             @php
-                $colaborador = \App\Models\Colaborador::where('email', auth()->user()->email)->first();
+                $colaborador = auth()->user()->colaborador;
             @endphp
             @if($colaborador)
                 <a href="{{ route('colaborador.link') }}">🔗 Mi link</a>
