@@ -552,6 +552,25 @@ private function extraerMonto(array $cleanLines, array $rawLines): ?float
         $normalizedMap[] = $normalized;
     }
 
+    Log::debug('MontoOCR: DEBUG líneas candidatas para extraer monto', [
+        'raw'   => array_values(array_filter(
+            $rawLines,
+            fn($l) => (bool) preg_match('/[S5s\$][\/\:\|I1l]?/u', $l)
+                || stripos($l, 'monto') !== false
+                || stripos($l, 'total') !== false
+                || stripos($l, 'importe') !== false
+                || stripos($l, 'pago') !== false
+        )),
+        'clean' => array_values(array_filter(
+            $normalizedMap,
+            fn($l) => (bool) preg_match('/[S5s\$][\/\:\|I1l]?/u', $l)
+                || stripos($l, 'monto') !== false
+                || stripos($l, 'total') !== false
+                || stripos($l, 'importe') !== false
+                || stripos($l, 'pago') !== false
+        )),
+    ]);
+
     /*
      * 1. Formato principal:
      *    S/1
@@ -582,6 +601,11 @@ private function extraerMonto(array $cleanLines, array $rawLines): ?float
                     && (float) $val > 0
                     && (float) $val < 100000
                 ) {
+                    Log::info('MontoOCR: DEBUG monto por patrón principal', [
+                        'linea'   => $line,
+                        'captura' => $m[1],
+                        'monto'   => (float) $val,
+                    ]);
                     return (float) $val;
                 }
             }
@@ -607,6 +631,11 @@ private function extraerMonto(array $cleanLines, array $rawLines): ?float
                 && (float) $val > 0
                 && (float) $val < 100000
             ) {
+                Log::info('MontoOCR: DEBUG monto por patrón standalone', [
+                    'linea'   => trim($line),
+                    'captura' => $m[1],
+                    'monto'   => (float) $val,
+                ]);
                 return (float) $val;
             }
         }
@@ -632,6 +661,11 @@ private function extraerMonto(array $cleanLines, array $rawLines): ?float
                 && (float) $val < 100000
                 && !str_contains($line, ':')
             ) {
+                Log::info('MontoOCR: DEBUG monto por patrón genérico', [
+                    'linea'   => $line,
+                    'captura' => $m[1],
+                    'monto'   => (float) $val,
+                ]);
                 return (float) $val;
             }
         }
