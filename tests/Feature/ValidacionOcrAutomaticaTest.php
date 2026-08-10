@@ -167,7 +167,7 @@ class ValidacionOcrAutomaticaTest extends TestCase
 
         $this->assertNotNull($pago);
         $this->assertSame('rechazado', $pago->fresh()->ocr_resultado);
-        $this->assertSame('rechazado', $pago->fresh()->estado_pago);
+        $this->assertSame('pendiente', $pago->fresh()->estado_pago);
 
         $pedido->refresh();
         $this->assertSame('pendiente', $pedido->estado);
@@ -240,6 +240,6 @@ class ValidacionOcrAutomaticaTest extends TestCase
         $pago = Pago::where('inversion_id', $inversion->id)->first();
         $this->assertNotNull($pago);
         $this->assertSame('rechazado', $pago->fresh()->ocr_resultado);
-        $this->assertSame('rechazado', $pago->fresh()->estado_pago);
+        $this->assertSame('pendiente', $pago->fresh()->estado_pago);
     }
 }

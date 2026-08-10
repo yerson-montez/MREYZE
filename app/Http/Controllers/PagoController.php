@@ -35,7 +35,16 @@ class PagoController extends Controller
         $montoPago      = $totalPagado > 0 ? $saldoPendiente : (float) $pedido->adelanto;
         $tipoPago       = $totalPagado > 0 ? 'saldo' : 'adelanto';
 
-        $pagoEnRevision = $pago && in_array($pago->ocr_resultado, ['pendiente', 'procesando']);
+        $pagoEnRevision = $pago && in_array($pago->ocr_resultado, [
+            'pendiente',
+            'procesando',
+            'validado',
+            'error_ocr',
+            'ocr_fallido',
+            'rechazado',
+            'confianza_baja',
+            'sospechoso',
+        ]);
 
         $puedePagarSaldo = in_array($pedido->estado, ['pendiente', 'pago_confirmado'])
             && $totalPagado > 0
@@ -56,8 +65,7 @@ class PagoController extends Controller
         $currentOcr = match ($pago?->ocr_resultado) {
             'validado'      => 'completado',
             'procesando'    => 'procesando',
-            'pendiente'     => 'pendiente',
-            default         => 'error',
+            default         => 'pendiente',
         };
 
         return view('pagos.show', compact(
@@ -199,8 +207,7 @@ class PagoController extends Controller
         $estadoOcr = match ($ocrRaw) {
             'validado'      => 'completado',
             'procesando'    => 'procesando',
-            'pendiente'     => 'pendiente',
-            default         => 'error',
+            default         => 'pendiente',
         };
 
         return response()->json([

@@ -133,20 +133,16 @@
       <span id="ocr-estado-badge" class="estado-badge" style="
         @php
           $c = $pago->ocr_resultado;
+          $ocrEsFallo = in_array($c, ['error_ocr', 'ocr_fallido', 'rechazado', 'confianza_baja', 'sospechoso']);
           $badgeStyle = match(true) {
-            $c === 'validado'       => 'background:rgba(0,212,170,.1);border:1px solid rgba(0,212,170,.3);color:var(--success)',
-            $c === 'procesando'     => 'background:rgba(0,212,255,.1);border:1px solid rgba(0,212,255,.3);color:var(--accent)',
-            $c === 'pendiente'      => 'background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.3);color:var(--warning)',
-            $c === 'error_ocr'      => 'background:rgba(255,107,107,.1);border:1px solid rgba(255,107,107,.3);color:var(--danger)',
-            $c === 'ocr_fallido'    => 'background:rgba(255,107,107,.1);border:1px solid rgba(255,107,107,.3);color:var(--danger)',
-            $c === 'rechazado'      => 'background:rgba(255,107,107,.1);border:1px solid rgba(255,107,107,.3);color:var(--danger)',
-            $c === 'confianza_baja' => 'background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.3);color:var(--warning)',
-            $c === 'sospechoso'     => 'background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.3);color:var(--warning)',
-            default                 => 'background:rgba(148,163,184,.1);border:1px solid rgba(148,163,184,.3);color:#94a3b8',
+            $c === 'validado'   => 'background:rgba(0,212,170,.1);border:1px solid rgba(0,212,170,.3);color:var(--success)',
+            $c === 'procesando' => 'background:rgba(0,212,255,.1);border:1px solid rgba(0,212,255,.3);color:var(--accent)',
+            $ocrEsFallo || $c === 'pendiente' => 'background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.3);color:var(--warning)',
+            default             => 'background:rgba(148,163,184,.1);border:1px solid rgba(148,163,184,.3);color:#94a3b8',
           };
         @endphp
         {{ $badgeStyle }}">
-        {{ \App\Enums\EstadoValidacionOcr::tryFrom($pago->ocr_resultado)?->label() ?? 'Pendiente' }}
+        {{ $ocrEsFallo ? 'Pendiente' : (\App\Enums\EstadoValidacionOcr::tryFrom($pago->ocr_resultado)?->label() ?? 'Pendiente') }}
       </span>
     </div>
     @endif
@@ -154,49 +150,32 @@
 
   <div id="pago-status-content">
   @php
-    $ultimoOcrError = $pago && in_array($pago->ocr_resultado, ['error_ocr', 'ocr_fallido', 'rechazado', 'confianza_baja', 'sospechoso']) ? $pago->ocr_resultado : null;
-    $pagoEnRevision = $pago && in_array($pago->ocr_resultado, ['pendiente', 'procesando', 'validado']);
+    $pagoEnRevision = $pago && in_array($pago->ocr_resultado, [
+        'pendiente',
+        'procesando',
+        'validado',
+        'error_ocr',
+        'ocr_fallido',
+        'rechazado',
+        'confianza_baja',
+        'sospechoso',
+    ]);
   @endphp
 
   @if ($pedido->estado === 'pendiente' && ! $puedePagarSaldo)
-    @if ($ultimoOcrError)
-      @php
-        $motivoReintento = match ($ultimoOcrError) {
-          'error_ocr' => 'No pudimos validar el comprobante por un problema temporal del servicio.',
-          'ocr_fallido' => 'No fue posible leer el comprobante. Asegúrate de que la imagen sea clara y legible.',
-          'rechazado' => 'El monto del comprobante no coincide o el comprobante ya fue utilizado.',
-          'confianza_baja' => 'No se pudo leer el comprobante con suficiente claridad.',
-          'sospechoso' => 'Los datos del comprobante no coinciden con los ingresados.',
-          default => 'El comprobante no pudo ser validado automáticamente.',
-        };
-      @endphp
-      <div class="pago-card">
-        <div class="alert" style="border-left-color:var(--danger);text-align:center;">
-          <p style="font-size:1.1rem;font-weight:700;color:#fff;">
-            {{ match($ultimoOcrError) {
-              'error_ocr' => 'Error temporal',
-              'ocr_fallido' => 'No fue posible leer el comprobante',
-              default => 'No fue posible validar automáticamente el comprobante',
-            } }}
-          </p>
-          <p style="margin-top:6px;">{{ $motivoReintento }}</p>
-          <p style="margin-top:10px;font-size:.78rem;color:var(--ice-300);">Puedes intentar subir el comprobante nuevamente.</p>
-          @if ($pago)
-            <p style="font-size:.78rem;color:var(--ice-300);">Nro. operación anterior: <strong style="color:#fff;">{{ $pago->numero_operacion ?? '—' }}</strong></p>
-          @endif
-        </div>
-      </div>
-      @include('pagos._form-comprobante', ['retry' => true])
-    @elseif ($pagoEnRevision)
+    @if ($pagoEnRevision)
       @php
         $ocrEstado = $pago?->ocr_resultado ?? 'pendiente';
+        if (in_array($ocrEstado, ['error_ocr', 'ocr_fallido', 'rechazado', 'confianza_baja', 'sospechoso'])) {
+            $ocrEstado = 'pendiente';
+        }
       @endphp
 
     <div id="pendiente-aprobacion-section">
       <div id="status-pendiente" class="pago-card" data-ocr-state="pendiente" {{ $ocrEstado !== 'pendiente' ? 'style=display:none' : '' }}>
         <div class="success-box">
           <p style="font-size:1.2rem;font-weight:700;">Comprobante recibido</p>
-          <p style="margin-top:8px;">Hemos recibido tu comprobante y está en proceso de validación.</p>
+          <p style="margin-top:8px;">Gracias por escoger MReyze. SE ENCUENTRA EN PROCESO DE VALIDACION .</p>
           @if ($pago)
             <p style="margin-top:12px;font-size:.82rem;color:var(--ice-200);">
               Nro. operación: <strong id="ocr-numero-operacion" style="color:#fff;">{{ $pago->numero_operacion ?? '—' }}</strong>
@@ -245,50 +224,6 @@
             </div>
           @endif
         </div>
-      </div>
-
-      <div id="status-error-ocr" class="pago-card" data-ocr-state="error_ocr" {{ $ocrEstado !== 'error_ocr' ? 'style=display:none' : '' }}>
-        <div class="alert" style="border-left-color:var(--danger);text-align:center;">
-          <p style="font-size:1.1rem;font-weight:700;color:#fff;">Error temporal</p>
-          <p style="margin-top:6px;">No pudimos validar el comprobante por un error del sistema.</p>
-          <p style="margin-top:10px;font-size:.78rem;color:var(--ice-300);">Puedes intentar subir el comprobante nuevamente.</p>
-          @if ($pago)
-            <p style="font-size:.78rem;color:var(--ice-300);">Nro. operación: <strong style="color:#fff;">{{ $pago->numero_operacion ?? '—' }}</strong></p>
-          @endif
-        </div>
-        @include('pagos._form-comprobante', ['retry' => true])
-      </div>
-
-      <div id="status-ocr-fallido" class="pago-card" data-ocr-state="ocr_fallido" {{ $ocrEstado !== 'ocr_fallido' ? 'style=display:none' : '' }}>
-        <div class="alert" style="border-left-color:var(--danger);text-align:center;">
-          <p style="font-size:1.1rem;font-weight:700;color:#fff;">No fue posible leer el comprobante</p>
-          <p style="margin-top:6px;">Asegúrate de que la imagen sea clara y legible, luego intenta nuevamente.</p>
-          <p style="margin-top:10px;font-size:.78rem;color:var(--ice-300);">Puedes intentar subir el comprobante nuevamente.</p>
-          @if ($pago)
-            <p style="font-size:.78rem;color:var(--ice-300);">Nro. operación: <strong style="color:#fff;">{{ $pago->numero_operacion ?? '—' }}</strong></p>
-          @endif
-        </div>
-        @include('pagos._form-comprobante', ['retry' => true])
-      </div>
-
-      <div id="status-rechazado" class="pago-card" data-ocr-state="rechazado" {{ !in_array($ocrEstado, ['rechazado', 'confianza_baja', 'sospechoso']) ? 'style=display:none' : '' }}>
-        @php
-          $motivo = match ($ocrEstado) {
-            'rechazado' => 'El monto del comprobante no coincide o el comprobante ya fue utilizado.',
-            'confianza_baja' => 'No se pudo leer el comprobante con suficiente claridad.',
-            'sospechoso' => 'Los datos del comprobante no coinciden con los ingresados.',
-            default => 'El comprobante no pudo ser validado automáticamente.',
-          };
-        @endphp
-        <div class="alert" style="border-left-color:var(--danger);text-align:center;">
-          <p style="font-size:1.1rem;font-weight:700;color:#fff;">No fue posible validar automáticamente el comprobante</p>
-          <p style="margin-top:6px;">{{ $motivo }}</p>
-          <p style="margin-top:10px;font-size:.78rem;color:var(--ice-300);">Si el problema persiste, puedes intentar subir un comprobante diferente.</p>
-          @if ($pago)
-            <p style="font-size:.78rem;color:var(--ice-300);">Nro. operación: <strong style="color:#fff;">{{ $pago->numero_operacion ?? '—' }}</strong></p>
-          @endif
-        </div>
-        @include('pagos._form-comprobante', ['retry' => true])
       </div>
     </div>
 
@@ -433,7 +368,7 @@
         aprobado:   'background:rgba(0,212,170,.1);border:1px solid rgba(0,212,170,.3);color:var(--success)',
         completado: 'background:rgba(0,212,170,.1);border:1px solid rgba(0,212,170,.3);color:var(--success)',
         pendiente:  'background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.3);color:var(--warning)',
-        error:      'background:rgba(255,107,107,.1);border:1px solid rgba(255,107,107,.3);color:var(--danger)',
+        error:      'background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.3);color:var(--warning)',
         procesando: 'background:rgba(0,212,255,.1);border:1px solid rgba(0,212,255,.3);color:var(--accent)',
     };
 
@@ -441,7 +376,7 @@
         aprobado:   'Aprobado',
         completado: 'Completado',
         pendiente:  'Pendiente',
-        error:      'Error',
+        error:      'Pendiente',
         procesando: 'Procesando',
     };
 
@@ -449,7 +384,7 @@
         completado: 'validado',
         procesando: 'procesando',
         pendiente:  'pendiente',
-        error:      'error_ocr',
+        error:      'pendiente',
     };
 
     function updateBadges(data) {

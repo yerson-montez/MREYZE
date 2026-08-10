@@ -121,11 +121,9 @@ class ProcesarComprobanteJob implements ShouldQueue
                 'hash'         => $resultado->hashSha256,
             ]);
         } else {
-            $estadoPagoOcr = $estadoValidacion === EstadoValidacionOcr::Rechazado
-                ? 'rechazado'
-                : 'pendiente';
-
-            $this->pago->update(['estado_pago' => $estadoPagoOcr]);
+            // El OCR no validó el comprobante: el pago queda pendiente de revisión manual.
+            // No se expone ningún error técnico al cliente; un administrador lo revisa.
+            $this->pago->update(['estado_pago' => 'pendiente']);
             if ($pedido) {
                 $pedido->update(['estado' => 'pendiente']);
             }
@@ -135,7 +133,7 @@ class ProcesarComprobanteJob implements ShouldQueue
                 'pedido_id'      => $pedido?->id,
                 'inversion_id'   => $inversion?->id,
                 'estado_ocr'     => $estadoValidacion->value,
-                'estado_pago'    => $estadoPagoOcr,
+                'estado_pago'    => 'pendiente',
                 'confianza'      => $resultado->confianzaGlobal,
             ]);
         }
