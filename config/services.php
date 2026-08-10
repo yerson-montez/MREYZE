@@ -54,7 +54,12 @@ return [
     ],
 
     'tesseract' => [
-        'binary_path' => env('TESSERACT_BINARY_PATH', 'C:\Program Files\Tesseract-OCR\tesseract.exe'),
+        'binary_path' => env(
+            'TESSERACT_BINARY_PATH',
+            PHP_OS_FAMILY === 'Windows'
+                ? 'C:\Program Files\Tesseract-OCR\tesseract.exe'
+                : '/usr/bin/tesseract'
+        ),
     ],
 
 ];
