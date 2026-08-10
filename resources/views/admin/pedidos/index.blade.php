@@ -63,10 +63,13 @@
         <thead>
             <tr>
                 <th>#</th>
-                <th>Cliente</th>
                 <th>Producto</th>
+                <th>Cliente</th>
                 <th>Colaborador</th>
                 <th style="text-align: right;">Total</th>
+                <th style="text-align: right;">Pagado</th>
+                <th>N.º operación</th>
+                <th>Comprobantes</th>
                 <th style="text-align: center;">Estado</th>
                 <th>Fecha</th>
                 <th></th>
@@ -74,13 +77,32 @@
         </thead>
         <tbody>
             @forelse ($pedidos as $pedido)
+            @php
+                $img = $pedido->producto->imagenPrincipal;
+                $imgUrl = null;
+                if ($img) {
+                    $imgUrl = str_starts_with($img->ruta, 'http') ? $img->ruta : asset('storage/' . $img->ruta);
+                } elseif ($pedido->producto->icono_imagen) {
+                    $imgUrl = str_starts_with($pedido->producto->icono_imagen, 'http') ? $pedido->producto->icono_imagen : asset('storage/' . $pedido->producto->icono_imagen);
+                }
+                $pagosOrdenados = $pedido->pagos->sortBy('created_at');
+            @endphp
             <tr>
                 <td style="color: var(--muted); font-size: .78rem; font-weight: 600;">{{ $pedido->numero_pedido ?? '#' . $pedido->id }}</td>
+                <td>
+                    <div style="display: flex; align-items: center; gap: 0.6rem;">
+                        @if ($imgUrl)
+                            <img src="{{ $imgUrl }}" alt="{{ $pedido->producto->nombre }}" style="width: 40px; height: 40px; object-fit: cover; border-radius: 8px; border: 1px solid var(--border); flex-shrink: 0;">
+                        @else
+                            <div style="width: 40px; height: 40px; border-radius: 8px; border: 1px dashed var(--border); display: flex; align-items: center; justify-content: center; color: var(--border-md); font-size: .8rem; flex-shrink: 0;">📦</div>
+                        @endif
+                        <span style="color: var(--text); font-size: .82rem; font-weight: 500;">{{ $pedido->producto->nombre }}</span>
+                    </div>
+                </td>
                 <td>
                     <div style="font-weight: 600;">{{ $pedido->cliente_nombre }}</div>
                     <div style="font-size: .75rem; color: var(--muted); margin-top: 0.15rem;">{{ $pedido->cliente_telefono }}</div>
                 </td>
-                <td style="color: var(--text); font-size: .82rem; font-weight: 500;">{{ $pedido->producto->nombre }}</td>
                 <td>
                     @if($pedido->colaborador)
                         <span class="adm-pill" style="background: rgba(139,92,246,.12); color: #a78bfa; border: 1px solid rgba(139,92,246,.22);">
@@ -92,6 +114,32 @@
                 </td>
                 <td style="text-align: right; font-weight: 700; color: var(--text);">
                     S/ {{ number_format($pedido->total, 2) }}
+                </td>
+                <td style="text-align: right; font-weight: 600; color: var(--success);">
+                    S/ {{ number_format($pedido->total_pagado, 2) }}
+                </td>
+                <td style="font-size: .78rem; color: var(--text);">
+                    @forelse ($pagosOrdenados as $pago)
+                        <div style="white-space: nowrap;">{{ $pago->numero_operacion ?? '—' }}</div>
+                    @empty
+                        <span style="color: var(--border-md);">—</span>
+                    @endforelse
+                </td>
+                <td>
+                    @forelse ($pagosOrdenados as $pago)
+                        <div style="display: flex; align-items: center; gap: 0.4rem; white-space: nowrap; padding: 0.15rem 0;">
+                            <span class="adm-pill {{ $pago->estado_pago === 'aprobado' ? 'adm-pill-approved' : ($pago->estado_pago === 'rechazado' ? 'adm-pill-rejected' : 'adm-pill-pending') }}"
+                                  style="font-size: .68rem;">{{ $pago->estado_pago === 'aprobado' ? 'Aprobado' : ($pago->estado_pago === 'rechazado' ? 'Rechazado' : 'Pendiente') }}</span>
+                            @if ($pago->comprobante_pago)
+                                <a href="{{ asset('storage/' . $pago->comprobante_pago) }}" target="_blank"
+                                   class="adm-btn adm-btn-ghost" style="padding: .2rem .5rem; font-size: .7rem;">Ver →</a>
+                            @else
+                                <span style="color: var(--border-md); font-size: .75rem;">sin</span>
+                            @endif
+                        </div>
+                    @empty
+                        <span style="color: var(--border-md);">—</span>
+                    @endforelse
                 </td>
                 <td style="text-align: center;">
                     @php
@@ -130,7 +178,7 @@ default => 'adm-pill-pending',
             </tr>
             @empty
             <tr>
-                <td colspan="8">
+                <td colspan="11">
                     <div class="adm-empty">
                         <div class="adm-empty-icon">📦</div>
                         <div class="adm-empty-title">No hay pedidos aún</div>

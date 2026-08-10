@@ -316,29 +316,6 @@
       <form action="{{ route('pedidos.comprobante', $pedido) }}" method="POST" enctype="multipart/form-data" style="margin-top:16px;">
         @csrf
         <div class="form-group">
-          <label>Método de pago</label>
-          <div style="display:grid;gap:10px;">
-            @foreach ($metodosPago as $metodo)
-              <label style="display:flex;gap:10px;align-items:center;background:rgba(7,26,46,.6);border:1px solid rgba(74,144,217,.2);border-radius:10px;padding:12px;cursor:pointer;">
-                <input type="radio" name="metodo_pago" value="{{ $metodo->clave }}" {{ $loop->first ? 'checked' : '' }} style="accent-color:var(--accent);width:auto;">
-                <span style="flex:1;">
-                  <span style="display:block;font-size:.85rem;font-weight:600;color:#fff;">{{ $metodo->nombre }}</span>
-                  @php $datosMetodo = $metodo->datos ?? []; @endphp
-                  @if (!empty($datosMetodo['numero']))
-                    <span style="display:block;font-size:.75rem;color:var(--ice-300);">N.º {{ $datosMetodo['numero'] }}</span>
-                  @endif
-                  @if (!empty($datosMetodo['cci']))
-                    <span style="display:block;font-size:.75rem;color:var(--ice-300);">CCI {{ $datosMetodo['cci'] }}</span>
-                  @endif
-                  @if (!empty($datosMetodo['titular']))
-                    <span style="display:block;font-size:.75rem;color:var(--ice-300);">{{ $datosMetodo['titular'] }}</span>
-                  @endif
-                </span>
-              </label>
-            @endforeach
-          </div>
-        </div>
-        <div class="form-group">
           <label>Número de operación <span style="color:var(--danger);">*</span></label>
           <input type="text" name="numero_operacion" placeholder="Ej: 123456789" value="{{ old('numero_operacion') }}" required>
         </div>

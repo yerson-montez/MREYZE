@@ -15,7 +15,7 @@ class PedidoAdminController extends Controller
 {
     public function index(Request $request): View
     {
-        $pedidos = Pedido::with(['producto', 'colaborador', 'ultimoPago'])
+        $pedidos = Pedido::with(['producto.imagenPrincipal', 'colaborador', 'pagos'])
             ->when($request->estado, fn ($q, $e) => $q->where('estado', $e))
             ->when($request->search, function ($q, $s) {
                 $q->where('cliente_nombre', 'like', "%{$s}%")
