@@ -639,8 +639,6 @@ private function extraerMonto(array $cleanLines, array $rawLines): ?float
 
     return null;
 }
-```
-
 
     /**
      * Busca fecha resistente a errores de Tesseract.
