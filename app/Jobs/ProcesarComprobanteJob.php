@@ -93,6 +93,7 @@ class ProcesarComprobanteJob implements ShouldQueue
             $codigoIngresado,
             $pagoId,
             $montoEsperado,
+            $inversion,
         );
 
         $this->pago->update([

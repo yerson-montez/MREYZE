@@ -16,6 +16,7 @@ class ProyectoController extends Controller
 
         $portafolio  = (clone $base)->portafolio()->get();
         $disponibles = (clone $base)->inversion()->where('inversion_estado', 'disponible')->get();
+        $enEjecucion = (clone $base)->inversion()->where('inversion_estado', 'en_ejecucion')->get();
         $completados = (clone $base)->inversion()->where('inversion_estado', 'completado')->get();
 
         $categorias = Proyecto::visibles()
@@ -33,7 +34,7 @@ class ProyectoController extends Controller
         }
 
         return view('proyectos.index', compact(
-            'portafolio', 'disponibles', 'completados', 'categorias', 'retornoEjemplo'
+            'portafolio', 'disponibles', 'enEjecucion', 'completados', 'categorias', 'retornoEjemplo'
         ));
     }
 

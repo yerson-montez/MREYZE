@@ -81,6 +81,23 @@
     .inv-pago-titulo svg { width: 18px; height: 18px; color: var(--accent); flex-shrink: 0; }
     .inv-pago-seccion { border-top: 1px solid rgba(74,144,217,.18); margin-top: 1.8rem; padding-top: 1.8rem; }
 
+    /* Frecuencia de ganancias (inversionista) */
+    .inv-frecuencia { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    .inv-frecuencia-opt { position: relative; cursor: pointer; }
+    .inv-frecuencia-opt input { position: absolute; opacity: 0; pointer-events: none; }
+    .inv-frecuencia-caja {
+        display: flex; flex-direction: column; gap: 4px;
+        border: 1.5px solid rgba(74,144,217,.25); border-radius: 14px;
+        background: rgba(7,26,46,.5); padding: 1rem 1.1rem; transition: all .25s;
+    }
+    .inv-frecuencia-opt input:checked + .inv-frecuencia-caja {
+        border-color: var(--accent); background: rgba(0,212,255,.08);
+        box-shadow: 0 0 0 3px rgba(0,212,255,.15);
+    }
+    .inv-frecuencia-opt input:focus-visible + .inv-frecuencia-caja { border-color: var(--accent); }
+    .inv-frecuencia-titulo { font-size: .88rem; font-weight: 700; color: #fff; }
+    .inv-frecuencia-hint { font-size: .72rem; color: var(--ice-300); }
+
     /* Cuenta BBVA */
     .inv-pago-cuenta {
         border: 1px solid rgba(74,144,217,.25); border-radius: 14px;
@@ -194,6 +211,31 @@
                 </div>
 
                 @php $metodoPagoId = old('metodo_pago_id', $metodosPago->first()->id ?? null); @endphp
+
+                <div class="inv-pago-seccion">
+                    <h3 class="inv-pago-titulo">
+                        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M5 22h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2h-4l-2-2H9L7 4H5C3.9 4 3 4.9 3 6v14c0 1.1.9 2 2 2zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm3.5-4.5h-2.5v-3h-2v3H8.5L12 16l3.5-3.5z"/></svg>
+                        ¿Cómo deseas recibir tus ganancias?
+                    </h3>
+                    <p class="inv-hint" style="margin:0 0 1.2rem;">Elige la frecuencia con la que recibirás tus rendimientos.</p>
+
+                    <div class="inv-frecuencia">
+                        <label class="inv-frecuencia-opt">
+                            <input type="radio" name="frecuencia_ganancias" value="mensual" required @checked(old('frecuencia_ganancias') === 'mensual')>
+                            <span class="inv-frecuencia-caja">
+                                <span class="inv-frecuencia-titulo">Mensualmente</span>
+                                <span class="inv-frecuencia-hint">Recibe tus ganancias cada mes</span>
+                            </span>
+                        </label>
+                        <label class="inv-frecuencia-opt">
+                            <input type="radio" name="frecuencia_ganancias" value="anual" @checked(old('frecuencia_ganancias') === 'anual')>
+                            <span class="inv-frecuencia-caja">
+                                <span class="inv-frecuencia-titulo">Anualmente</span>
+                                <span class="inv-frecuencia-hint">Recibe tus ganancias una vez al año</span>
+                            </span>
+                        </label>
+                    </div>
+                </div>
 
                 <div class="inv-pago-seccion">
                     <h3 class="inv-pago-titulo">

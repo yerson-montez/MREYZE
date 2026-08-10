@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\DTOs\ResultadoOcr;
 use App\Enums\EstadoValidacionOcr;
+use App\Models\Inversion;
 use App\Models\Pago;
 use App\Models\Pedido;
 use Illuminate\Support\Facades\Log;
@@ -14,7 +15,7 @@ class ValidacionPagoService
     private const CONFIANZA_ALTA   = 0.8;
     private const TOLERANCIA_MONTO = 0.01;
 
-    public function validar(ResultadoOcr $ocr, ?Pedido $pedido, string $codigoIngresado, int $pagoId, ?float $montoEsperado = null): EstadoValidacionOcr
+    public function validar(ResultadoOcr $ocr, ?Pedido $pedido, string $codigoIngresado, int $pagoId, ?float $montoEsperado = null, ?Inversion $inversion = null): EstadoValidacionOcr
     {
         $montoEsperado ??= $pedido !== null ? (float) $pedido->adelanto : null;
 
@@ -53,11 +54,23 @@ class ValidacionPagoService
             return EstadoValidacionOcr::Sospechoso;
         }
 
-        $diferencia = abs($ocr->monto - $montoEsperado);
+        if ($inversion !== null) {
+            // Inversión/Proyecto: coincidencia EXACTA al 100% en centavos, sin tolerancia.
+            $montoOcrCents      = (int) round((float) $ocr->monto * 100);
+            $montoEsperadoCents = (int) round((float) $montoEsperado * 100);
 
-        if ($diferencia > self::TOLERANCIA_MONTO) {
-            Log::warning('ValidacionPago: el monto no coincide con el adelanto del pedido', $contexto);
-            return EstadoValidacionOcr::Rechazado;
+            if ($montoOcrCents !== $montoEsperadoCents) {
+                Log::warning('ValidacionPago: el monto no coincide exactamente con la inversión', $contexto);
+                return EstadoValidacionOcr::Rechazado;
+            }
+        } else {
+            // Pedido/Tienda: lógica actual con tolerancia de S/ 0.01 (intocada).
+            $diferencia = abs($ocr->monto - $montoEsperado);
+
+            if ($diferencia > self::TOLERANCIA_MONTO) {
+                Log::warning('ValidacionPago: el monto no coincide con el adelanto del pedido', $contexto);
+                return EstadoValidacionOcr::Rechazado;
+            }
         }
 
         $coincideCodigo = $ocr->codigoOperacion !== null

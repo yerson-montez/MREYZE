@@ -436,6 +436,91 @@
     .search-has-text .search-spinner { display: none; }
     .tienda-grid.searching { opacity: 0.4; transition: opacity 0.2s; }
     .tienda-empty { grid-column: 1 / -1; }
+
+    /* ═══════════════════════════════════════
+       TIENDA — ESTADO BÚSQUEDA (lupa)
+       Tarjetas compactas SOLO en resultados de búsqueda.
+       El catálogo normal de /tienda mantiene su diseño actual.
+    ═══════════════════════════════════════ */
+    .tienda-grid.has-search {
+        grid-template-columns: repeat(auto-fill, minmax(158px, 1fr));
+        gap: 0.85rem;
+    }
+
+    .tienda-grid.has-search .producto-card {
+        border-radius: 12px;
+    }
+    .tienda-grid.has-search .producto-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 12px 28px rgba(0,30,90,0.45), 0 0 0 1px rgba(0,212,255,0.06);
+    }
+
+    .tienda-grid.has-search .producto-img { height: 110px; }
+    .tienda-grid.has-search .producto-img-icon { width: 44px; height: 44px; border-radius: 12px; }
+    .tienda-grid.has-search .producto-img-icon svg { width: 22px; height: 22px; }
+
+    .tienda-grid.has-search .producto-stock { top: 6px; left: 6px; font-size: 0.58rem; padding: 2px 7px; }
+    .tienda-grid.has-search .producto-descuento { top: 6px; right: 6px; font-size: 0.62rem; padding: 2px 6px; }
+
+    .tienda-grid.has-search .producto-body { padding: 0.7rem 0.75rem 0.8rem; }
+    .tienda-grid.has-search .producto-cat { font-size: 0.6rem; margin-bottom: 0.25rem; letter-spacing: 0.08em; }
+    .tienda-grid.has-search .producto-nombre {
+        font-size: 0.78rem;
+        margin-bottom: 0.45rem;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+    .tienda-grid.has-search .producto-desc { display: none; }
+
+    .tienda-grid.has-search .producto-footer { gap: 0.4rem; }
+    .tienda-grid.has-search .producto-precio-actual { font-size: 0.9rem; }
+    .tienda-grid.has-search .producto-precio-actual span { font-size: 0.62rem; }
+    .tienda-grid.has-search .producto-precio-anterior { font-size: 0.62rem; }
+
+    .tienda-grid.has-search .producto-btn {
+        padding: 0.42rem 0.6rem;
+        font-size: 0.7rem;
+        border-radius: 7px;
+    }
+    .tienda-grid.has-search .producto-btn svg { width: 12px; height: 12px; }
+
+    .tienda-grid.has-search .producto-thumbs { display: none; }
+
+    /* Búsqueda — tablet pequeña */
+    @media (max-width: 768px) {
+        .tienda-grid.has-search { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 0.6rem; }
+    }
+
+    /* Búsqueda — móvil */
+    @media (max-width: 520px) {
+        .tienda-grid.has-search { grid-template-columns: repeat(4, 1fr); gap: 0.35rem; }
+        .tienda-grid.has-search .producto-card { border-radius: 9px; }
+        .tienda-grid.has-search .producto-card:hover { transform: none; }
+        .tienda-grid.has-search .producto-img { height: 70px; }
+        .tienda-grid.has-search .producto-img-icon { width: 34px; height: 34px; border-radius: 9px; }
+        .tienda-grid.has-search .producto-img-icon svg { width: 17px; height: 17px; }
+        .tienda-grid.has-search .producto-stock { top: 4px; left: 4px; font-size: 0.48rem; padding: 1px 5px; }
+        .tienda-grid.has-search .producto-descuento { top: 4px; right: 4px; font-size: 0.5rem; padding: 1px 4px; border-radius: 3px; }
+        .tienda-grid.has-search .producto-body { padding: 0.4rem; }
+        .tienda-grid.has-search .producto-cat { font-size: 0.48rem; margin-bottom: 0.15rem; }
+        .tienda-grid.has-search .producto-nombre { font-size: 0.62rem; margin-bottom: 0.3rem; }
+        .tienda-grid.has-search .producto-footer { flex-direction: column; align-items: stretch; gap: 0.3rem; }
+        .tienda-grid.has-search .producto-precio-actual { font-size: 0.76rem; }
+        .tienda-grid.has-search .producto-precio-actual span { font-size: 0.55rem; }
+        .tienda-grid.has-search .producto-precio-anterior { font-size: 0.56rem; }
+        .tienda-grid.has-search .producto-btn { padding: 0.32rem 0.3rem; font-size: 0.56rem; justify-content: center; gap: 3px; }
+        .tienda-grid.has-search .producto-btn svg { width: 10px; height: 10px; }
+    }
+
+    /* Búsqueda — móvil muy pequeño */
+    @media (max-width: 360px) {
+        .tienda-grid.has-search { gap: 0.28rem; }
+        .tienda-grid.has-search .producto-img { height: 60px; }
+        .tienda-grid.has-search .producto-nombre { font-size: 0.56rem; }
+        .tienda-grid.has-search .producto-precio-actual { font-size: 0.7rem; }
+    }
 </style>
 
 {{--
@@ -516,7 +601,7 @@
         </div>
 
         {{-- Productos dinámicos desde DB --}}
-        <div class="tienda-grid" id="tiendaGrid">
+        <div class="tienda-grid {{ request('search') ? 'has-search' : '' }}" id="tiendaGrid">
 
             @php($emptyMessage = 'No hay productos disponibles en este momento.')
             @include('tienda._productos')
@@ -564,6 +649,7 @@ function filtrarCat(cat, btn) {
         term = term.trim();
 
         clear.classList.toggle('visible', term.length > 0);
+        grid.classList.toggle('has-search', term.length > 0);
 
         const params = new URLSearchParams({ ajax: '1', cat: currentCat });
         if (term) params.set('search', term);

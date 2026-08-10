@@ -51,6 +51,8 @@ class AdminProyectoController extends Controller
 
         $data = $this->limpiarInversionSiPortafolio($data, $request->input('tipo'));
 
+        $data = $this->aplicarEstadoInversion($data);
+
         if ($request->hasFile('imagen_principal')) {
             $data['imagen_principal'] = $request->file('imagen_principal')
                 ->store('proyectos', 'public');
@@ -98,6 +100,8 @@ class AdminProyectoController extends Controller
         $data = $this->validar($request, $proyecto->id);
 
         $data = $this->limpiarInversionSiPortafolio($data, $request->input('tipo'));
+
+        $data = $this->aplicarEstadoInversion($data);
 
         if ($request->hasFile('imagen_principal')) {
             if ($proyecto->imagen_principal) {
@@ -283,6 +287,14 @@ class AdminProyectoController extends Controller
             foreach (['inversion_monto_total', 'inversion_monto_disponible', 'inversion_porcentaje_financiado', 'inversion_tiempo_estimado', 'inversion_roi', 'inversion_retorno_final', 'inversion_estado', 'inversion_etiqueta'] as $campo) {
                 $data[$campo] = null;
             }
+        }
+        return $data;
+    }
+
+    private function aplicarEstadoInversion(array $data): array
+    {
+        if (($data['tipo'] ?? null) === 'inversion' && ($data['estado'] ?? null) === 'completado') {
+            $data['inversion_estado'] = 'completado';
         }
         return $data;
     }

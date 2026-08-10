@@ -806,6 +806,7 @@ function updateOrder() {
 (function () {
     const tipoSel = document.getElementById('tipo');
     const invFields = document.getElementById('invFields');
+    const estadoSel = document.getElementById('estado');
     const estadoInvSel = document.getElementById('inversion_estado');
     const retornoFinalRow = document.getElementById('retornoFinalRow');
 
@@ -817,14 +818,23 @@ function updateOrder() {
                 ? '' : 'none';
     }
 
-    function syncInvFields() {
-        if (invFields) {
-            invFields.style.display = tipoSel && tipoSel.value === 'inversion' ? '' : 'none';
+    function syncEstadoCompletado() {
+        if (estadoSel && estadoInvSel && tipoSel &&
+            estadoSel.value === 'completado' && tipoSel.value === 'inversion') {
+            estadoInvSel.value = 'completado';
         }
         syncRetornoFinal();
     }
 
+    function syncInvFields() {
+        if (invFields) {
+            invFields.style.display = tipoSel && tipoSel.value === 'inversion' ? '' : 'none';
+        }
+        syncEstadoCompletado();
+    }
+
     if (tipoSel) tipoSel.addEventListener('change', syncInvFields);
+    if (estadoSel) estadoSel.addEventListener('change', syncEstadoCompletado);
     if (estadoInvSel) estadoInvSel.addEventListener('change', syncRetornoFinal);
     syncInvFields();
 })();
