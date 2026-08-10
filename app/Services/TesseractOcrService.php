@@ -544,86 +544,90 @@ private function extraerMonto(array $cleanLines, array $rawLines): ?float
     $normalizedMap = [];
 
     foreach ($cleanLines as $line) {
-        $normalized = strtr($line, [
+        $normalizedMap[] = strtr($line, [
             'O' => '0',
             'o' => '0',
         ]);
-
-        $normalizedMap[] = $normalized;
     }
 
-    Log::debug('MontoOCR: DEBUG líneas candidatas para extraer monto', [
-        'raw'   => array_values(array_filter(
-            $rawLines,
-            fn($l) => (bool) preg_match('/[S5s\$][\/\:\|I1l]?/u', $l)
-                || stripos($l, 'monto') !== false
-                || stripos($l, 'total') !== false
-                || stripos($l, 'importe') !== false
-                || stripos($l, 'pago') !== false
-        )),
-        'clean' => array_values(array_filter(
-            $normalizedMap,
-            fn($l) => (bool) preg_match('/[S5s\$][\/\:\|I1l]?/u', $l)
-                || stripos($l, 'monto') !== false
-                || stripos($l, 'total') !== false
-                || stripos($l, 'importe') !== false
-                || stripos($l, 'pago') !== false
-        )),
-    ]);
-
     /*
-     * 1. Formato principal:
-     *    S/1
-     *    S/ 1
-     *    S/1.00
-     *    S1
-     *    S 1
-     *
-     * NO convertimos 7 -> 1 aquí.
+     * 1. PRIORIDAD: detectar directamente S/10, S/ 10, S10, etc.
      */
-    $patterns = [
-        '/(?:M0NT0|M0NTO|MONTO|PAG0|PAGO|T0TAL|TOTAL|IMPORTE)'
-            . '[:\s]*[S5s\$]'
-            . '[\/\:\|I1l]*\s*'
-            . '([0-9]+(?:\.[0-9]{1,2})?)/u',
-
-        '/[S5s\$][\/\:\|I1l]*\s*'
-            . '([0-9]+(?:\.[0-9]{1,2})?)/u',
-    ];
+    $moneyPattern = '~^[S5s\$]\s*[/:\|I1l]\s*([0-9]+(?:\.[0-9]{1,2})?)$~u';
 
     foreach ($normalizedMap as $line) {
-        foreach ($patterns as $pattern) {
-            if (preg_match($pattern, $line, $m)) {
-                $val = $this->corregirDigitos($m[1]);
+        $line = trim($line);
 
-                if (
-                    is_numeric($val)
-                    && (float) $val > 0
-                    && (float) $val < 100000
-                ) {
-                    Log::info('MontoOCR: DEBUG monto por patrón principal', [
-                        'linea'   => $line,
-                        'captura' => $m[1],
-                        'monto'   => (float) $val,
-                    ]);
-                    return (float) $val;
+        if (preg_match($moneyPattern, $line, $m)) {
+            $val = $this->corregirDigitos($m[1]);
+
+            if (
+                is_numeric($val)
+                && (float) $val > 0
+                && (float) $val < 100000
+            ) {
+                Log::info('MontoOCR: monto encontrado junto a símbolo monetario', [
+                    'linea'   => $line,
+                    'captura' => $m[1],
+                    'monto'   => (float) $val,
+                ]);
+
+                return (float) $val;
+            }
+        }
+    }
+
+    /*
+     * 2. Si Tesseract separa:
+     *
+     * S/
+     * 10
+     */
+    $lineCount = count($normalizedMap);
+
+    for ($i = 0; $i < $lineCount; $i++) {
+        $current = trim($normalizedMap[$i]);
+
+        if (preg_match('/^[S5s\$]\s*[/\:\|I1l]?\s*$/u', $current)) {
+
+            if (isset($normalizedMap[$i + 1])) {
+                $next = trim($normalizedMap[$i + 1]);
+
+                if (preg_match('/^([0-9]+(?:\.[0-9]{1,2})?)$/u', $next, $m)) {
+                    $val = $this->corregirDigitos($m[1]);
+
+                    if (
+                        is_numeric($val)
+                        && (float) $val > 0
+                        && (float) $val < 100000
+                    ) {
+                        Log::info('MontoOCR: monto encontrado en línea siguiente', [
+                            'linea_simbolo' => $current,
+                            'linea_monto'   => $next,
+                            'monto'         => (float) $val,
+                        ]);
+
+                        return (float) $val;
+                    }
                 }
             }
         }
     }
 
     /*
-     * 2. Caso donde Tesseract deja solamente:
+     * 3. Buscar formatos como:
      *
-     *    S/1
-     *    S/ 1
-     *    S1
+     * MONTO: S/10
+     * PAGO: S/10
+     * TOTAL: S/10
      */
-    $standalonePattern = '/^[S5s\$][\/\:\|I1l]?\s*'
-        . '([0-9]+(?:\.[0-9]{1,2})?)\s*$/u';
-
+$labelPattern =
+    '/(?:M0NT0|M0NTO|MONTO|PAG0|PAGO|T0TAL|TOTAL|IMPORTE)'
+    . '[:\s]*'
+    . '[S5s$]\s*[\/:\|I1l]?\s*'
+    . '([0-9]+(?:\.[0-9]{1,2})?)/u';
     foreach ($normalizedMap as $line) {
-        if (preg_match($standalonePattern, trim($line), $m)) {
+        if (preg_match($labelPattern, $line, $m)) {
             $val = $this->corregirDigitos($m[1]);
 
             if (
@@ -631,55 +635,27 @@ private function extraerMonto(array $cleanLines, array $rawLines): ?float
                 && (float) $val > 0
                 && (float) $val < 100000
             ) {
-                Log::info('MontoOCR: DEBUG monto por patrón standalone', [
-                    'linea'   => trim($line),
+                Log::info('MontoOCR: monto encontrado por etiqueta', [
+                    'linea'   => $line,
                     'captura' => $m[1],
                     'monto'   => (float) $val,
                 ]);
+
                 return (float) $val;
             }
         }
     }
 
     /*
-     * 3. Último recurso:
-     * buscar un monto con símbolo monetario en el texto OCR.
-     *
-     * Evitamos líneas con ":" porque pueden ser teléfonos,
-     * horas u otros datos de la transacción.
+     * 4. Si no encuentra S/ + número, NO inventar monto.
      */
-    $genericPattern = '/[S5s\$][\/\:\|I1l]?\s*'
-        . '([0-9]+(?:\.[0-9]{1,2})?)\b/u';
-
-    foreach ($rawLines as $line) {
-        if (preg_match($genericPattern, $line, $m)) {
-            $val = $this->corregirDigitos($m[1]);
-
-            if (
-                is_numeric($val)
-                && (float) $val > 0
-                && (float) $val < 100000
-                && !str_contains($line, ':')
-            ) {
-                Log::info('MontoOCR: DEBUG monto por patrón genérico', [
-                    'linea'   => $line,
-                    'captura' => $m[1],
-                    'monto'   => (float) $val,
-                ]);
-                return (float) $val;
-            }
-        }
-    }
+    Log::warning('MontoOCR: no se encontró un monto monetario confiable', [
+        'cleanLines' => $normalizedMap,
+        'rawLines'   => $rawLines,
+    ]);
 
     return null;
 }
-
-    /**
-     * Busca fecha resistente a errores de Tesseract.
-     *   dd/mm/aaaa, dd-mm-aaaa, dd mm aaaa
-     *   dd mmm aaaa   (18 jul 2026, 18jul2026)
-     *   O→0 en años
-     */
     private function extraerFecha(array $cleanLines, array $rawLines): ?string
     {
         $normalizedMap = [];
