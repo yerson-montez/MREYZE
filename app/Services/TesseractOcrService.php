@@ -524,57 +524,123 @@ class TesseractOcrService
 
         return null;
     }
+/**
+ * Busca monto resistente a errores de Tesseract.
+ *
+ * Soporta:
+ * - S/1, S/2, S/5, S/10
+ * - S/ 1
+ * - S1, S2
+ * - S/1.00
+ * - errores comunes de OCR: O/0, I/1, S/5
+ *
+ * IMPORTANTE:
+ * Esta función NO cambia el monto por sí sola basándose
+ * en el monto esperado del pedido. Solo extrae lo que
+ * realmente aparece en el comprobante.
+ */
+private function extraerMonto(array $cleanLines, array $rawLines): ?float
+{
+    $normalizedMap = [];
 
-    /**
-     * Busca monto resistente a errores:
-     *   S/2, S/2.00, S2, s/, 5/2, SI2, falta de slash.
-     * Maneja confusión S/5, 0/O en números.
-     */
-    private function extraerMonto(array $cleanLines, array $rawLines): ?float
-    {
-        $normalizedMap = [];
-        foreach ($cleanLines as $i => $line) {
-            $normalizedMap[] = preg_replace('/[Oo]/', '0', $line);
-        }
+    foreach ($cleanLines as $line) {
+        $normalized = strtr($line, [
+            'O' => '0',
+            'o' => '0',
+        ]);
 
-        $patterns = [
-            '/(?:M0NT0|M0NTO|MONTO|PAG0|PAGO|T0TAL|TOTAL|IMPORTE)[:\s]*[S5s\$][\/\:\|I1l]*\s*([0-9]+(?:\.[0-9]{1,2})?)/u',
-        ];
-
-        foreach ($normalizedMap as $line) {
-            foreach ($patterns as $pattern) {
-                if (preg_match($pattern, $line, $m)) {
-                    $val = $this->corregirDigitos($m[1]);
-                    if (is_numeric($val) && (float) $val > 0 && (float) $val < 100000) {
-                        return (float) $val;
-                    }
-                }
-            }
-        }
-
-        $standalonePattern = '/^[S5s\$][\/\:\|I1l]?\s*([0-9]+(?:\.[0-9]{1,2})?)\s*$/um';
-        foreach ($normalizedMap as $line) {
-            if (preg_match($standalonePattern, $line, $m)) {
-                $val = $this->corregirDigitos($m[1]);
-                if (is_numeric($val) && (float) $val > 0 && (float) $val < 100000) {
-                    return (float) $val;
-                }
-            }
-        }
-
-        $genericPattern = '/[S5s\$][\/\:\|I1l]?\s*([0-9]+(?:\.[0-9]{1,2})?)\b/u';
-        foreach ($rawLines as $line) {
-            if (preg_match($genericPattern, $line, $m)) {
-                $val = $this->corregirDigitos($m[1]);
-                if (is_numeric($val) && (float) $val > 0 && (float) $val < 100000
-                    && !str_contains($line, ':')) {
-                    return (float) $val;
-                }
-            }
-        }
-
-        return null;
+        $normalizedMap[] = $normalized;
     }
+
+    /*
+     * 1. Formato principal:
+     *    S/1
+     *    S/ 1
+     *    S/1.00
+     *    S1
+     *    S 1
+     *
+     * NO convertimos 7 -> 1 aquí.
+     */
+    $patterns = [
+        '/(?:M0NT0|M0NTO|MONTO|PAG0|PAGO|T0TAL|TOTAL|IMPORTE)'
+            . '[:\s]*[S5s\$]'
+            . '[\/\:\|I1l]*\s*'
+            . '([0-9]+(?:\.[0-9]{1,2})?)/u',
+
+        '/[S5s\$][\/\:\|I1l]*\s*'
+            . '([0-9]+(?:\.[0-9]{1,2})?)/u',
+    ];
+
+    foreach ($normalizedMap as $line) {
+        foreach ($patterns as $pattern) {
+            if (preg_match($pattern, $line, $m)) {
+                $val = $this->corregirDigitos($m[1]);
+
+                if (
+                    is_numeric($val)
+                    && (float) $val > 0
+                    && (float) $val < 100000
+                ) {
+                    return (float) $val;
+                }
+            }
+        }
+    }
+
+    /*
+     * 2. Caso donde Tesseract deja solamente:
+     *
+     *    S/1
+     *    S/ 1
+     *    S1
+     */
+    $standalonePattern = '/^[S5s\$][\/\:\|I1l]?\s*'
+        . '([0-9]+(?:\.[0-9]{1,2})?)\s*$/u';
+
+    foreach ($normalizedMap as $line) {
+        if (preg_match($standalonePattern, trim($line), $m)) {
+            $val = $this->corregirDigitos($m[1]);
+
+            if (
+                is_numeric($val)
+                && (float) $val > 0
+                && (float) $val < 100000
+            ) {
+                return (float) $val;
+            }
+        }
+    }
+
+    /*
+     * 3. Último recurso:
+     * buscar un monto con símbolo monetario en el texto OCR.
+     *
+     * Evitamos líneas con ":" porque pueden ser teléfonos,
+     * horas u otros datos de la transacción.
+     */
+    $genericPattern = '/[S5s\$][\/\:\|I1l]?\s*'
+        . '([0-9]+(?:\.[0-9]{1,2})?)\b/u';
+
+    foreach ($rawLines as $line) {
+        if (preg_match($genericPattern, $line, $m)) {
+            $val = $this->corregirDigitos($m[1]);
+
+            if (
+                is_numeric($val)
+                && (float) $val > 0
+                && (float) $val < 100000
+                && !str_contains($line, ':')
+            ) {
+                return (float) $val;
+            }
+        }
+    }
+
+    return null;
+}
+```
+
 
     /**
      * Busca fecha resistente a errores de Tesseract.
