@@ -256,7 +256,7 @@
         </div>
         <div class="form-group">
           <label>Comprobante (JPG, PNG o PDF — máx 5 MB)</label>
-          <input type="file" name="comprobante" accept=".jpg,.jpeg,.png,.pdf">
+          <input type="file" name="comprobante" accept="image/*,application/pdf">
         </div>
         <button type="submit" class="btn-yape">
           <svg viewBox="0 0 24 24" fill="currentColor" style="width:18px;height:18px;"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
