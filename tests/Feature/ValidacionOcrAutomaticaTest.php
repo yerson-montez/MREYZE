@@ -242,4 +242,32 @@ class ValidacionOcrAutomaticaTest extends TestCase
         $this->assertSame('rechazado', $pago->fresh()->ocr_resultado);
         $this->assertSame('pendiente', $pago->fresh()->estado_pago);
     }
+
+    public function test_endpoint_leer_comprobante_devuelve_codigo_ocr()
+    {
+        Storage::fake('public');
+        $cliente = $this->crearCliente();
+        $this->mockOcr(50.00, '5504293');
+
+        $this->actingAs($cliente)
+            ->post(route('comprobante.leer'), [
+                'comprobante' => UploadedFile::fake()->image('comprobante.png', 600, 400),
+            ])
+            ->assertOk()
+            ->assertJson([
+                'codigo' => '5504293',
+                'monto'  => 50.00,
+            ]);
+
+        Storage::disk('public')->assertDirectoryEmpty('comprobantes/tmp');
+    }
+
+    public function test_endpoint_leer_comprobante_sin_archivo_responde_422()
+    {
+        $cliente = $this->crearCliente();
+
+        $this->actingAs($cliente)
+            ->post(route('comprobante.leer'), [])
+            ->assertStatus(422);
+    }
 }

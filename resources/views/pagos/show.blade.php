@@ -357,6 +357,59 @@
 @endphp
 <script>
 (function() {
+    var leerUrl = '{{ route('comprobante.leer') }}';
+    var csrfToken = '{{ csrf_token() }}';
+
+    function ocrAutofill(fileInput) {
+        var form = fileInput.closest('form');
+        if (!form) return;
+        var opInput = form.querySelector('input[name="numero_operacion"]');
+        if (!opInput) return;
+        var file = fileInput.files && fileInput.files[0];
+        if (!file) return;
+
+        var status = document.createElement('div');
+        status.style.cssText = 'margin-top:8px;font-size:.78rem;color:var(--accent);';
+        status.textContent = '🔍 Leyendo comprobante...';
+        fileInput.parentNode.appendChild(status);
+
+        var fd = new FormData();
+        fd.append('comprobante', file);
+
+        fetch(leerUrl, {
+            method: 'POST',
+            headers: { 'X-CSRF-TOKEN': csrfToken, 'Accept': 'application/json' },
+            body: fd
+        })
+        .then(function (r) { return r.json().catch(function () { return null; }); })
+        .then(function (data) {
+            if (data && data.codigo) {
+                opInput.value = data.codigo;
+                status.textContent = '✅ Nro. de operación detectado: ' + data.codigo + ' (puedes editarlo)';
+                status.style.color = 'var(--success)';
+            } else {
+                opInput.value = '';
+                status.textContent = 'No se detectó automáticamente. Escribe el número manualmente.';
+                status.style.color = 'var(--warning)';
+            }
+        })
+        .catch(function () {
+            opInput.value = '';
+            status.textContent = 'No se pudo leer el comprobante. Escribe el número manualmente.';
+            status.style.color = 'var(--warning)';
+        });
+    }
+
+    document.addEventListener('change', function (e) {
+        var t = e.target;
+        if (t && t.type === 'file' && t.name === 'comprobante') {
+            ocrAutofill(t);
+        }
+    });
+})();
+</script>
+<script>
+(function() {
     var POLL_INTERVAL = 3000;
     var pollUrl = '{{ $pollUrl }}';
     var pedidoId = {{ $pedidoId }};

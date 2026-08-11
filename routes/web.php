@@ -86,6 +86,7 @@ Route::middleware('auth')->group(function () {
     // Pago con Yape
     Route::get('/pedido/{pedido}/pago',        [PagoController::class, 'show'])->name('pedidos.pago');
     Route::post('/pedido/{pedido}/comprobante', [PagoController::class, 'storeComprobante'])->name('pedidos.comprobante');
+    Route::post('/comprobante/leer', [PagoController::class, 'leerComprobante'])->name('comprobante.leer');
     Route::get('/pedido/{pedido}/estado',      [PagoController::class, 'estado'])->name('pedidos.estado');
     Route::get('/pedido/{pedido}/boleta',      [PagoController::class, 'showBoleta'])->name('pedidos.boleta');
     Route::get('/pedido/{pedido}/boleta.pdf',  [PagoController::class, 'boletaPdf'])->name('pedidos.boleta.pdf');

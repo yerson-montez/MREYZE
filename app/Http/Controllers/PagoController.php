@@ -9,7 +9,10 @@ use App\Models\Boleta;
 use App\Models\MetodoPago;
 use App\Models\Pago;
 use App\Models\Pedido;
+use App\Services\TesseractOcrService;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class PagoController extends Controller
 {
@@ -147,6 +150,31 @@ class PagoController extends Controller
         }
 
         return redirect()->route('pedidos.pago', $pedido)->with('success', $mensaje);
+    }
+
+    public function leerComprobante(Request $request)
+    {
+        if (! $request->hasFile('comprobante')) {
+            return response()->json(['error' => 'No se recibió ningún archivo.'], 422);
+        }
+
+        $path = $request->file('comprobante')->store('comprobantes/tmp', 'public');
+
+        try {
+            $resultado = app(TesseractOcrService::class)->extraerTexto($path);
+
+            if ($resultado === null) {
+                return response()->json(['codigo' => null, 'monto' => null, 'fecha' => null]);
+            }
+
+            return response()->json([
+                'codigo' => $resultado->codigoOperacion,
+                'monto'  => $resultado->monto,
+                'fecha'  => $resultado->fecha,
+            ]);
+        } finally {
+            Storage::disk('public')->delete($path);
+        }
     }
 
     public function status(Pedido $pedido)

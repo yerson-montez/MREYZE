@@ -385,6 +385,41 @@ document.addEventListener('DOMContentLoaded', function () {
     }
     initInvUpload('comprobante', 'nombre-comprobante');
     initInvUpload('firma', 'nombre-firma');
+
+    var comprobanteInput = document.getElementById('comprobante');
+    var numeroOperacion = document.getElementById('numero_operacion');
+    var nombreComprobante = document.getElementById('nombre-comprobante');
+
+    if (comprobanteInput && numeroOperacion) {
+        comprobanteInput.addEventListener('change', function () {
+            var file = this.files && this.files[0];
+            if (!file) return;
+            nombreComprobante.textContent = '🔍 Leyendo comprobante...';
+
+            var fd = new FormData();
+            fd.append('comprobante', file);
+
+            fetch('{{ route('comprobante.leer') }}', {
+                method: 'POST',
+                headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}', 'Accept': 'application/json' },
+                body: fd
+            })
+            .then(function (r) { return r.json().catch(function () { return null; }); })
+            .then(function (data) {
+                if (data && data.codigo) {
+                    numeroOperacion.value = data.codigo;
+                    nombreComprobante.textContent = '✅ Nro. de operación detectado: ' + data.codigo + ' (puedes editarlo)';
+                } else {
+                    numeroOperacion.value = '';
+                    nombreComprobante.textContent = '✓ ' + file.name + ' — no se detectó el nro. automáticamente';
+                }
+            })
+            .catch(function () {
+                numeroOperacion.value = '';
+                nombreComprobante.textContent = '✓ ' + file.name;
+            });
+        });
+    }
 });
 </script>
 @endpush

@@ -27,9 +27,25 @@
   }
   .ypq-qr-caja img{width:190px;height:190px;border-radius:14px;object-fit:contain;background:#fff;padding:8px;box-shadow:0 10px 30px rgba(0,0,0,.35);}
   .ypq-qr-caja p{font-size:.78rem;color:var(--ice-300);margin:0;}
+
+  @media (max-width: 480px) {
+    .pago-metodos .info-row{
+      flex-direction:column;align-items:flex-start;gap:3px;padding:10px 0;
+    }
+    .pago-metodos .info-label{
+      font-size:.7rem;letter-spacing:.04em;
+    }
+    .pago-metodos .info-value{
+      width:100%;font-size:.9rem;line-height:1.45;
+      overflow-wrap:anywhere;word-break:break-word;
+    }
+    .pago-metodos .ypq-qr-btn{
+      padding:.9rem 1rem;font-size:.88rem;gap:8px;
+    }
+  }
 </style>
 
-<div class="pago-card">
+<div class="pago-card pago-metodos">
   <h2>MÉTODOS DE PAGO</h2>
 
   {{-- Datos de pago: SIEMPRE visibles --}}
