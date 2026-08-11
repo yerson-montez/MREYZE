@@ -506,9 +506,10 @@ class TesseractOcrService
             foreach ($patterns as $pattern) {
                 if (preg_match($pattern, $line, $m)) {
                     $code = $this->corregirDigitos($m[1]);
-                    if (preg_match('/^[A-Z0-9]{6,}$/', $code)) {
+                    if ($this->esCodigoOperacionPlausible($code)) {
                         return $code;
                     }
+                    Log::debug('CodigoOCR: candidato descartado (patrón de etiqueta)', ['candidato' => $code]);
                 }
             }
         }
@@ -516,13 +517,42 @@ class TesseractOcrService
         foreach ($rawLines as $line) {
             if (preg_match('/\b([A-Z0-9]{6,})\s*$/', $line, $m)) {
                 $code = $this->corregirDigitos($m[1]);
-                if (preg_match('/^[A-Z0-9]{6,}$/', $code)) {
+                if ($this->esCodigoOperacionPlausible($code)) {
                     return $code;
                 }
+                Log::debug('CodigoOCR: candidato descartado (fallback fin de línea)', ['candidato' => $code]);
             }
         }
 
         return null;
+    }
+
+    /**
+     * Filtra candidatos para evitar que palabras basura del OCR (p. ej. "QUNONE"
+     * en fotos de móvil) se tomen como número de operación.
+     *
+     * Los códigos reales (Yape, Plin, BCP, Interbank, etc.) son numéricos o con
+     * prefijos cortos como "OP" / "N" seguidos de dígitos.
+     */
+    private function esCodigoOperacionPlausible(string $code): bool
+    {
+        if (! preg_match('/^[A-Z0-9]{6,}$/', $code)) {
+            return false;
+        }
+        if (preg_match('/^[0-9]{6,}$/', $code)) {
+            return true;
+        }
+        if (preg_match('/^[O0]P-?[0-9]{4,}$/i', $code)) {
+            return true;
+        }
+        if (preg_match('/^N-?[0-9]{4,}$/i', $code)) {
+            return true;
+        }
+        if (preg_match('/^[A-Z][0-9]{5,}$/', $code)) {
+            return true;
+        }
+
+        return false;
     }
 /**
  * Busca monto resistente a errores de Tesseract.

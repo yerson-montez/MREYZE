@@ -103,6 +103,17 @@ class PagoController extends Controller
             return back()->withErrors(['pedido' => 'Este pedido no tiene saldo pendiente.']);
         }
 
+        $numeroOperacion = trim((string) $request->input('numero_operacion'));
+
+        if ($numeroOperacion !== ''
+            && Pago::where('numero_operacion', $numeroOperacion)
+                ->where('estado_pago', 'aprobado')
+                ->exists()) {
+            return back()->withErrors([
+                'numero_operacion' => 'El número de operación ' . $numeroOperacion . ' ya fue utilizado. Verifica el número ingresado.',
+            ])->withInput();
+        }
+
         $montoPago = $totalPagado > 0 ? $saldoPendiente : (float) $pedido->adelanto;
 
         $metodoClave = $request->input('metodo_pago');

@@ -77,6 +77,17 @@ class InversionController extends Controller
             ])->withInput();
         }
 
+        $numeroOperacion = trim((string) ($data['numero_operacion'] ?? ''));
+
+        if ($numeroOperacion !== ''
+            && Pago::where('numero_operacion', $numeroOperacion)
+                ->where('estado_pago', 'aprobado')
+                ->exists()) {
+            return back()->withErrors([
+                'numero_operacion' => 'El número de operación ' . $numeroOperacion . ' ya fue utilizado. Verifica el número ingresado.',
+            ])->withInput();
+        }
+
         if ($request->hasFile('comprobante')) {
             $data['comprobante'] = $request->file('comprobante')->store('inversiones', 'public');
         }

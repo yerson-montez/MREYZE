@@ -270,4 +270,127 @@ class ValidacionOcrAutomaticaTest extends TestCase
             ->post(route('comprobante.leer'), [])
             ->assertStatus(422);
     }
+
+    public function test_pedido_rechaza_numero_de_operacion_ya_aprobado()
+    {
+        Storage::fake('public');
+        $cliente  = $this->crearCliente();
+        $producto = $this->crearProducto(100.00);
+        $pedido   = $this->crearPedido($cliente, $producto);
+
+        // El número ya fue usado por un pago APROBADO en otro pedido.
+        $otroPedido = $this->crearPedido($cliente, $producto);
+        Pago::create([
+            'pedido_id'        => $otroPedido->id,
+            'user_id'          => $cliente->id,
+            'numero_operacion' => '5504293',
+            'monto'            => 50.00,
+            'estado_pago'      => 'aprobado',
+            'ocr_resultado'    => 'validado',
+        ]);
+
+        $this->actingAs($cliente)
+            ->post(route('pedidos.comprobante', $pedido), [
+                'numero_operacion' => '5504293',
+                'comprobante'      => UploadedFile::fake()->image('comprobante.png', 600, 400),
+            ])
+            ->assertSessionHasErrors('numero_operacion');
+
+        $this->assertSame(0, $pedido->pagos()->count());
+    }
+
+    public function test_pedido_permite_reutilizar_numero_de_pago_pendiente_o_rechazado()
+    {
+        Storage::fake('public');
+        $cliente  = $this->crearCliente();
+        $producto = $this->crearProducto(100.00);
+        $pedido   = $this->crearPedido($cliente, $producto);
+
+        // Pago previo PENDIENTE/RECHAZADO con el mismo número: el reintento es legítimo.
+        Pago::create([
+            'pedido_id'        => $pedido->id,
+            'user_id'          => $cliente->id,
+            'numero_operacion' => '5504293',
+            'monto'            => 50.00,
+            'estado_pago'      => 'pendiente',
+            'ocr_resultado'    => 'rechazado',
+        ]);
+
+        $this->mockOcr(50.00, '5504293');
+
+        $this->actingAs($cliente)
+            ->post(route('pedidos.comprobante', $pedido), [
+                'numero_operacion' => '5504293',
+                'comprobante'      => UploadedFile::fake()->image('comprobante.png', 600, 400),
+            ])
+            ->assertRedirect(route('pedidos.pago', $pedido));
+
+        $this->assertSame(2, $pedido->pagos()->count());
+    }
+
+    public function test_inversion_rechaza_numero_de_operacion_ya_aprobado()
+    {
+        Storage::fake('public');
+        $user     = $this->crearCliente();
+        $proyecto = $this->crearProyecto();
+        $metodo   = $this->crearMetodo();
+
+        Pago::create([
+            'user_id'          => $user->id,
+            'numero_operacion' => 'OP-777',
+            'monto'            => 5000.00,
+            'estado_pago'      => 'aprobado',
+            'ocr_resultado'    => 'validado',
+        ]);
+
+        $this->actingAs($user)
+            ->post(route('inversiones.store', $proyecto), [
+                'nombre'           => 'María Pérez',
+                'email'            => 'maria@test.com',
+                'banco'            => 'BBVA',
+                'cuenta_bancaria'  => '0011-0146-0100050182',
+                'cci_bancario'     => '011-146-000100050182-83',
+                'titular_cuenta'   => 'María Pérez',
+                'monto'            => 5000,
+                'metodo_pago_id'   => $metodo->id,
+                'numero_operacion' => 'OP-777',
+            ])
+            ->assertSessionHasErrors('numero_operacion');
+
+        $this->assertSame(0, Inversion::count());
+    }
+
+    public function test_inversion_permite_varios_pagos_legitimos()
+    {
+        Storage::fake('public');
+        $user     = $this->crearCliente();
+        $proyecto = $this->crearProyecto();
+        $metodo   = $this->crearMetodo();
+
+        // Dos pagos legítimos con números distintos.
+        Pago::create([
+            'user_id'          => $user->id,
+            'numero_operacion' => 'OP-100001',
+            'monto'            => 5000.00,
+            'estado_pago'      => 'aprobado',
+            'ocr_resultado'    => 'validado',
+        ]);
+
+        $this->actingAs($user)
+            ->post(route('inversiones.store', $proyecto), [
+                'nombre'           => 'María Pérez',
+                'email'            => 'maria@test.com',
+                'banco'            => 'BBVA',
+                'cuenta_bancaria'  => '0011-0146-0100050182',
+                'cci_bancario'     => '011-146-000100050182-83',
+                'titular_cuenta'   => 'María Pérez',
+                'monto'            => 5000,
+                'metodo_pago_id'   => $metodo->id,
+                'numero_operacion' => 'OP-200002',
+            ])
+            ->assertRedirect(route('inversiones.gracias', $proyecto));
+
+        $this->assertSame(1, Inversion::count());
+        $this->assertSame(1, Pago::where('numero_operacion', 'OP-200002')->where('inversion_id', '!=', null)->count());
+    }
 }
