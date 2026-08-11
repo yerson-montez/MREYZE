@@ -1,0 +1,26 @@
+[1mdiff --git a/resources/views/pagos/_form-comprobante.blade.php b/resources/views/pagos/_form-comprobante.blade.php[m
+[1mindex 1b7def8..ccdb744 100644[m
+[1m--- a/resources/views/pagos/_form-comprobante.blade.php[m
+[1m+++ b/resources/views/pagos/_form-comprobante.blade.php[m
+[36m@@ -10,7 +10,7 @@[m
+     </div>[m
+     <div class="form-group">[m
+       <label>Comprobante (JPG, PNG o PDF — máx 5 MB)</label>[m
+[31m-      <input type="file" name="comprobante" accept=".jpg,.jpeg,.png,.pdf">[m
+[32m+[m[32m      <input type="file" name="comprobante" accept="image/*,application/pdf">[m
+     </div>[m
+     <button type="submit" class="btn-yape">[m
+       <svg viewBox="0 0 24 24" fill="currentColor" style="width:18px;height:18px;"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>[m
+[1mdiff --git a/resources/views/pagos/show.blade.php b/resources/views/pagos/show.blade.php[m
+[1mindex 018ddf1..4ee7012 100644[m
+[1m--- a/resources/views/pagos/show.blade.php[m
+[1m+++ b/resources/views/pagos/show.blade.php[m
+[36m@@ -256,7 +256,7 @@[m
+         </div>[m
+         <div class="form-group">[m
+           <label>Comprobante (JPG, PNG o PDF — máx 5 MB)</label>[m
+[31m-          <input type="file" name="comprobante" accept=".jpg,.jpeg,.png,.pdf">[m
+[32m+[m[32m          <input type="file" name="comprobante" accept="image/*,application/pdf">[m
+         </div>[m
+         <button type="submit" class="btn-yape">[m
+           <svg viewBox="0 0 24 24" fill="currentColor" style="width:18px;height:18px;"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>[m
