@@ -96,4 +96,26 @@ class PerfilCorporativoTest extends TestCase
 
         $this->assertSame(0, PerfilCorporativo::count());
     }
+
+    public function test_admin_rechaza_imagen_porque_solo_se_acepta_pdf()
+    {
+        $this->actingAs($this->crearAdmin())
+            ->post(route('admin.perfil-corporativo.store'), [
+                'archivo' => UploadedFile::fake()->image('logo.png'),
+            ])
+            ->assertSessionHasErrors('archivo');
+
+        $this->assertSame(0, PerfilCorporativo::count());
+    }
+
+    public function test_admin_rechaza_pdf_mayor_a_10_mb()
+    {
+        $this->actingAs($this->crearAdmin())
+            ->post(route('admin.perfil-corporativo.store'), [
+                'archivo' => UploadedFile::fake()->create('pesado.pdf', 10240 * 2, 'application/pdf'),
+            ])
+            ->assertSessionHasErrors('archivo');
+
+        $this->assertSame(0, PerfilCorporativo::count());
+    }
 }

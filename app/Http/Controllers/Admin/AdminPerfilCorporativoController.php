@@ -21,7 +21,7 @@ class AdminPerfilCorporativoController extends Controller
     public function store(Request $request): RedirectResponse
     {
         $data = $request->validate([
-            'archivo' => ['required', 'file', 'mimes:pdf,jpeg,jpg,png', 'max:10240'],
+            'archivo' => ['required', 'file', 'mimes:pdf', 'max:10240'],
         ]);
 
         $archivo = $data['archivo'];

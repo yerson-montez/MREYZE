@@ -54,12 +54,12 @@
         <h2 class="text-lg font-medium mb-1">
             {{ $perfil && $perfil->ruta ? 'Reemplazar perfil corporativo' : 'Subir perfil corporativo' }}
         </h2>
-        <p class="text-xs text-gray-400 mb-4">Formatos: PDF, JPG, PNG · Máximo 10 MB. Al subir un archivo nuevo, el anterior se reemplaza automáticamente.</p>
+        <p class="text-xs text-gray-400 mb-4">Formato: PDF · Máximo 10 MB. Al subir un archivo nuevo, el anterior se reemplaza automáticamente.</p>
 
         <form action="{{ route('admin.perfil-corporativo.store') }}" method="POST" enctype="multipart/form-data">
             @csrf
 
-            <input type="file" name="archivo" accept=".pdf,.jpg,.jpeg,.png,application/pdf,image/jpeg,image/png"
+            <input type="file" name="archivo" accept=".pdf,application/pdf"
                    class="block w-full text-sm text-gray-700 border border-gray-300 rounded-lg p-2 mb-4">
 
             <button type="submit"
