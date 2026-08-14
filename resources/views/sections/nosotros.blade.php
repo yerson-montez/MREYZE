@@ -310,6 +310,43 @@
     .reveal-delay-2 { transition-delay: 0.2s; }
     .reveal-delay-3 { transition-delay: 0.3s; }
 
+    /* Botón Perfil corporativo */
+    .perfil-cta {
+        display: flex;
+        justify-content: center;
+        margin-top: 3.5rem;
+    }
+
+    .perfil-corporativo-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        padding: 0.9rem 2rem;
+        border-radius: 12px;
+        font-family: 'Exo 2', sans-serif;
+        font-size: 0.95rem;
+        font-weight: 600;
+        letter-spacing: 0.03em;
+        color: #fff;
+        background: linear-gradient(135deg, var(--ice-500), var(--ice-400));
+        border: 1px solid rgba(74, 144, 217, 0.4);
+        text-decoration: none;
+        box-shadow: 0 6px 20px rgba(30, 77, 153, 0.35);
+        transition: all 0.25s;
+    }
+
+    .perfil-corporativo-btn svg {
+        width: 18px;
+        height: 18px;
+        color: var(--accent);
+    }
+
+    .perfil-corporativo-btn:hover {
+        background: linear-gradient(135deg, var(--ice-400), var(--glow));
+        box-shadow: 0 8px 28px rgba(59, 130, 246, 0.5);
+        transform: translateY(-2px);
+    }
+
     @media (max-width: 900px) {
         .nosotros-grid { grid-template-columns: 1fr; gap: 3rem; }
         .nosotros-values { grid-template-columns: 1fr 1fr; }
@@ -434,6 +471,14 @@
                 </div>
 
             </div>
+        </div>
+
+        {{-- Perfil corporativo --}}
+        <div class="perfil-cta reveal reveal-delay-3">
+            <a href="{{ route('perfil.corporativo') }}" class="perfil-corporativo-btn">
+                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg>
+                Perfil corporativo
+            </a>
         </div>
     </div>
 </section>

@@ -589,6 +589,10 @@
             <span class="adm-nav-icon">💳</span> Métodos de Pago
         </a>
 
+        <a href="{{ route('admin.perfil-corporativo.index') }}" class="adm-nav-link {{ request()->routeIs('admin.perfil-corporativo*') ? 'active' : '' }}">
+            <span class="adm-nav-icon">📑</span> Perfil corporativo
+        </a>
+
         <div class="adm-nav-group">Contacto</div>
 
         <a href="{{ route('admin.contacto.index') }}" class="adm-nav-link {{ request()->routeIs('admin.contacto*') ? 'active' : '' }}">

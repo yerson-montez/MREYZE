@@ -23,12 +23,15 @@ use App\Http\Controllers\SolicitudColaboradorController;
 use App\Http\Controllers\TarjetaDebitoController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\Admin\AdminSolicitudTarjetaController;
+use App\Http\Controllers\PerfilCorporativoController;
+use App\Http\Controllers\Admin\AdminPerfilCorporativoController;
 
 // ─── HOME ────────────────────────────────────────────────────────
 Route::get('/', [HomeController::class, 'index'])->name('inicio');
 
 // ─── PÁGINAS ESTÁTICAS ──────────────────────────────────────────
 Route::view('/nosotros', 'sections.nosotros')->name('nosotros');
+Route::get('/nosotros/perfil-corporativo', [PerfilCorporativoController::class, 'show'])->name('perfil.corporativo');
 Route::view('/servicios', 'sections.servicios')->name('servicios');
 Route::get('/proyectos', [ProyectoController::class, 'index'])->name('proyectos');
 Route::get('/proyectos/{proyecto:slug}', [ProyectoController::class, 'show'])->name('proyectos.show');
@@ -200,6 +203,10 @@ Route::post('/productos/importar',
         Route::get('/solicitudes-tarjeta/{solicitud}',                [AdminSolicitudTarjetaController::class, 'show'])->name('solicitudes-tarjeta.show');
         Route::patch('/solicitudes-tarjeta/{solicitud}/estado',       [AdminSolicitudTarjetaController::class, 'cambiarEstado'])->name('solicitudes-tarjeta.estado');
         Route::delete('/solicitudes-tarjeta/{solicitud}',             [AdminSolicitudTarjetaController::class, 'destroy'])->name('solicitudes-tarjeta.destroy');
+
+        // Perfil corporativo
+        Route::get('/perfil-corporativo',              [AdminPerfilCorporativoController::class, 'index'])->name('perfil-corporativo.index');
+        Route::post('/perfil-corporativo',             [AdminPerfilCorporativoController::class, 'store'])->name('perfil-corporativo.store');
     });
 
 Route::view('/dashboard', 'dashboard')->middleware('auth')->name('dashboard');
