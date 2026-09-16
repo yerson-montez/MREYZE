@@ -92,7 +92,7 @@
     /* Grid de proyectos culminados */
     .proyectos-grid {
         display: grid;
-        grid-template-columns: repeat(4, 1fr);
+        grid-template-columns: repeat(auto-fit, minmax(min(100%, 250px), 1fr));
         gap: 1.25rem;
     }
 
@@ -885,7 +885,7 @@
     }
 
     @media (max-width: 640px) {
-        .proyectos-grid { grid-template-columns: repeat(2, 1fr); }
+        .proyectos-grid { grid-template-columns: 1fr; }
         .proyectos-header { flex-direction: column; align-items: flex-start; }
         .inversion-grid { grid-template-columns: 1fr; }
         .invertir-cta-titulo { font-size: 1.4rem; }
@@ -898,6 +898,156 @@
 
     @media (max-width: 768px) {
         .sim-campo input, .sim-campo select { font-size: 16px; }
+    }
+
+    /* Plataforma financiera: presentación de datos existentes. */
+    .proyectos {
+        padding: clamp(4rem, 8vw, 7rem) clamp(1rem, 4vw, 2rem);
+        background:
+            radial-gradient(circle at 10% 0%, rgba(20, 216, 255, .08), transparent 30%),
+            linear-gradient(180deg, #071522 0%, #091b2d 100%);
+    }
+
+    .proyectos-container { width: min(100%, 78rem); }
+    .proyectos::after {
+        content: '';
+        position: absolute;
+        z-index: 0;
+        top: 0;
+        right: 0;
+        left: 0;
+        height: 30rem;
+        pointer-events: none;
+        background-image: linear-gradient(180deg, rgba(7, 21, 34, .72), rgba(7, 21, 34, .96) 82%, #071522 100%), url('/img/fondo3.png');
+        background-size: cover;
+        background-position: 58% top;
+    }
+    .proyectos-header { margin-bottom: 2rem; }
+    .proyectos-ver-todos,
+    .filtro-btn,
+    .btn-detalle-pdf,
+    .btn-invertir,
+    .btn-invertir-whatsapp,
+    .sim-btn { min-height: 44px; }
+
+    .proyectos-filtros {
+        display: inline-flex;
+        padding: .3rem;
+        border: 1px solid rgba(120, 180, 255, .16);
+        border-radius: .9rem;
+        background: rgba(5, 15, 26, .7);
+        gap: .25rem;
+    }
+
+    .filtro-btn {
+        padding: .65rem .95rem;
+        border-radius: .65rem;
+        color: var(--ice-200);
+        border-color: transparent;
+        letter-spacing: 0;
+    }
+
+    .filtro-btn.active {
+        color: #071522;
+        background: #7de2ff;
+        border-color: #7de2ff;
+        box-shadow: 0 8px 18px rgba(20, 216, 255, .18);
+    }
+
+    .seccion-divisor {
+        margin: clamp(3rem, 7vw, 5rem) 0 2.5rem;
+    }
+
+    .seccion-divisor-badge {
+        background: rgba(10, 27, 43, .9);
+        border-color: rgba(125, 226, 255, .22);
+        color: #8ee5ff;
+    }
+
+    .invertir-header { margin-bottom: .8rem; }
+    .invertir-subtitulo { max-width: 42rem; margin-bottom: 2rem; }
+
+    .inversion-grid {
+        grid-template-columns: repeat(auto-fit, minmax(min(100%, 18rem), 1fr));
+        align-items: stretch;
+        gap: 1rem;
+    }
+
+    .inversion-card {
+        border-radius: 1rem;
+        background: rgba(8, 24, 39, .86);
+        border-color: rgba(132, 190, 240, .15);
+        box-shadow: 0 16px 34px rgba(0, 0, 0, .14);
+    }
+
+    .inversion-card:hover {
+        border-color: rgba(125, 226, 255, .42);
+        transform: translateY(-3px);
+        box-shadow: 0 22px 42px rgba(0, 0, 0, .22);
+    }
+
+    .inversion-card-header { height: 9.5rem; }
+    .inversion-card-header-img { opacity: .52; }
+    .inversion-card-body { padding: 1.1rem 1.15rem 0; }
+    .inversion-card-nombre { font-size: 1.08rem; letter-spacing: -.02em; }
+    .inversion-card-desc { color: #a9bfd3; min-height: 3.6em; }
+
+    .inversion-financiamiento {
+        padding: .85rem 0;
+        border-block: 1px solid rgba(132, 190, 240, .11);
+    }
+
+    .inversion-financiamiento-header { margin-bottom: .5rem; }
+    .inversion-barra-bg { height: .6rem; background: rgba(125, 173, 216, .14); }
+    .inversion-barra-fill { box-shadow: 0 0 14px rgba(20, 216, 255, .28); }
+
+    .inversion-datos { gap: .8rem; padding: 1rem 0; border-top: 0; }
+    .inversion-dato { min-width: 0; }
+    .inversion-dato-val { font-size: 1rem; overflow-wrap: anywhere; }
+    .inversion-dato-label { line-height: 1.35; }
+    .inversion-card-footer { padding: .9rem 1.15rem 1.15rem; }
+    .btn-invertir, .btn-invertir-whatsapp { padding: .65rem .9rem; }
+
+    .simulador {
+        margin-top: 3rem;
+        padding: clamp(1.25rem, 4vw, 2.5rem);
+        border-radius: 1.1rem;
+        background: linear-gradient(135deg, rgba(10, 32, 51, .98), rgba(8, 22, 37, .98));
+        border-color: rgba(125, 226, 255, .22);
+    }
+
+    .sim-grid { gap: clamp(1.25rem, 4vw, 2.5rem); }
+    .sim-campo input, .sim-campo select { min-height: 48px; font-size: 1rem; }
+    .sim-resultados { gap: .65rem; }
+    .sim-fila { min-height: 4.2rem; padding: .9rem 1rem; }
+    .sim-fila-label { max-width: 55%; line-height: 1.4; }
+    .sim-fila-val { font-size: clamp(1rem, 2vw, 1.25rem); text-align: right; }
+
+    @media (max-width: 640px) {
+        .proyectos { isolation: isolate; }
+        .proyectos::after {
+            content: '';
+            position: absolute;
+            z-index: 0;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 24rem;
+            pointer-events: none;
+            background-image: linear-gradient(180deg, rgba(7, 21, 34, .72), rgba(7, 21, 34, .96) 84%, #071522 100%), url('/img/fondo3.png');
+            background-size: cover;
+            background-position: 58% top;
+        }
+        .proyectos-container { z-index: 1; }
+        .proyectos-header { align-items: stretch; }
+        .proyectos-header .proyectos-ver-todos { width: 100%; }
+        .proyectos-filtros { display: grid; grid-template-columns: 1fr; width: 100%; }
+        .filtro-btn { width: 100%; }
+        .seccion-divisor-line { display: none; }
+        .seccion-divisor { justify-content: flex-start; }
+        .inversion-card-desc { min-height: 0; }
+        .sim-grid { grid-template-columns: 1fr; }
+        .sim-btn { width: 100%; }
     }
 </style>
 

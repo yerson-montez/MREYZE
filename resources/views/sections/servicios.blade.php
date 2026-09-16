@@ -217,7 +217,8 @@
 
     .service-link svg { width: 14px; height: 14px; transition: transform 0.2s; }
 
-    .service-card:hover .service-link {
+    .service-card:hover .service-link,
+    .service-card:focus-within .service-link {
         opacity: 1;
         transform: translateX(0);
     }
@@ -248,6 +249,104 @@
         }
         .service-card.featured .service-icon-wrap { margin-bottom: 1.5rem; }
     }
+
+    /* Service catalog layer: category-led, scannable and consistent with MREYZE UI. */
+    .servicios {
+        padding: clamp(4rem, 8vw, 7rem) clamp(1rem, 4vw, 2rem);
+        background:
+            radial-gradient(circle at 12% 10%, rgba(20, 216, 255, .08), transparent 28%),
+            linear-gradient(180deg, #071522 0%, #091d30 100%);
+    }
+
+    .servicios-container { width: min(100%, 78rem); }
+    .servicios-header {
+        position: relative;
+        isolation: isolate;
+        padding: clamp(2rem, 5vw, 4rem) 1rem;
+        border: 1px solid rgba(130, 190, 240, .12);
+        border-radius: 1rem;
+        overflow: hidden;
+        background-image: linear-gradient(90deg, rgba(7, 21, 34, .95), rgba(7, 21, 34, .7)), url('/img/fondo2.png');
+        background-size: cover;
+        background-position: 62% bottom;
+    }
+    .servicios-header { margin-bottom: 2rem; }
+    .servicios-header .section-title { font-size: clamp(2.5rem, 6vw, 5rem); }
+    .servicios-header .section-desc { max-width: 46rem; }
+
+    .servicios-nav {
+        display: flex;
+        flex-wrap: wrap;
+        gap: .55rem;
+        justify-content: center;
+        margin: 0 auto clamp(2.5rem, 6vw, 4rem);
+    }
+
+    .servicios-nav a {
+        display: inline-flex;
+        align-items: center;
+        gap: .45rem;
+        min-height: 44px;
+        padding: .6rem .85rem;
+        border: 1px solid rgba(130, 190, 240, .15);
+        border-radius: .7rem;
+        color: #b7cde0;
+        background: rgba(8, 25, 41, .7);
+        text-decoration: none;
+        font-size: .78rem;
+        font-weight: 650;
+    }
+
+    .servicios-nav a strong { color: #8ce4ff; font-family: 'Exo 2', sans-serif; }
+    .servicios-nav a:hover { color: #f4fbff; border-color: rgba(125, 226, 255, .4); }
+
+    .servicios-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 1rem;
+    }
+
+    .service-card {
+        min-width: 0;
+        padding: clamp(1.25rem, 3vw, 2rem);
+        border-radius: 1rem;
+        background: rgba(8, 25, 41, .78);
+        border-color: rgba(130, 190, 240, .14);
+    }
+
+    .service-card.featured { grid-template-columns: auto 1fr; }
+    .service-card:hover { transform: translateY(-3px); box-shadow: 0 20px 42px rgba(0, 0, 0, .18); }
+    .service-icon-wrap { width: 3.25rem; height: 3.25rem; margin-bottom: 1rem; }
+    .service-card.featured .service-icon-wrap { width: 4rem; height: 4rem; }
+    .service-name { font-size: clamp(1.15rem, 2vw, 1.45rem); }
+    .service-desc { max-width: 62ch; color: #b4c8da; }
+    .service-items { gap: .45rem; }
+    .service-item-tag { padding: .42rem .7rem; }
+    .service-link { min-height: 44px; opacity: 1; transform: none; }
+
+    @media (max-width: 900px) {
+        .servicios-grid { grid-template-columns: 1fr 1fr; }
+        .service-card.featured { grid-column: 1 / -1; }
+    }
+
+    @media (max-width: 620px) {
+        .servicios-header {
+            position: relative;
+            isolation: isolate;
+            padding: 2rem 1rem;
+            border: 1px solid rgba(130, 190, 240, .12);
+            border-radius: 1rem;
+            overflow: hidden;
+            background-image: linear-gradient(180deg, rgba(7, 21, 34, .84), rgba(7, 21, 34, .7)), url('/img/fondo2.png');
+            background-size: cover;
+            background-position: 62% bottom;
+        }
+        .servicios-nav { justify-content: flex-start; flex-wrap: nowrap; overflow-x: auto; padding-bottom: .3rem; }
+        .servicios-nav a { flex: 0 0 auto; }
+        .servicios-grid { grid-template-columns: 1fr; }
+        .service-card.featured { grid-template-columns: 1fr; }
+        .service-card.featured .service-icon-wrap { margin-bottom: 1rem; }
+        .service-link { width: 100%; justify-content: center; }
+    }
 </style>
 
 <section class="servicios" id="servicios">
@@ -264,11 +363,18 @@
             </p>
         </div>
 
+        <nav class="servicios-nav reveal" aria-label="Categorías de servicios">
+            <a href="#servicio-automatizacion"><strong>01</strong> Automatización</a>
+            <a href="#servicio-iot"><strong>02</strong> IoT y embebidos</a>
+            <a href="#servicio-software"><strong>03</strong> Software</a>
+            <a href="#servicio-consultoria"><strong>04</strong> Consultoría</a>
+        </nav>
+
         {{-- Grid de servicios --}}
         <div class="servicios-grid">
 
             {{-- Automatización (featured) --}}
-            <div class="service-card featured reveal">
+            <div class="service-card featured reveal" id="servicio-automatizacion">
                 <div class="service-icon-wrap blue">
                     <svg viewBox="0 0 24 24" fill="currentColor"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>
                 </div>
@@ -295,7 +401,7 @@
             </div>
 
             {{-- IoT --}}
-            <div class="service-card reveal reveal-delay-1">
+            <div class="service-card reveal reveal-delay-1" id="servicio-iot">
                 <div class="service-icon-wrap cyan">
                     <svg viewBox="0 0 24 24" fill="currentColor"><path d="M1 9l2 2c4.97-4.97 13.03-4.97 18 0l2-2C16.93 2.93 7.08 2.93 1 9zm8 8l3 3 3-3c-1.65-1.66-4.34-1.66-6 0zm-4-4l2 2c2.76-2.76 7.24-2.76 10 0l2-2C15.14 9.14 8.87 9.14 5 13z"/></svg>
                 </div>
@@ -318,7 +424,7 @@
             </div>
 
             {{-- Desarrollo de Software --}}
-            <div class="service-card reveal reveal-delay-2">
+            <div class="service-card reveal reveal-delay-2" id="servicio-software">
                 <div class="service-icon-wrap teal">
                     <svg viewBox="0 0 24 24" fill="currentColor"><path d="M9.4 16.6L4.8 12l4.6-4.6L8 6l-6 6 6 6 1.4-1.4zm5.2 0l4.6-4.6-4.6-4.6L16 6l6 6-6 6-1.4-1.4z"/></svg>
                 </div>
@@ -341,7 +447,7 @@
             </div>
 
             {{-- Consultoría --}}
-            <div class="service-card reveal reveal-delay-3">
+            <div class="service-card reveal reveal-delay-3" id="servicio-consultoria">
                 <div class="service-icon-wrap indigo">
                     <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4z"/></svg>
                 </div>

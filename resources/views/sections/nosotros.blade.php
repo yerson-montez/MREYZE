@@ -355,6 +355,90 @@
     @media (max-width: 500px) {
         .nosotros-values { grid-template-columns: 1fr; }
     }
+
+    /* MREYZE company narrative layer. */
+    .nosotros {
+        padding: clamp(4rem, 8vw, 7rem) clamp(1rem, 4vw, 2rem);
+        background:
+            radial-gradient(circle at 85% 8%, rgba(20, 216, 255, .09), transparent 28%),
+            linear-gradient(180deg, #071522 0%, #091d30 100%);
+    }
+
+    .nosotros-container { width: min(100%, 78rem); }
+    .nosotros .section-title { font-size: clamp(2.5rem, 6vw, 5rem); max-width: 13ch; }
+    .nosotros-grid { gap: clamp(2rem, 6vw, 5rem); margin-top: clamp(2.5rem, 6vw, 4rem); }
+    .nosotros-paragraph { max-width: 62ch; color: #b4c8da; }
+
+    .nosotros-values { gap: .8rem; }
+    .nosotros-value-card,
+    .team-card,
+    .mv-tabs,
+    .mv-content {
+        background: rgba(8, 25, 41, .78);
+        border-color: rgba(130, 190, 240, .14);
+    }
+
+    .nosotros-value-card { min-height: 10rem; padding: 1.1rem; }
+    .nosotros-value-icon { width: 44px; height: 44px; }
+    .team-card { min-height: 5.5rem; }
+    .mv-tab { min-height: 48px; }
+    .perfil-corporativo-btn { min-height: 48px; }
+
+    .nosotros-story {
+        display: grid;
+        grid-template-columns: .85fr 1.15fr;
+        gap: clamp(1.5rem, 5vw, 4rem);
+        align-items: start;
+        margin-top: clamp(4rem, 9vw, 7rem);
+        padding-top: clamp(2rem, 5vw, 3rem);
+        border-top: 1px solid rgba(130, 190, 240, .14);
+    }
+
+    .nosotros-story__lead { max-width: 24rem; }
+    .nosotros-story__title {
+        margin: .8rem 0 0;
+        color: #f3fbff;
+        font-family: 'Exo 2', sans-serif;
+        font-size: clamp(1.8rem, 4vw, 3rem);
+        line-height: 1.05;
+        letter-spacing: -.05em;
+    }
+
+    .nosotros-timeline {
+        display: grid;
+        gap: 1rem;
+    }
+
+    .nosotros-timeline__item {
+        display: grid;
+        grid-template-columns: 3rem 1fr;
+        gap: 1rem;
+        align-items: start;
+        padding: 1.1rem 1.2rem;
+        border: 1px solid rgba(130, 190, 240, .13);
+        border-radius: 1rem;
+        background: rgba(8, 25, 41, .66);
+    }
+
+    .nosotros-timeline__number {
+        display: grid;
+        place-items: center;
+        width: 3rem;
+        height: 3rem;
+        border-radius: .8rem;
+        background: rgba(20, 216, 255, .1);
+        border: 1px solid rgba(20, 216, 255, .22);
+        color: #8ce4ff;
+        font-weight: 800;
+    }
+
+    .nosotros-timeline__item h3 { margin: 0 0 .3rem; color: #f3fbff; font-size: 1.05rem; }
+    .nosotros-timeline__item p { margin: 0; color: #a9bfd3; line-height: 1.65; }
+
+    @media (max-width: 760px) {
+        .nosotros-story { grid-template-columns: 1fr; }
+        .nosotros .section-title { max-width: none; }
+    }
 </style>
 
 <section class="nosotros" id="nosotros">
@@ -470,6 +554,27 @@
                     </div>
                 </div>
 
+            </div>
+        </div>
+
+        <div class="nosotros-story reveal reveal-delay-3">
+            <div class="nosotros-story__lead">
+                <div class="section-label">Cómo trabajamos</div>
+                <h2 class="nosotros-story__title">Del mundo físico a la nube, con una sola visión.</h2>
+            </div>
+            <div class="nosotros-timeline">
+                <div class="nosotros-timeline__item">
+                    <span class="nosotros-timeline__number">01</span>
+                    <div><h3>Entender el proceso</h3><p>Partimos de la operación real para identificar dónde la tecnología puede aportar claridad, control y eficiencia.</p></div>
+                </div>
+                <div class="nosotros-timeline__item">
+                    <span class="nosotros-timeline__number">02</span>
+                    <div><h3>Conectar las capas</h3><p>Integramos electrónica, automatización, sensores, software y datos en una solución coherente.</p></div>
+                </div>
+                <div class="nosotros-timeline__item">
+                    <span class="nosotros-timeline__number">03</span>
+                    <div><h3>Construir para evolucionar</h3><p>Diseñamos sistemas a medida que pueden crecer con las necesidades de cada empresa.</p></div>
+                </div>
             </div>
         </div>
 

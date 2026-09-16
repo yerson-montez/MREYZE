@@ -152,6 +152,21 @@
     transition: background 0.2s, transform 0.2s;
 }
 .producto-lightbox-close:hover { background: rgba(0,212,255,0.18); transform: scale(1.1); }
+
+.producto-card { border-radius: 1rem; border-color: rgba(130, 190, 240, .14); background: rgba(8, 25, 41, .84); }
+.producto-img { height: auto; aspect-ratio: 4 / 3; }
+.producto-img-full { object-fit: cover; }
+.producto-body { display: flex; flex-direction: column; min-height: 10rem; }
+.producto-footer { margin-top: auto; }
+.producto-btn { min-height: 44px; justify-content: center; }
+.producto-lightbox-close { width: 44px; height: 44px; }
+
+@media (max-width: 520px) {
+    .producto-body { min-height: 9rem; padding: .8rem; }
+    .producto-desc { display: none; }
+    .producto-footer { flex-direction: column; align-items: stretch; }
+    .producto-btn { width: 100%; }
+}
 </style>
 @endpush
 @endonce

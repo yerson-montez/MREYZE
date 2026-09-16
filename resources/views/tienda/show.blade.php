@@ -144,6 +144,15 @@
     margin-left: auto;
     margin-right: auto;
 }
+
+.producto-card { border-radius: 1rem; border-color: rgba(130, 190, 240, .14); }
+.producto-img { height: auto; aspect-ratio: 4 / 3; }
+.producto-btn { min-height: 48px; justify-content: center; }
+.producto-detalle-galeria img { max-width: 100%; height: auto; object-fit: contain; }
+@media (max-width: 640px) {
+    .producto-detalle-galeria { max-width: 100%; }
+    .producto-btn { width: 100%; }
+}
 </style>
 @endpush
 

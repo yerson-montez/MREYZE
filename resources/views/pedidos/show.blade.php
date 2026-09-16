@@ -35,7 +35,7 @@
 .pd-full{grid-column:1/-1;}
 
 /* Precios */
-.pd-precios{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:0;}
+.pd-precios{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,12rem),1fr));gap:10px;margin-bottom:0;}
 .pd-precio-box{background:rgba(7,26,46,.5);border:1px solid rgba(74,144,217,.12);border-radius:12px;padding:14px;text-align:center;}
 .pd-precio-label{font-size:.65rem;color:var(--ice-300);margin-bottom:6px;text-transform:uppercase;letter-spacing:.05em;}
 .pd-precio-val{font-size:1.1rem;font-weight:700;color:#fff;}

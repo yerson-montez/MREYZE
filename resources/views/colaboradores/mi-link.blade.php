@@ -49,7 +49,7 @@
         position: fixed;
         top: -100px; left: 50%;
         transform: translateX(-50%);
-        width: 600px; height: 280px;
+        width: min(600px, calc(100vw - 2rem)); height: clamp(200px, 38vw, 280px);
         background: radial-gradient(ellipse, rgba(0,212,255,0.055) 0%, transparent 70%);
         pointer-events: none;
         z-index: 0;
@@ -143,7 +143,7 @@
     /* ══ STATS GRID ══ */
     .stats-grid {
         display: grid;
-        grid-template-columns: repeat(3, 1fr);
+        grid-template-columns: repeat(auto-fit, minmax(min(100%, 9rem), 1fr));
         gap: 12px;
         margin-bottom: 1.25rem;
     }

@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>@yield('title', 'Admin Panel')</title>
-    <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="icon" href="/favicon.ico" type="image/x-icon">
     
     <!-- Bootstrap 5 CSS -->
@@ -218,7 +218,7 @@
             cursor: pointer;
             align-items: center;
             justify-content: center;
-            width: 36px; height: 36px;
+            width: 44px; height: 44px;
             border-radius: 8px;
             border: 1px solid var(--border);
             transition: all 0.2s;
@@ -425,6 +425,7 @@
 
         .adm-btn {
             display: inline-flex; align-items: center; justify-content: center; gap: .45rem;
+            min-height: 44px;
             padding: .55rem 1.1rem; border-radius: 10px;
             font-size: .83rem; font-weight: 600; cursor: pointer;
             border: 1px solid transparent; text-decoration: none;
@@ -443,6 +444,7 @@
             background: rgba(7,26,46,.6);
             border: 1px solid var(--border-md);
             border-radius: 10px;
+            min-height: 44px;
             padding: .6rem .95rem;
             color: var(--text);
             font-size: .85rem;
@@ -451,6 +453,7 @@
             transition: border-color .2s, box-shadow .2s;
         }
         .adm-input:focus, .adm-select:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(0,212,255,.12); }
+        .adm-input:focus-visible, .adm-select:focus-visible, .adm-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
 
         .adm-table-container {
             background: var(--card);
@@ -502,7 +505,7 @@
     </style>
     @stack('styles')
 </head>
-<body>
+<body class="mreyze-ui">
 
 {{-- SIDEBAR (Official Bootstrap 5 Responsive Offcanvas) --}}
 <aside class="adm-sidebar offcanvas-lg offcanvas-start border-0" id="admSidebar" tabindex="-1" aria-labelledby="admSidebarLabel">

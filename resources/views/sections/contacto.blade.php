@@ -390,6 +390,33 @@
     }
 </style>
 
+<style>
+    /* Contact layer: clear information first, form second. */
+    .contacto {
+        padding: clamp(4rem, 8vw, 7rem) clamp(1rem, 4vw, 2rem) 0;
+        background: linear-gradient(180deg, #071522 0%, #091d30 100%);
+    }
+    .contacto-container { width: min(100%, 78rem); }
+    .contacto-header { margin-bottom: 2.5rem; }
+    .contacto-grid { gap: clamp(1.25rem, 4vw, 3rem); }
+    .contacto-card, .contacto-horario, .contacto-form-wrap { border-color: rgba(130, 190, 240, .14); }
+    .contacto-card { min-height: 5rem; }
+    .contacto-card-icon, .red-btn { width: 44px; height: 44px; }
+    .contacto-form-wrap { padding: clamp(1.15rem, 4vw, 2.5rem); border-radius: 1rem; background: rgba(8, 25, 41, .82); }
+    .form-input, .form-select, .form-textarea, .form-submit { min-height: 48px; font-size: 1rem; }
+    .form-submit { padding: .8rem 1rem; }
+    .form-check input[type="checkbox"] { width: 20px; height: 20px; }
+
+    @media (max-width: 900px) {
+        .contacto-grid { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 620px) {
+        .form-row { grid-template-columns: 1fr; }
+        .form-group.full { grid-column: auto; }
+        .contacto-card-value { overflow-wrap: anywhere; }
+    }
+</style>
+
 <section class="contacto" id="contacto">
     <div class="contacto-bg"></div>
     <div class="contacto-container">

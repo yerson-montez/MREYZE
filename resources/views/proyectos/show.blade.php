@@ -586,6 +586,50 @@
     .proyecto-show { padding: 1.5rem 0.75rem 3rem; }
     .proyecto-inversion-grid { grid-template-columns: 1fr; }
 }
+
+/* Ficha de proyecto: jerarquía financiera sin cambiar datos ni acciones. */
+.proyecto-show {
+    background: linear-gradient(180deg, #071522 0%, #091d30 100%);
+    padding-block: clamp(2rem, 5vw, 4rem);
+}
+
+.proyecto-show-container { width: min(100%, 70rem); }
+.proyecto-info { min-width: 0; }
+.proyecto-info-title { font-size: clamp(1.9rem, 4vw, 3.2rem); }
+.proyecto-info-badges { gap: .5rem; }
+.proyecto-badge { min-height: 2rem; display: inline-flex; align-items: center; }
+
+.proyecto-info-meta,
+.proyecto-inversion-grid {
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 9rem), 1fr));
+}
+
+.proyecto-inversion-section {
+    padding: clamp(1rem, 3vw, 1.5rem);
+    background: rgba(8, 26, 42, .9);
+    border-color: rgba(125, 226, 255, .2);
+}
+
+.proyecto-inversion-header { color: #8ee5ff; }
+.proyecto-inversion-bar-bg { height: .65rem; background: rgba(125, 173, 216, .14); }
+.proyecto-inversion-bar-fill { box-shadow: 0 0 16px rgba(20, 216, 255, .3); }
+.proyecto-inversion-dato-val { font-size: clamp(1rem, 2vw, 1.25rem); overflow-wrap: anywhere; }
+
+.btn-invertir-proyecto,
+.btn-whatsapp-proyecto,
+.btn-detalle-proyecto { min-height: 48px; }
+
+.proyecto-lightbox-close { width: 44px; height: 44px; }
+
+@media (max-width: 640px) {
+    .proyecto-gallery-main { border-radius: 1rem; }
+    .proyecto-gallery-zoom { opacity: 1; width: 44px; height: 44px; }
+    .proyecto-info-meta { gap: .9rem; }
+    .proyecto-info-meta .proyecto-meta-item { min-width: 8rem; }
+    .btn-invertir-proyecto,
+    .btn-whatsapp-proyecto,
+    .btn-detalle-proyecto { width: 100%; margin-right: 0; }
+}
 </style>
 @endpush
 

@@ -24,7 +24,7 @@
 .estado-badge.aprobado{background:rgba(0,212,170,.1);border:1px solid rgba(0,212,170,.3);color:var(--success);}
 .estado-badge.rechazado{background:rgba(255,107,107,.1);border:1px solid rgba(255,107,107,.3);color:var(--danger);}
 .estado-badge.cancelado{background:rgba(255,107,107,.1);border:1px solid rgba(255,107,107,.3);color:var(--danger);}
-.inv-datos{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px;}
+.inv-datos{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,12rem),1fr));gap:8px;margin-bottom:14px;}
 .inv-dato{background:rgba(7,26,46,.5);border:1px solid rgba(74,144,217,.12);border-radius:10px;padding:10px;text-align:center;}
 .inv-dato-label{font-size:.62rem;color:var(--ice-300);margin-bottom:4px;text-transform:uppercase;letter-spacing:.04em;}
 .inv-dato-val{font-size:.95rem;font-weight:700;color:#fff;}
@@ -32,7 +32,7 @@
 .inv-dato-val.green{color:var(--success);}
 .inv-crono{margin-bottom:14px;}
 .inv-crono-titulo{font-size:.68rem;font-weight:700;color:var(--ice-300);text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px;}
-.inv-crono-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;}
+.inv-crono-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,10rem),1fr));gap:8px;}
 .inv-crono-paso{background:rgba(7,26,46,.4);border:1px solid rgba(74,144,217,.12);border-radius:10px;padding:10px;text-align:center;position:relative;}
 .inv-crono-paso.activo{border-color:rgba(0,212,255,.5);box-shadow:0 0 14px rgba(0,212,255,.15);}
 .inv-crono-paso.futuro{opacity:.45;}

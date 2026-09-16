@@ -253,6 +253,13 @@
             box-shadow: 0 0 0 3px rgba(91,106,240,.15);
         }
 
+        .form-input:focus-visible,
+        button:focus-visible,
+        a:focus-visible {
+            outline: 2px solid var(--accent);
+            outline-offset: 3px;
+        }
+
         .form-input::placeholder { color: var(--muted); }
 
         /* ── Métodos de pago ── */

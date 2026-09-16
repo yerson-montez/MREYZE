@@ -228,6 +228,10 @@ input.no-icon,select.no-icon{padding-left:13px;}
 @keyframes spin{to{transform:rotate(360deg)}}
 .ubigeo-selects{display:none;}
 .ubigeo-selects.show{display:block;}
+@media (max-width: 600px){
+  .price-grid,.ubigeo-grid,.form-row{grid-template-columns:1fr;}
+  input,select,textarea{font-size:16px;min-height:44px;}
+}
 
 /* ── SEPARADOR INFO ─────────────────────────────────────────── */
 .info-note{

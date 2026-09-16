@@ -10,7 +10,7 @@
     @endif
     @stack('styles')
 </head>
-<body style="margin:0; padding:0;">
+<body class="mreyze-ui mreyze-has-header" style="margin:0; padding:0;">
     @yield('content')
     @stack('scripts')
 </body>

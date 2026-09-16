@@ -35,7 +35,7 @@
 }
 @keyframes procesoPulso{0%,100%{box-shadow:0 0 10px rgba(0,212,255,.18),inset 0 0 6px rgba(0,212,255,.06);}50%{box-shadow:0 0 24px rgba(0,212,255,.5),inset 0 0 10px rgba(0,212,255,.12);}}
 .pedido-producto{font-size:.9rem;color:var(--ice-100);margin-bottom:12px;}
-.precios-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px;}
+.precios-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,12rem),1fr));gap:8px;margin-bottom:14px;}
 .precio-box{background:rgba(7,26,46,.5);border:1px solid rgba(74,144,217,.12);border-radius:10px;padding:10px;text-align:center;}
 .precio-label{font-size:.62rem;color:var(--ice-300);margin-bottom:4px;text-transform:uppercase;letter-spacing:.04em;}
 .precio-val{font-size:.95rem;font-weight:700;color:#fff;}

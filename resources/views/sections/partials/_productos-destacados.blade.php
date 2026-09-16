@@ -137,7 +137,7 @@
 
     .destacados-grid {
         display: grid;
-        grid-template-columns: repeat(4, 1fr);
+        grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr));
         gap: 1.25rem;
     }
 
@@ -255,6 +255,7 @@
         align-items: center;
         justify-content: center;
         gap: 6px;
+        min-height: 44px;
         padding: 0.55rem 0.9rem;
         border-radius: 8px;
         font-size: 0.8rem;
@@ -285,7 +286,7 @@
     @media (max-width: 700px) {
         .destacados { padding: 4rem 1rem; }
         .destacados-header { flex-direction: column; align-items: flex-start; gap: 1rem; margin-bottom: 2rem; }
-        .destacados-grid { grid-template-columns: repeat(4, 1fr); gap: 0.5rem; }
+        .destacados-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.75rem; }
         .destacado-card:hover { transform: none; }
         .destacado-body { padding: 0.55rem; gap: 0.3rem; }
         .destacado-cat { font-size: 0.55rem; letter-spacing: 0.06em; }
@@ -294,13 +295,13 @@
         .destacado-precio-actual { font-size: 0.78rem; }
         .destacado-precio-actual span { font-size: 0.58rem; }
         .destacado-precio-anterior { font-size: 0.55rem; }
-        .destacado-btn { font-size: 0.6rem; padding: 0.35rem 0.25rem; gap: 3px; }
+        .destacado-btn { min-height: 44px; font-size: 0.68rem; padding: 0.45rem 0.25rem; gap: 3px; }
         .destacado-btn svg { width: 11px; height: 11px; }
         .destacado-stock { top: 5px; left: 5px; font-size: 0.5rem; padding: 2px 5px; }
         .destacado-descuento { top: 5px; right: 5px; font-size: 0.55rem; padding: 2px 4px; border-radius: 4px; }
     }
     @media (max-width: 420px) {
-        .destacados-grid { grid-template-columns: repeat(4, 1fr); gap: 0.4rem; }
+        .destacados-grid { grid-template-columns: 1fr; gap: 0.75rem; }
         .destacados-ver-mas { padding: 0.45rem 0.9rem; font-size: 0.75rem; }
         .destacado-body { padding: 0.45rem; gap: 0.25rem; }
         .destacado-cat { font-size: 0.5rem; }
@@ -309,7 +310,7 @@
         .destacado-precio-actual { font-size: 0.72rem; }
         .destacado-precio-actual span { font-size: 0.55rem; }
         .destacado-precio-anterior { font-size: 0.52rem; }
-        .destacado-btn { font-size: 0.55rem; padding: 0.3rem 0.2rem; gap: 2px; }
+        .destacado-btn { min-height: 44px; font-size: 0.68rem; padding: 0.45rem 0.2rem; gap: 2px; }
         .destacado-btn svg { width: 10px; height: 10px; }
         .destacado-stock { top: 4px; left: 4px; font-size: 0.48rem; padding: 2px 4px; }
         .destacado-descuento { top: 4px; right: 4px; font-size: 0.52rem; padding: 2px 3px; border-radius: 4px; }

@@ -1,768 +1,1257 @@
 @extends('welcome')
 
-@section('title', 'Inicio — MREYZE')
+@section('title', 'MREYZE | Soluciones tecnológicas')
 
 @section('content')
-{{-- resources/views/sections/inicio.blade.php --}}
-{{-- Uso: @include('sections.inicio') --}}
 
 <style>
-    /* ═══════════════════════════════════════
-       TECH HERO SECTION — Ingeniería 4.0
-    ═══════════════════════════════════════ */
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Manrope:wght@500;700;800&display=swap');
 
-    @import url('https://fonts.googleapis.com/css2?family=Exo+2:wght@400;600;700&family=Share+Tech+Mono&display=swap');
-
-    :root {
-        --bg:      #050d1a;
-        --bg2:     #0a1628;
-        --blue:    #1e4d99;
-        --cyan:    #00d4ff;
-        --glow:    #3b82f6;
-        --ice1:    #e0eeff;
-        --ice2:    #b3cff5;
-        --ice3:    #7aabec;
-    }
-
-    /* ── CANVAS BG ── */
-    #bgCanvas {
-        position: fixed;
-        inset: 0;
-        z-index: 0;
-        pointer-events: none;
-    }
-
-    /* ── HERO ── */
-    .hero {
+    .mreyze-home {
         position: relative;
-        min-height: 100vh;
-        display: flex;
-        align-items: center;
-        background: var(--bg);
+        background:
+            radial-gradient(circle at top left, rgba(67, 159, 255, 0.20), transparent 32%),
+            radial-gradient(circle at bottom right, rgba(31, 100, 210, 0.12), transparent 28%),
+            #071420;
+        color: #eaf6ff;
         overflow: hidden;
-        z-index: 1;
     }
 
-    .hero-grid {
-        position: relative;
-        z-index: 2;
-        max-width: 1280px;
+    .mreyze-home * { box-sizing: border-box; }
+
+    .mreyze-shell {
+        width: min(1180px, calc(100% - 1.5rem));
         margin: 0 auto;
-        padding: 6rem 2rem 4rem;
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 4rem;
-        align-items: center;
-        width: 100%;
     }
 
-    /* ── LEFT ── */
-    .hero-left { animation: fadeUp .8s ease both; }
-
-    .badge-chip {
+    .mreyze-kicker {
         display: inline-flex;
         align-items: center;
-        gap: 8px;
-        padding: .3rem .9rem;
-        background: rgba(0,212,255,.07);
-        border: 1px solid rgba(0,212,255,.25);
-        border-radius: 30px;
-        font-family: 'Share Tech Mono', monospace;
-        font-size: .72rem;
-        color: var(--cyan);
-        letter-spacing: .1em;
-        text-transform: uppercase;
-        margin-bottom: 1.5rem;
-    }
-    .badge-dot {
-        width: 6px; height: 6px;
-        background: var(--cyan);
-        border-radius: 50%;
-        box-shadow: 0 0 8px var(--cyan);
-        animation: pulse 2s infinite;
-    }
-    @keyframes pulse {
-        0%,100% { opacity:1; transform:scale(1); }
-        50%      { opacity:.4; transform:scale(1.4); }
-    }
-
-    .hero-title {
-        font-family: 'Exo 2', sans-serif;
-        font-size: clamp(2.2rem, 4.5vw, 3.8rem);
-        font-weight: 700;
-        line-height: 1.1;
-        margin-bottom: 1.4rem;
-        letter-spacing: -.02em;
-        color: #fff;
-    }
-    .title-line   { display: block; }
-    .title-accent {
-        display: block;
-        background: linear-gradient(120deg, #7bc8ff, var(--cyan));
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        background-clip: text;
-    }
-
-    /* Terminal typewriter */
-    .terminal-line {
-        font-family: 'Share Tech Mono', monospace;
-        font-size: .78rem;
-        color: #4ade80;
-        background: rgba(0,20,8,.5);
-        border: 1px solid rgba(74,222,128,.15);
-        border-radius: 6px;
-        padding: .4rem .9rem;
-        margin-bottom: 2rem;
-        display: flex;
-        align-items: center;
-        gap: 8px;
-    }
-    .term-prompt { color: var(--cyan); }
-    .cursor {
-        display: inline-block;
-        width: 7px; height: 14px;
-        background: #4ade80;
-        animation: blink .7s infinite;
-        vertical-align: middle;
-    }
-    @keyframes blink { 0%,49%{opacity:1} 50%,100%{opacity:0} }
-
-    .hero-desc {
-        font-family: 'Exo 2', sans-serif;
-        font-size: 1rem;
-        line-height: 1.75;
-        color: var(--ice2);
-        max-width: 460px;
-        margin-bottom: 2.2rem;
-    }
-
-    .hero-actions {
-        display: flex;
-        gap: 1rem;
-        flex-wrap: wrap;
-        margin-bottom: 2.5rem;
-    }
-
-    .btn-primary {
-        display: inline-flex;
-        align-items: center;
-        gap: 8px;
-        padding: .8rem 1.8rem;
-        border-radius: 10px;
-        font-family: 'Exo 2', sans-serif;
-        font-size: .9rem;
-        font-weight: 600;
-        color: #fff;
-        background: linear-gradient(135deg, #1e4d99, #2563c7);
-        border: 1px solid rgba(74,144,217,.5);
-        text-decoration: none;
-        letter-spacing: .03em;
-        transition: all .25s;
-        box-shadow: 0 4px 20px rgba(30,77,153,.5);
-    }
-    .btn-primary:hover {
-        background: linear-gradient(135deg, #2563c7, #00b8d9);
-        transform: translateY(-2px);
-        box-shadow: 0 8px 28px rgba(59,130,246,.6);
-        color: #fff;
-    }
-
-    .btn-secondary {
-        display: inline-flex;
-        align-items: center;
-        gap: 8px;
-        padding: .8rem 1.8rem;
-        border-radius: 10px;
-        font-family: 'Exo 2', sans-serif;
-        font-size: .9rem;
-        font-weight: 500;
-        color: var(--ice1);
-        background: transparent;
-        border: 1px solid rgba(74,144,217,.3);
-        text-decoration: none;
-        transition: all .25s;
-    }
-    .btn-secondary:hover {
-        background: rgba(37,99,199,.15);
-        border-color: rgba(74,144,217,.6);
-        transform: translateY(-2px);
-        color: #fff;
-    }
-
-    /* Stats */
-    .stats-row {
-        display: flex;
-        gap: 2.5rem;
-        padding-top: 1.8rem;
-        border-top: 1px solid rgba(74,144,217,.15);
-        animation: fadeUp .8s .3s ease both;
-    }
-    .stat-num {
-        font-family: 'Exo 2', sans-serif;
-        font-size: 1.75rem;
-        font-weight: 700;
-        color: #fff;
-        line-height: 1;
-    }
-    .stat-num em { color: var(--cyan); font-style: normal; }
-    .stat-label {
-        font-family: 'Share Tech Mono', monospace;
+        gap: .55rem;
+        padding: .5rem .8rem;
+        border-radius: 999px;
+        border: 1px solid rgba(130, 185, 255, 0.18);
+        background: rgba(12, 25, 38, 0.8);
+        color: #8fddff;
         font-size: .7rem;
-        color: var(--ice3);
-        letter-spacing: .05em;
-        margin-top: 4px;
+        letter-spacing: .14em;
+        text-transform: uppercase;
+        font-weight: 700;
     }
 
-    /* ── RIGHT — TECH PANEL ── */
-    .hero-right {
+    .mreyze-kicker::before {
+        content: "";
+        width: .5rem;
+        height: .5rem;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #8ad7ff, #5da5ff);
+        box-shadow: 0 0 14px rgba(138, 215, 255, .9);
+    }
+
+    .mreyze-section {
+        position: relative;
+        padding: 5.25rem 0;
+    }
+
+    .mreyze-section + .mreyze-section {
+        border-top: 1px solid rgba(148, 194, 255, 0.08);
+    }
+
+    .mreyze-section__header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-end;
+        gap: 1rem;
+        margin-bottom: 2rem;
+        flex-wrap: wrap;
+    }
+
+    .mreyze-heading {
+        margin: .9rem 0 0;
+        font-size: clamp(2.2rem, 5vw, 3.6rem);
+        line-height: 1.02;
+        letter-spacing: -.06em;
+        color: #f3fbff;
+        font-family: 'Manrope', sans-serif;
+    }
+
+    .mreyze-heading .highlight {
+        background: linear-gradient(135deg, #c1ebff, #7ad6ff 32%, #4c9bff 100%);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+    }
+
+    .mreyze-copy {
+        color: rgba(218, 232, 245, 0.76);
+        line-height: 1.75;
+        font-size: 1.04rem;
+        max-width: 44rem;
+    }
+
+    .mreyze-link {
+        display: inline-flex;
+        align-items: center;
+        gap: .5rem;
+        color: #7ad9ff;
+        text-decoration: none;
+        font-weight: 700;
+    }
+
+    .mreyze-hero {
+        padding-top: 4.5rem;
+        padding-bottom: 3rem;
+    }
+
+    .mreyze-hero__grid {
+        display: grid;
+        grid-template-columns: 1.06fr 0.94fr;
+        gap: 2.5rem;
+        align-items: center;
+        min-height: 42rem;
+    }
+
+    .mreyze-hero__title {
+        margin: 1rem 0 1.2rem;
+        font-size: clamp(2.9rem, 5vw, 5.1rem);
+        line-height: .94;
+        letter-spacing: -.08em;
+        font-family: 'Manrope', sans-serif;
+        color: #f2fbff;
+    }
+
+    .mreyze-hero__title .block {
+        display: block;
+    }
+
+    .mreyze-hero__title .gradient {
+        background: linear-gradient(135deg, #c5ecff 0%, #7ad6ff 36%, #63a6ff 100%);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+    }
+
+    .mreyze-hero__text {
+        max-width: 38rem;
+        color: rgba(221, 233, 245, 0.8);
+        line-height: 1.78;
+        font-size: 1.04rem;
+        margin: 0;
+    }
+
+    .mreyze-hero__actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1rem;
+        margin-top: 2rem;
+    }
+
+    .mreyze-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 3.3rem;
+        padding: .9rem 1.5rem;
+        border-radius: .9rem;
+        text-decoration: none;
+        font-weight: 700;
+        transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease;
+    }
+
+    .mreyze-btn:hover {
+        transform: translateY(-2px);
+    }
+
+    .mreyze-btn--primary {
+        background: linear-gradient(135deg, #2b77ff, #74dcff);
+        color: #061720;
+        box-shadow: 0 20px 38px rgba(50, 123, 255, 0.38);
+    }
+
+    .mreyze-btn--secondary {
+        background: rgba(8, 21, 31, 0.7);
+        border: 1px solid rgba(133, 184, 255, 0.18);
+        color: #edf9ff;
+    }
+
+    .mreyze-hero__stats {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 2rem;
+        margin-top: 2.2rem;
+        padding-top: 1.6rem;
+        border-top: 1px solid rgba(148, 194, 255, 0.1);
+    }
+
+    .mreyze-stat {
+        min-width: 7.2rem;
+    }
+
+    .mreyze-stat__value {
+        display: block;
+        font-size: clamp(1.6rem, 2vw, 2.3rem);
+        font-weight: 800;
+        letter-spacing: -.05em;
+        color: #f4fbff;
+        font-family: 'Manrope', sans-serif;
+    }
+
+    .mreyze-stat__label {
+        display: block;
+        margin-top: .28rem;
+        font-size: .63rem;
+        letter-spacing: .12em;
+        text-transform: uppercase;
+        color: rgba(179, 206, 230, 0.76);
+    }
+
+    .mreyze-hero__visual {
         position: relative;
         display: flex;
         align-items: center;
         justify-content: center;
-        animation: fadeUp .8s .15s ease both;
+        min-height: 34rem;
     }
 
-    .tech-panel {
-        width: 100%;
-        max-width: 430px;
-        background: rgba(8,20,45,.75);
-        border: 1px solid rgba(74,144,217,.2);
-        border-radius: 18px;
-        padding: 1.5rem;
-        backdrop-filter: blur(18px);
-        animation: float 6s ease-in-out infinite;
+    .mreyze-panel {
         position: relative;
-        box-shadow: 0 24px 64px rgba(0,20,70,.5);
+        width: min(31rem, 100%);
+        background: rgba(9, 21, 32, 0.76);
+        border: 1px solid rgba(136, 188, 255, 0.18);
+        border-radius: 1.6rem;
+        padding: 1.15rem 1rem 1rem;
+        box-shadow: 0 30px 80px rgba(1, 8, 16, 0.44);
+        backdrop-filter: blur(12px);
+        overflow: hidden;
     }
-    .tech-panel::before {
-        content: '';
+
+    .mreyze-panel::before {
+        content: "";
         position: absolute;
-        inset: -1px;
-        border-radius: 18px;
-        background: linear-gradient(135deg, rgba(0,212,255,.3), transparent 40%, rgba(30,77,153,.4) 80%, transparent);
-        z-index: -1;
+        inset: 0;
+        background: linear-gradient(135deg, rgba(94, 202, 255, 0.08), transparent 28%, rgba(54, 95, 185, 0.12));
         pointer-events: none;
     }
 
-    @keyframes float {
-        0%,100% { transform: translateY(0); }
-        50%      { transform: translateY(-10px); }
+    .mreyze-panel__top {
+        position: relative;
+        z-index: 1;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: .8rem;
+        padding-bottom: .9rem;
+        border-bottom: 1px solid rgba(148, 194, 255, 0.1);
     }
 
-    /* Window bar */
-    .panel-bar {
+    .mreyze-panel__dots {
         display: flex;
-        align-items: center;
-        gap: 8px;
-        margin-bottom: 1.2rem;
-        padding-bottom: 1rem;
-        border-bottom: 1px solid rgba(74,144,217,.12);
+        gap: .52rem;
     }
-    .w-dot { width:10px; height:10px; border-radius:50%; }
-    .w-dot.r { background:#ff5f57; }
-    .w-dot.y { background:#febc2e; }
-    .w-dot.g { background:#28c840; }
-    .panel-title {
-        font-family: 'Share Tech Mono', monospace;
-        font-size: .75rem;
-        color: var(--ice3);
-        margin-left: 8px;
-        flex: 1;
-    }
-    .panel-status {
-        font-family: 'Share Tech Mono', monospace;
-        font-size: .65rem;
-        color: #4ade80;
-        display: flex;
-        align-items: center;
-        gap: 5px;
-    }
-    .status-dot {
-        width:5px; height:5px;
+
+    .mreyze-panel__dots span {
+        width: .72rem;
+        height: .72rem;
         border-radius: 50%;
-        background: #4ade80;
-        box-shadow: 0 0 6px #4ade80;
-        animation: pulse 2s infinite;
-    }
-
-    /* Oscilloscope canvas */
-    #oscCanvas {
-        width: 100%;
-        height: 70px;
-        border-radius: 8px;
-        background: rgba(0,15,8,.6);
-        border: 1px solid rgba(74,222,128,.12);
-        margin-bottom: 1.2rem;
         display: block;
     }
 
-    /* Metrics grid */
-    .metrics-grid {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: .75rem;
-        margin-bottom: 1.2rem;
-    }
-    .metric-card {
-        background: rgba(14,28,56,.7);
-        border: 1px solid rgba(74,144,217,.15);
-        border-radius: 10px;
-        padding: .75rem;
-    }
-    .metric-icon {
-        font-family: 'Share Tech Mono', monospace;
-        font-size: .75rem;
-        color: var(--cyan);
-        margin-bottom: 4px;
-    }
-    .metric-val {
-        font-family: 'Exo 2', sans-serif;
-        font-size: 1.3rem;
-        font-weight: 700;
-        color: #fff;
-        line-height: 1;
-    }
-    .metric-val span { color: var(--cyan); font-size: .85rem; }
-    .metric-name {
-        font-family: 'Share Tech Mono', monospace;
-        font-size: .6rem;
-        color: var(--ice3);
-        margin-top: 4px;
-        letter-spacing: .04em;
-    }
+    .mreyze-panel__dots span:nth-child(1) { background: #ff655d; }
+    .mreyze-panel__dots span:nth-child(2) { background: #f3c854; }
+    .mreyze-panel__dots span:nth-child(3) { background: #3dd77d; }
 
-    /* Progress bars */
-    .prog-list { display: flex; flex-direction: column; gap: .7rem; }
-    .prog-head  { display: flex; justify-content: space-between; margin-bottom: 5px; }
-    .prog-name  { font-family: 'Share Tech Mono', monospace; font-size: .68rem; color: var(--ice2); }
-    .prog-pct   { font-family: 'Share Tech Mono', monospace; font-size: .68rem; color: var(--cyan); }
-    .prog-track { height: 5px; background: rgba(74,144,217,.12); border-radius: 10px; overflow: hidden; }
-    .prog-fill  {
-        height: 100%;
-        border-radius: 10px;
-        background: linear-gradient(90deg, #1e4d99, var(--cyan));
-        box-shadow: 0 0 8px rgba(0,212,255,.35);
-        width: 0;
-        transition: width 1.8s cubic-bezier(.4,0,.2,1);
-    }
-    .prog-fill.go { width: var(--w); }
-
-    /* Floating chips */
-    .chip-float {
-        position: absolute;
-        background: rgba(8,20,45,.92);
-        border: 1px solid rgba(74,144,217,.25);
-        border-radius: 10px;
-        padding: .55rem .9rem;
-        display: flex;
-        align-items: center;
-        gap: 7px;
-        font-family: 'Share Tech Mono', monospace;
+    .mreyze-panel__title {
+        position: relative;
+        z-index: 1;
+        color: rgba(187, 214, 237, 0.8);
         font-size: .72rem;
-        color: #fff;
-        white-space: nowrap;
-        backdrop-filter: blur(10px);
-        box-shadow: 0 6px 20px rgba(0,15,50,.4);
-    }
-    .chip-ico  { color: var(--cyan); }
-    .chip-top  { top:-22px; right:-18px; animation: float 5s 1s ease-in-out infinite; }
-    .chip-bot  { bottom:-22px; left:-18px; animation: float 5s 2s ease-in-out infinite; }
-
-    /* Scroll indicator */
-    .hero-scroll {
-        position: absolute;
-        bottom: 2rem; left: 50%;
-        transform: translateX(-50%);
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 5px;
-        z-index: 2;
-    }
-    .scroll-line {
-        width: 1px; height: 38px;
-        background: linear-gradient(to bottom, var(--cyan), transparent);
-        animation: scrl 2s ease-in-out infinite;
-    }
-    @keyframes scrl {
-        0%   { transform:scaleY(0); transform-origin:top; }
-        50%  { transform:scaleY(1); transform-origin:top; }
-        51%  { transform:scaleY(1); transform-origin:bottom; }
-        100% { transform:scaleY(0); transform-origin:bottom; }
-    }
-    .scroll-txt {
-        font-family: 'Share Tech Mono', monospace;
-        font-size: .62rem;
-        color: var(--ice3);
         letter-spacing: .12em;
         text-transform: uppercase;
     }
 
-    @keyframes fadeUp {
-        from { opacity:0; transform:translateY(28px); }
-        to   { opacity:1; transform:translateY(0); }
+    .mreyze-panel__status {
+        position: relative;
+        z-index: 1;
+        display: inline-flex;
+        align-items: center;
+        gap: .42rem;
+        font-size: .65rem;
+        letter-spacing: .1em;
+        text-transform: uppercase;
+        color: #7af0b2;
     }
 
-    /* Responsive */
-    @media (max-width: 900px) {
-        .hero-grid    { grid-template-columns:1fr; text-align:center; padding-top:5rem; }
-        .hero-desc    { margin: 0 auto 2.2rem; }
-        .hero-actions, .stats-row { justify-content:center; }
-        .hero-right   { display:none; }
+    .mreyze-panel__status::before {
+        content: "";
+        width: .5rem;
+        height: .5rem;
+        border-radius: 50%;
+        background: #7af0b2;
+        box-shadow: 0 0 14px rgba(122, 240, 178, .8);
     }
 
-    @media (max-width: 480px) {
-        .hero-grid {
-            padding: 5rem 1.25rem 3rem;
+    .mreyze-panel__canvas {
+        position: relative;
+        z-index: 1;
+        width: 100%;
+        height: 8rem;
+        margin-top: 1rem;
+        border-radius: 1rem;
+        border: 1px solid rgba(122, 168, 226, 0.18);
+        background: rgba(5, 17, 27, 0.9);
+    }
+
+    .mreyze-panel__metrics {
+        position: relative;
+        z-index: 1;
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: .8rem;
+        margin-top: 1rem;
+    }
+
+    .mreyze-mini-card {
+        padding: .85rem;
+        border-radius: 1rem;
+        border: 1px solid rgba(129, 176, 229, 0.1);
+        background: rgba(15, 29, 44, 0.8);
+    }
+
+    .mreyze-mini-card__label {
+        display: block;
+        margin-bottom: .42rem;
+        font-size: .65rem;
+        letter-spacing: .12em;
+        text-transform: uppercase;
+        color: rgba(186, 214, 236, 0.74);
+    }
+
+    .mreyze-mini-card__value {
+        font-family: 'Manrope', sans-serif;
+        font-size: 1.5rem;
+        line-height: 1.1;
+        letter-spacing: -.04em;
+        color: #effbff;
+    }
+
+    .mreyze-mini-card__value small {
+        font-size: .7rem;
+        color: #7ad9ff;
+    }
+
+    .mreyze-panel__bars {
+        position: relative;
+        z-index: 1;
+        display: grid;
+        gap: .7rem;
+        margin-top: 1rem;
+    }
+
+    .mreyze-bar-row {
+        display: grid;
+        gap: .28rem;
+    }
+
+    .mreyze-bar-row__top {
+        display: flex;
+        justify-content: space-between;
+        gap: .5rem;
+        font-size: .64rem;
+        letter-spacing: .08em;
+        text-transform: uppercase;
+        color: rgba(200, 220, 238, 0.78);
+    }
+
+    .mreyze-bar-row__track {
+        height: .45rem;
+        overflow: hidden;
+        border-radius: 999px;
+        background: rgba(124, 153, 199, 0.14);
+    }
+
+    .mreyze-bar-row__fill {
+        height: 100%;
+        border-radius: inherit;
+        background: linear-gradient(90deg, #2f74ff, #7fe2ff);
+        box-shadow: 0 0 12px rgba(112, 224, 255, .4);
+    }
+
+    .mreyze-bar-row__fill--92 { width: 92%; }
+    .mreyze-bar-row__fill--87 { width: 87%; }
+    .mreyze-bar-row__fill--95 { width: 95%; }
+
+    .mreyze-float-chip {
+        position: absolute;
+        display: inline-flex;
+        align-items: center;
+        gap: .5rem;
+        padding: .55rem .8rem;
+        border-radius: .9rem;
+        color: #eaf7ff;
+        border: 1px solid rgba(126, 176, 235, 0.18);
+        background: rgba(6, 17, 26, 0.8);
+        box-shadow: 0 20px 40px rgba(1, 6, 12, 0.34);
+        font-size: .67rem;
+        letter-spacing: .09em;
+        text-transform: uppercase;
+    }
+
+    .mreyze-float-chip--top { top: .6rem; right: -1.1rem; }
+    .mreyze-float-chip--bottom { bottom: .8rem; left: -1.3rem; }
+
+    .mreyze-trust {
+        padding-top: 1rem;
+        padding-bottom: 1rem;
+    }
+
+    .mreyze-trust__grid {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 1rem;
+    }
+
+    .mreyze-trust__item {
+        padding: 1.1rem 1rem;
+        border-radius: 1.2rem;
+        border: 1px solid rgba(129, 176, 229, 0.1);
+        background: rgba(8, 22, 34, 0.62);
+    }
+
+    .mreyze-trust__label {
+        display: block;
+        margin-bottom: .6rem;
+        color: rgba(183, 211, 234, 0.72);
+        letter-spacing: .12em;
+        text-transform: uppercase;
+        font-size: .66rem;
+    }
+
+    .mreyze-trust__value {
+        display: block;
+        color: #f3fbff;
+        font-size: clamp(1.5rem, 2vw, 2rem);
+        font-weight: 800;
+        letter-spacing: -.05em;
+        font-family: 'Manrope', sans-serif;
+    }
+
+    .mreyze-need__grid,
+    .mreyze-solution__grid,
+    .mreyze-project__grid,
+    .mreyze-process__grid,
+    .mreyze-difference__grid {
+        display: grid;
+        gap: 1.2rem;
+    }
+
+    .mreyze-need__grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .mreyze-solution__grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+    .mreyze-project__grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .mreyze-process__grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+    .mreyze-difference__grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+
+    .mreyze-need-card,
+    .mreyze-solution,
+    .mreyze-step,
+    .mreyze-project,
+    .mreyze-difference-card {
+        background: rgba(8, 22, 34, 0.62);
+        border: 1px solid rgba(131, 174, 229, 0.12);
+        border-radius: 1.3rem;
+        transition: transform .2s ease, border-color .2s ease, box-shadow .2s ease;
+    }
+
+    .mreyze-need-card:hover,
+    .mreyze-solution:hover,
+    .mreyze-step:hover,
+    .mreyze-project:hover,
+    .mreyze-difference-card:hover {
+        transform: translateY(-4px);
+        border-color: rgba(122, 215, 255, 0.32);
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.18);
+    }
+
+    .mreyze-need-card {
+        display: block;
+        padding: 1.35rem 1.2rem;
+        text-decoration: none;
+        color: inherit;
+    }
+
+    .mreyze-need-card__icon,
+    .mreyze-solution__icon {
+        display: inline-grid;
+        place-items: center;
+        width: 3rem;
+        height: 3rem;
+        border-radius: .8rem;
+        background: rgba(92, 181, 255, 0.09);
+        border: 1px solid rgba(109, 189, 255, 0.18);
+        color: #8ad7ff;
+        margin-bottom: 1rem;
+    }
+
+    .mreyze-need-card__title,
+    .mreyze-solution__title,
+    .mreyze-step__title,
+    .mreyze-project__title {
+        margin: 0 0 .55rem;
+        color: #f3fbff;
+        letter-spacing: -.03em;
+    }
+
+    .mreyze-need-card__title { font-size: 1.2rem; }
+    .mreyze-solution__title { font-size: 1.2rem; }
+    .mreyze-step__title { font-size: 1.1rem; }
+    .mreyze-project__title { font-size: 1.45rem; }
+
+    .mreyze-need-card p,
+    .mreyze-solution__desc,
+    .mreyze-step p,
+    .mreyze-project__desc,
+    .mreyze-difference-card p,
+    .mreyze-contact-panel p {
+        margin: 0;
+        line-height: 1.75;
+        color: rgba(222, 233, 244, 0.76);
+    }
+
+    .mreyze-solution {
+        display: block;
+        padding: 1.5rem 1.2rem;
+        text-decoration: none;
+        color: inherit;
+    }
+
+    .mreyze-solution__tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: .4rem;
+        margin-top: 1rem;
+    }
+
+    .mreyze-solution__tags span {
+        display: inline-flex;
+        padding: .33rem .7rem;
+        border-radius: 999px;
+        background: rgba(14, 28, 39, 0.82);
+        border: 1px solid rgba(122, 176, 240, 0.1);
+        color: #dceeff;
+        font-size: .62rem;
+        letter-spacing: .07em;
+        text-transform: uppercase;
+    }
+
+    .mreyze-project {
+        display: block;
+        overflow: hidden;
+        text-decoration: none;
+        color: inherit;
+    }
+
+    .mreyze-project__media {
+        position: relative;
+        display: grid;
+        place-items: center;
+        min-height: 14rem;
+        background: linear-gradient(135deg, rgba(34, 87, 175, 0.45), rgba(8, 19, 31, 0.82));
+    }
+
+    .mreyze-project__media::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: radial-gradient(circle at center, rgba(122, 214, 255, 0.2), transparent 38%);
+    }
+
+    .mreyze-project__icon {
+        position: relative;
+        z-index: 1;
+        display: grid;
+        place-items: center;
+        width: 4.5rem;
+        height: 4.5rem;
+        border-radius: 1rem;
+        background: rgba(8, 20, 30, 0.7);
+        border: 1px solid rgba(146, 201, 255, 0.2);
+        color: #8ad7ff;
+        font-size: 1.8rem;
+    }
+
+    .mreyze-project__body {
+        padding: 1.15rem 1.1rem 1.3rem;
+    }
+
+    .mreyze-project__eyebrow {
+        display: inline-block;
+        margin-bottom: .8rem;
+        color: #7ad9ff;
+        font-size: .66rem;
+        letter-spacing: .12em;
+        text-transform: uppercase;
+    }
+
+    .mreyze-project__meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: .45rem;
+        margin: 1rem 0 .9rem;
+    }
+
+    .mreyze-project__meta span {
+        padding: .38rem .7rem;
+        border-radius: 999px;
+        background: rgba(13, 27, 39, 0.85);
+        border: 1px solid rgba(127, 169, 225, 0.12);
+        color: #dfeeff;
+        font-size: .62rem;
+        letter-spacing: .08em;
+        text-transform: uppercase;
+    }
+
+    .mreyze-project__link {
+        color: #89e1ff;
+        font-weight: 700;
+        text-decoration: none;
+    }
+
+    .mreyze-step {
+        padding: 1.4rem 1rem 1.2rem;
+    }
+
+    .mreyze-step__index {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 2.4rem;
+        height: 2.4rem;
+        margin-bottom: 1rem;
+        border-radius: .8rem;
+        color: #8ad7ff;
+        border: 1px solid rgba(126, 191, 255, 0.18);
+        background: rgba(99, 175, 255, 0.08);
+        font-weight: 800;
+    }
+
+    .mreyze-difference-card {
+        padding: 1.4rem 1.2rem;
+    }
+
+    .mreyze-difference-card__number {
+        display: block;
+        font-size: 2.1rem;
+        line-height: 1;
+        font-weight: 800;
+        letter-spacing: -.06em;
+        color: #f3fbff;
+        font-family: 'Manrope', sans-serif;
+        margin-bottom: .5rem;
+    }
+
+    .mreyze-contact {
+        padding-top: 3.5rem;
+        padding-bottom: 5rem;
+    }
+
+    .mreyze-contact__wrap {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1.5rem;
+        flex-wrap: wrap;
+        padding: clamp(1.5rem, 3vw, 2.4rem);
+        border-radius: 1.6rem;
+        background: linear-gradient(135deg, rgba(17, 36, 54, 0.95), rgba(8, 19, 30, 0.98));
+        border: 1px solid rgba(130, 184, 255, 0.12);
+        box-shadow: 0 28px 60px rgba(0, 0, 0, 0.18);
+    }
+
+    .mreyze-contact__wrap h3 {
+        margin: 0 0 .45rem;
+        font-size: clamp(2rem, 3vw, 2.8rem);
+        line-height: 1.08;
+        letter-spacing: -.06em;
+        color: #f4fbff;
+        font-family: 'Manrope', sans-serif;
+    }
+
+    .mreyze-contact__wrap p {
+        margin: 0;
+        max-width: 42rem;
+        color: rgba(220, 232, 244, 0.8);
+        line-height: 1.7;
+    }
+
+    @media (max-width: 1024px) {
+        .mreyze-hero__grid {
+            min-height: auto;
         }
-        .hero-title {
-            font-size: clamp(1.75rem, 7vw, 2.4rem);
-            word-break: break-word;
+
+        .mreyze-hero__visual {
+            min-height: clamp(24rem, 70vw, 34rem);
         }
-        .terminal-line {
-            font-size: .68rem;
-            max-width: 100%;
-            overflow: hidden;
+
+        .mreyze-hero__grid,
+        .mreyze-difference__grid {
+            grid-template-columns: 1fr;
         }
-        .hero-desc {
-            font-size: .95rem;
+
+        .mreyze-solution__grid,
+        .mreyze-process__grid,
+        .mreyze-project__grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
         }
-        .hero-actions {
+    }
+
+    @media (max-width: 720px) {
+        .mreyze-section { padding: 4.2rem 0; }
+        .mreyze-hero__visual { min-height: 0; padding-block: 1.5rem; }
+
+        .mreyze-hero__actions,
+        .mreyze-hero__stats {
             flex-direction: column;
-            align-items: stretch;
+            align-items: flex-start;
         }
-        .hero-actions .btn-primary,
-        .hero-actions .btn-secondary {
-            justify-content: center;
+
+        .mreyze-btn {
             width: 100%;
         }
-        .stats-row {
-            gap: 1.25rem;
-            flex-wrap: wrap;
-            justify-content: center;
+
+        .mreyze-need__grid,
+        .mreyze-solution__grid,
+        .mreyze-project__grid,
+        .mreyze-process__grid,
+        .mreyze-difference__grid,
+        .mreyze-trust__grid {
+            grid-template-columns: 1fr;
         }
-        .stat-num {
-            font-size: 1.45rem;
+
+        .mreyze-panel__metrics {
+            grid-template-columns: 1fr 1fr;
         }
-        .stat-label {
-            font-size: .62rem;
-            letter-spacing: .02em;
+
+        .mreyze-contact__wrap {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        *, *::before, *::after {
+            animation: none !important;
+            transition: none !important;
+            scroll-behavior: auto !important;
         }
     }
 </style>
 
-<!-- Canvas de fondo (circuitos + binario) -->
-<canvas id="bgCanvas"></canvas>
+<style>
+    /* Mobile app composition: intentionally different from desktop. */
+    .mreyze-hero {
+        isolation: isolate;
+        position: relative;
+    }
+    .mreyze-hero::before,
+    .mreyze-hero::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+    }
+    .mreyze-hero::before {
+        z-index: 0;
+        opacity: .48;
+        background-image: url('/img/fondo1.png');
+        background-size: cover;
+        background-position: 68% center;
+        filter: saturate(.88) brightness(.7);
+    }
+    .mreyze-hero::after {
+        z-index: 1;
+        background: linear-gradient(90deg, rgba(7, 21, 34, .98) 0%, rgba(7, 21, 34, .9) 40%, rgba(7, 21, 34, .52) 78%, rgba(7, 21, 34, .78) 100%);
+    }
+    .mreyze-hero__grid { position: relative; z-index: 2; }
 
-<section class="hero" id="inicio">
-    <div class="hero-grid">
+    @media (max-width: 767px) {
+        .mreyze-home { padding-bottom: 1rem; }
+        .mreyze-hero::before {
+            z-index: 0;
+            opacity: .78;
+            background-image: url('/img/fondo1.png');
+            background-size: cover;
+            background-position: 62% bottom;
+            filter: saturate(.92) brightness(.82);
+        }
+        .mreyze-hero::after {
+            z-index: 1;
+            background:
+                linear-gradient(180deg, #071522 0%, rgba(7, 21, 34, .98) 23%, rgba(7, 21, 34, .78) 48%, rgba(7, 21, 34, .32) 73%, #071522 100%),
+                radial-gradient(circle at 70% 65%, rgba(20, 216, 255, .12), transparent 40%);
+        }
+        .mreyze-shell { width: min(100% - 2rem, 36rem); }
+        .mreyze-section { padding: 3.5rem 0; }
 
-        {{-- ── Contenido izquierdo ── --}}
-        <div class="hero-left">
+        .mreyze-hero { padding: 2rem 0 1.25rem; }
+        .mreyze-hero__grid {
+            display: flex;
+            flex-direction: column;
+            align-items: stretch;
+            gap: 0;
+            min-height: 0;
+        }
+        .mreyze-hero__grid > div:first-child { display: contents; }
+        .mreyze-hero .mreyze-kicker { order: 1; align-self: flex-start; margin-bottom: 1rem; font-size: .62rem; }
+        .mreyze-hero__title { order: 2; margin: 0; font-size: clamp(2.1rem, 9vw, 3.2rem); line-height: .96; letter-spacing: -.07em; }
+        .mreyze-hero__text { order: 3; margin-top: 1rem; font-size: .94rem; line-height: 1.55; display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden; }
+        .mreyze-hero__actions { order: 4; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .65rem; width: min(100%, 22rem); margin: 1.25rem auto 0; }
+        .mreyze-hero__actions .mreyze-btn { width: 100%; min-width: 0; min-height: 46px; padding: .65rem .45rem; font-size: .72rem; }
+        .mreyze-hero__visual { order: 5; min-height: 0; padding: 1.5rem 0 .8rem; }
+        .mreyze-panel { width: min(100%, 22rem); padding: .8rem; border-radius: 1.1rem; }
+        .mreyze-panel__title { font-size: .6rem; }
+        .mreyze-panel__status { font-size: .57rem; }
+        .mreyze-panel__canvas { height: 5.4rem; margin-top: .7rem; }
+        .mreyze-panel__metrics { gap: .5rem; margin-top: .65rem; }
+        .mreyze-mini-card { padding: .65rem; border-radius: .75rem; }
+        .mreyze-mini-card__label { font-size: .56rem; }
+        .mreyze-mini-card__value { font-size: 1.15rem; }
+        .mreyze-panel__bars { gap: .5rem; margin-top: .7rem; }
+        .mreyze-bar-row__top { font-size: .55rem; }
+        .mreyze-bar-row__track { height: .35rem; }
+        .mreyze-float-chip { display: none; }
 
-            <div class="badge-chip">
-                <span class="badge-dot"></span>
-                SYS_STATUS: ONLINE &nbsp;·&nbsp; INDUSTRIA 4.0
-            </div>
+        .mreyze-hero__stats {
+            order: 6;
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: .45rem;
+            margin-top: .75rem;
+            padding: .65rem;
+            border: 1px solid rgba(100, 180, 255, .14);
+            border-radius: 1rem;
+            background: rgba(13, 31, 49, .78);
+        }
+        .mreyze-stat { min-width: 0; text-align: center; }
+        .mreyze-stat__value { font-size: 1.15rem; }
+        .mreyze-stat__label { font-size: .5rem; letter-spacing: .06em; }
 
-            <h1 class="hero-title">
-                <span class="title-line">Automatización,</span>
-                <span class="title-line">IoT &amp; Software</span>
-                <span class="title-accent">a tu medida</span>
-            </h1>
+        .mreyze-trust { padding: 1rem 0 0; }
+        .mreyze-trust__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .55rem; }
+        .mreyze-trust__item { padding: .75rem; border-radius: .85rem; }
+        .mreyze-trust__label { font-size: .55rem; margin-bottom: .3rem; }
+        .mreyze-trust__value { font-size: 1.05rem; }
 
-            {{-- Terminal typewriter --}}
-            <div class="terminal-line">
-                <span class="term-prompt">~/dev $</span>
-                <span id="typeText"></span>
-                <span class="cursor"></span>
-            </div>
+        .mreyze-section__header { align-items: flex-start; margin-bottom: 1.25rem; }
+        .mreyze-heading { margin-top: .65rem; font-size: clamp(1.6rem, 6vw, 2.2rem); line-height: 1.05; }
+        .mreyze-section__header .mreyze-link { font-size: .75rem; }
 
-            <p class="hero-desc">
-                Transformamos procesos industriales mediante automatización inteligente,
-                electrónica embebida y desarrollo de software a medida.
-                Tu visión → nuestra ingeniería.
-            </p>
+        .mreyze-need__grid { grid-template-columns: 1fr; gap: .6rem; }
+        .mreyze-need-card { min-height: 5rem; display: grid; grid-template-columns: 2.5rem 1fr auto; gap: .7rem; align-items: center; padding: .75rem; border-radius: .85rem; }
+        .mreyze-need-card__icon { width: 2.5rem; height: 2.5rem; margin: 0; font-size: 0; }
+        .mreyze-need-card__icon::after { content: '→'; font-size: 1.2rem; color: #72dcff; }
+        .mreyze-need-card__title { margin: 0; font-size: .86rem; }
+        .mreyze-need-card p { grid-column: 2 / -1; margin-top: -.35rem; font-size: .7rem; line-height: 1.35; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
 
-            <div class="hero-actions">
-                <a href="{{ url('/contacto') }}" class="btn-primary">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>
-                    Solicitar Cotización
-                </a>
-                <a href="{{ url('/servicios') }}" class="btn-secondary">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
-                    Ver Servicios
-                </a>
-            </div>
+        .mreyze-solution__grid { grid-template-columns: 1fr; gap: .75rem; }
+        .mreyze-solution { min-height: 0; display: grid; grid-template-columns: 3rem 1fr auto; gap: .75rem; align-items: center; padding: .9rem; border-radius: .9rem; }
+        .mreyze-solution__icon { width: 3rem; height: 3rem; margin: 0; grid-row: span 2; }
+        .mreyze-solution__title { margin: 0; font-size: .95rem; }
+        .mreyze-solution__desc { font-size: .72rem; line-height: 1.4; margin: 0; }
+        .mreyze-solution__tags { grid-column: 2 / -1; margin: 0; }
+        .mreyze-solution__tags span { font-size: .52rem; padding: .25rem .45rem; }
 
-            <div class="stats-row">
-                <div>
-                    <div class="stat-num">+50<em>%</em></div>
-                    <div class="stat-label">COST_REDUCTION</div>
+        .mreyze-project__grid, .mreyze-process__grid, .mreyze-difference__grid { grid-template-columns: 1fr; gap: .75rem; }
+        .mreyze-project__media { min-height: 9rem; }
+        .mreyze-project__body { padding: .85rem; }
+        .mreyze-project__desc { font-size: .75rem; }
+        .mreyze-step, .mreyze-difference-card { padding: 1rem; }
+        .mreyze-contact__wrap { padding: 1.1rem; border-radius: 1rem; }
+        .mreyze-contact__wrap h3 { font-size: 1.65rem; }
+        .mreyze-contact__wrap .mreyze-btn { width: 100%; }
+    }
+
+    @media (max-width: 360px) {
+        .mreyze-shell { width: min(100% - 1.5rem, 36rem); }
+        .mreyze-hero__stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+        .mreyze-stat:last-child { grid-column: 1 / -1; }
+        .mreyze-panel__bars { display: none; }
+    }
+</style>
+
+<main class="mreyze-home">
+    <section class="mreyze-section mreyze-hero">
+        <div class="mreyze-shell mreyze-hero__grid">
+            <div>
+                <span class="mreyze-kicker">Ingeniería · Automatización · Software</span>
+
+                <h1 class="mreyze-hero__title">
+                    <span class="block">Tecnología que</span>
+                    <span class="block gradient">transforma</span>
+                    <span class="block">operaciones reales.</span>
+                </h1>
+
+                <p class="mreyze-hero__text">
+                    MREYZE crea soluciones integradas de automatización, IoT, software y estrategia para empresas que necesitan crecer con procesos más inteligentes, medibles y confiables.
+                </p>
+
+                <div class="mreyze-hero__actions">
+                    <a href="{{ route('contacto') }}" class="mreyze-btn mreyze-btn--primary">Solicitar cotización</a>
+                    <a href="{{ route('servicios') }}" class="mreyze-btn mreyze-btn--secondary">Ver soluciones</a>
                 </div>
-                <div>
-                    <div class="stat-num">24<em>/7</em></div>
-                    <div class="stat-label">UPTIME_MONITOR</div>
-                </div>
-                <div>
-                    <div class="stat-num">100<em>%</em></div>
-                    <div class="stat-label">CUSTOM_BUILT</div>
+
+                <div class="mreyze-hero__stats">
+                    <div class="mreyze-stat">
+                        <span class="mreyze-stat__value">+50%</span>
+                        <span class="mreyze-stat__label">eficiencia</span>
+                    </div>
+                    <div class="mreyze-stat">
+                        <span class="mreyze-stat__value">24/7</span>
+                        <span class="mreyze-stat__label">monitoreo</span>
+                    </div>
+                    <div class="mreyze-stat">
+                        <span class="mreyze-stat__value">100%</span>
+                        <span class="mreyze-stat__label">a medida</span>
+                    </div>
                 </div>
             </div>
 
+            <div class="mreyze-hero__visual">
+                <div class="mreyze-float-chip mreyze-float-chip--top">Industria 4.0</div>
+
+                <div class="mreyze-panel">
+                    <div class="mreyze-panel__top">
+                        <div class="mreyze-panel__dots">
+                            <span></span>
+                            <span></span>
+                            <span></span>
+                        </div>
+                        <div class="mreyze-panel__title">mreyze_flow_v2</div>
+                        <div class="mreyze-panel__status">Online</div>
+                    </div>
+
+                    <canvas class="mreyze-panel__canvas" id="mreyze-graph-canvas"></canvas>
+
+                    <div class="mreyze-panel__metrics">
+                        <div class="mreyze-mini-card">
+                            <span class="mreyze-mini-card__label">PLC</span>
+                            <div class="mreyze-mini-card__value">92<small>%</small></div>
+                        </div>
+                        <div class="mreyze-mini-card">
+                            <span class="mreyze-mini-card__label">IoT</span>
+                            <div class="mreyze-mini-card__value">4<small>ms</small></div>
+                        </div>
+                    </div>
+
+                    <div class="mreyze-panel__bars">
+                        <div class="mreyze-bar-row">
+                            <div class="mreyze-bar-row__top"><span>Automatización</span><span>92%</span></div>
+                            <div class="mreyze-bar-row__track"><div class="mreyze-bar-row__fill mreyze-bar-row__fill--92"></div></div>
+                        </div>
+                        <div class="mreyze-bar-row">
+                            <div class="mreyze-bar-row__top"><span>IoT / sensores</span><span>87%</span></div>
+                            <div class="mreyze-bar-row__track"><div class="mreyze-bar-row__fill mreyze-bar-row__fill--87"></div></div>
+                        </div>
+                        <div class="mreyze-bar-row">
+                            <div class="mreyze-bar-row__top"><span>Software / cloud</span><span>95%</span></div>
+                            <div class="mreyze-bar-row__track"><div class="mreyze-bar-row__fill mreyze-bar-row__fill--95"></div></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mreyze-float-chip mreyze-float-chip--bottom">Cloud + API</div>
+            </div>
         </div>
+    </section>
 
-        {{-- ── Panel tecnológico derecho ── --}}
-        <div class="hero-right">
-
-            <div class="chip-float chip-top">
-                <span class="chip-ico">⬡</span> NODE_COUNT: 14 activos
-            </div>
-
-            <div class="tech-panel">
-                {{-- Window bar estilo IDE --}}
-                <div class="panel-bar">
-                    <span class="w-dot r"></span>
-                    <span class="w-dot y"></span>
-                    <span class="w-dot g"></span>
-                    <span class="panel-title">industrial_ctrl_v2.4.1 — main.c</span>
-                    <span class="panel-status">
-                        <span class="status-dot"></span> RUNNING
-                    </span>
+    <section class="mreyze-section mreyze-trust">
+        <div class="mreyze-shell">
+            <div class="mreyze-trust__grid">
+                <div class="mreyze-trust__item">
+                    <span class="mreyze-trust__label">Soluciones</span>
+                    <span class="mreyze-trust__value">Industrial</span>
                 </div>
-
-                {{-- Osciloscopio animado --}}
-                <canvas id="oscCanvas"></canvas>
-
-                {{-- Métricas en grid --}}
-                <div class="metrics-grid">
-                    <div class="metric-card">
-                        <div class="metric-icon">⬡ PLC</div>
-                        <div class="metric-val">92<span>%</span></div>
-                        <div class="metric-name">AUTOMATION_RATE</div>
-                    </div>
-                    <div class="metric-card">
-                        <div class="metric-icon">⬡ IoT</div>
-                        <div class="metric-val">4<span>ms</span></div>
-                        <div class="metric-name">AVG_LATENCY</div>
-                    </div>
-                    <div class="metric-card">
-                        <div class="metric-icon">⬡ MCU</div>
-                        <div class="metric-val">3.3<span>V</span></div>
-                        <div class="metric-name">VCC_STABLE</div>
-                    </div>
-                    <div class="metric-card">
-                        <div class="metric-icon">⬡ NET</div>
-                        <div class="metric-val">99<span>%</span></div>
-                        <div class="metric-name">UPTIME_7D</div>
-                    </div>
+                <div class="mreyze-trust__item">
+                    <span class="mreyze-trust__label">Tecnología</span>
+                    <span class="mreyze-trust__value">IoT</span>
                 </div>
-
-                {{-- Barras de progreso --}}
-                <div class="prog-list">
-                    <div class="prog-item">
-                        <div class="prog-head">
-                            <span class="prog-name">PLC / SCADA Automation</span>
-                            <span class="prog-pct">92%</span>
-                        </div>
-                        <div class="prog-track">
-                            <div class="prog-fill" style="--w:92%"></div>
-                        </div>
-                    </div>
-                    <div class="prog-item">
-                        <div class="prog-head">
-                            <span class="prog-name">IoT Firmware (ESP/STM32)</span>
-                            <span class="prog-pct">87%</span>
-                        </div>
-                        <div class="prog-track">
-                            <div class="prog-fill" style="--w:87%"></div>
-                        </div>
-                    </div>
-                    <div class="prog-item">
-                        <div class="prog-head">
-                            <span class="prog-name">Embedded C / RTOS</span>
-                            <span class="prog-pct">95%</span>
-                        </div>
-                        <div class="prog-track">
-                            <div class="prog-fill" style="--w:95%"></div>
-                        </div>
-                    </div>
-                    <div class="prog-item">
-                        <div class="prog-head">
-                            <span class="prog-name">Full-Stack Dev (PHP/React)</span>
-                            <span class="prog-pct">78%</span>
-                        </div>
-                        <div class="prog-track">
-                            <div class="prog-fill" style="--w:78%"></div>
-                        </div>
-                    </div>
+                <div class="mreyze-trust__item">
+                    <span class="mreyze-trust__label">Sistemas</span>
+                    <span class="mreyze-trust__value">Embebidos</span>
+                </div>
+                <div class="mreyze-trust__item">
+                    <span class="mreyze-trust__label">Integración</span>
+                    <span class="mreyze-trust__value">Cloud</span>
                 </div>
             </div>
-
-            <div class="chip-float chip-bot">
-                <span class="chip-ico">⬡</span> SYS_TEMP: 41°C — estable
-            </div>
-
         </div>
-    </div>
+    </section>
 
-    <div class="hero-scroll">
-        <div class="scroll-line"></div>
-        <span class="scroll-txt">scroll</span>
-    </div>
-</section>
+    <section class="mreyze-section">
+        <div class="mreyze-shell">
+            <div class="mreyze-section__header">
+                <div>
+                    <span class="mreyze-kicker">Necesidades reales</span>
+                    <h2 class="mreyze-heading">La tecnología que tu operación necesita <span class="highlight">hoy</span></h2>
+                </div>
+            </div>
+
+            <div class="mreyze-need__grid">
+                <a href="{{ route('servicios.automatizacion') }}" class="mreyze-need-card">
+                    <div class="mreyze-need-card__icon"><x-ui.icon><path d="M12 3v3m0 12v3M3 12h3m12 0h3m-4.64-6.36-2.12 2.12m-4.48 4.48-2.12 2.12m0-8.72 2.12 2.12m4.48 4.48 2.12 2.12M16 12a4 4 0 1 1-8 0 4 4 0 0 1 8 0Z" /></x-ui.icon></div>
+                    <h3 class="mreyze-need-card__title">Automatización industrial</h3>
+                    <p>Reduce tiempos, mejora control y optimiza procesos críticos con soluciones integradas y fácilmente escalables.</p>
+                </a>
+
+                <a href="{{ route('servicios.iot') }}" class="mreyze-need-card">
+                    <div class="mreyze-need-card__icon"><x-ui.icon><path d="M5 12a7 7 0 0 1 14 0M8 12a4 4 0 0 1 8 0M11 12a1 1 0 0 1 2 0m-1 4v5" /></x-ui.icon></div>
+                    <h3 class="mreyze-need-card__title">Monitoreo inteligente</h3>
+                    <p>Recolecta y analiza indicadores en tiempo real para responder antes, con mayor precisión y menos riesgo operativo.</p>
+                </a>
+
+                <a href="{{ route('servicios.desarrollo') }}" class="mreyze-need-card">
+                    <div class="mreyze-need-card__icon"><x-ui.icon><rect x="3" y="4" width="18" height="13" rx="2" /><path d="M8 21h8m-4-4v4" /></x-ui.icon></div>
+                    <h3 class="mreyze-need-card__title">Software a medida</h3>
+                    <p>Diseñamos plataformas, dashboards y herramientas digitales que acompañan decisiones, procesos y crecimiento.</p>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <section class="mreyze-section">
+        <div class="mreyze-shell">
+            <div class="mreyze-section__header">
+                <div>
+                    <span class="mreyze-kicker">Soluciones</span>
+                    <h2 class="mreyze-heading">Todo para una empresa <span class="highlight">más eficiente</span></h2>
+                </div>
+                <a href="{{ route('servicios') }}" class="mreyze-link">Ver todas las soluciones →</a>
+            </div>
+
+            <div class="mreyze-solution__grid">
+                <a href="{{ route('servicios.automatizacion') }}" class="mreyze-solution">
+                    <div class="mreyze-solution__icon"><x-ui.icon><path d="M12 3v3m0 12v3M3 12h3m12 0h3m-4.64-6.36-2.12 2.12m-4.48 4.48-2.12 2.12m0-8.72 2.12 2.12m4.48 4.48 2.12 2.12M16 12a4 4 0 1 1-8 0 4 4 0 0 1 8 0Z" /></x-ui.icon></div>
+                    <h3 class="mreyze-solution__title">Automatización</h3>
+                    <p class="mreyze-solution__desc">Integración de procesos, control y optimización operativa con enfoque industrial.</p>
+                    <div class="mreyze-solution__tags"><span>PLC</span><span>SCADA</span><span>Control</span></div>
+                </a>
+
+                <a href="{{ route('servicios.iot') }}" class="mreyze-solution">
+                    <div class="mreyze-solution__icon"><x-ui.icon><path d="M5 12a7 7 0 0 1 14 0M8 12a4 4 0 0 1 8 0M11 12a1 1 0 0 1 2 0m-1 4v5" /></x-ui.icon></div>
+                    <h3 class="mreyze-solution__title">IoT &amp; sensores</h3>
+                    <p class="mreyze-solution__desc">Conectividad, telemetría y monitoreo de activos con datos accionables en tiempo real.</p>
+                    <div class="mreyze-solution__tags"><span>ESP32</span><span>MQTT</span><span>IoT</span></div>
+                </a>
+
+                <a href="{{ route('servicios.desarrollo') }}" class="mreyze-solution">
+                    <div class="mreyze-solution__icon"><x-ui.icon><path d="M9 3h6v4h4v6h-4v4H9v-4H5V7h4V3Z" /></x-ui.icon></div>
+                    <h3 class="mreyze-solution__title">Software</h3>
+                    <p class="mreyze-solution__desc">Sistemas web, APIs y dashboards que conectan equipos, datos y decisiones.</p>
+                    <div class="mreyze-solution__tags"><span>Web</span><span>API</span><span>Dashboard</span></div>
+                </a>
+
+                <a href="{{ route('servicios.consultoria') }}" class="mreyze-solution">
+                    <div class="mreyze-solution__icon"><x-ui.icon><path d="M9.5 4a3.5 3.5 0 0 0-3.4 4.35A3.5 3.5 0 0 0 7 15.2V18a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2v-2.8a3.5 3.5 0 0 0 .9-6.85A3.5 3.5 0 0 0 14.5 4h-5Z" /><path d="M9 20h6" /></x-ui.icon></div>
+                    <h3 class="mreyze-solution__title">Consultoría</h3>
+                    <p class="mreyze-solution__desc">Arquitectura, estrategia y acompañamiento para transformar ideas en soluciones viables.</p>
+                    <div class="mreyze-solution__tags"><span>Arquitectura</span><span>Infra</span><span>Soporte</span></div>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <section class="mreyze-section">
+        <div class="mreyze-shell">
+            <div class="mreyze-section__header">
+                <div>
+                    <span class="mreyze-kicker">Proyecto</span>
+                    <h2 class="mreyze-heading">Casos de éxito con <span class="highlight">impacto real</span></h2>
+                </div>
+                <a href="{{ route('proyectos') }}" class="mreyze-link">Ver todos los proyectos →</a>
+            </div>
+
+            <div class="mreyze-project__grid">
+                <a href="{{ route('proyectos') }}" class="mreyze-project">
+                    <div class="mreyze-project__media"><div class="mreyze-project__icon"><x-ui.icon><path d="M12 3v3m0 12v3M3 12h3m12 0h3m-4.64-6.36-2.12 2.12m-4.48 4.48-2.12 2.12m0-8.72 2.12 2.12m4.48 4.48 2.12 2.12M16 12a4 4 0 1 1-8 0 4 4 0 0 1 8 0Z" /></x-ui.icon></div></div>
+                    <div class="mreyze-project__body">
+                        <span class="mreyze-project__eyebrow">Automatización</span>
+                        <h3 class="mreyze-project__title">Control industrial</h3>
+                        <p class="mreyze-project__desc">Optimización de procesos con trazabilidad, control y mejor estabilidad operativa.</p>
+                        <div class="mreyze-project__meta"><span>PLC</span><span>SCADA</span></div>
+                        <span class="mreyze-project__link">Explorar proyecto →</span>
+                    </div>
+                </a>
+
+                <a href="{{ route('proyectos') }}" class="mreyze-project">
+                    <div class="mreyze-project__media"><div class="mreyze-project__icon"><x-ui.icon><path d="M5 12a7 7 0 0 1 14 0M8 12a4 4 0 0 1 8 0M11 12a1 1 0 0 1 2 0m-1 4v5" /></x-ui.icon></div></div>
+                    <div class="mreyze-project__body">
+                        <span class="mreyze-project__eyebrow">IoT</span>
+                        <h3 class="mreyze-project__title">Telemetría conectada</h3>
+                        <p class="mreyze-project__desc">Sistema de monitoreo en tiempo real para análisis, mantenimiento y toma de decisiones.</p>
+                        <div class="mreyze-project__meta"><span>MQTT</span><span>ESP32</span></div>
+                        <span class="mreyze-project__link">Explorar proyecto →</span>
+                    </div>
+                </a>
+
+                <a href="{{ route('proyectos') }}" class="mreyze-project">
+                    <div class="mreyze-project__media"><div class="mreyze-project__icon"><x-ui.icon><rect x="3" y="6" width="18" height="13" rx="2" /><path d="M8 6V4h8v2m-13 5h18" /></x-ui.icon></div></div>
+                    <div class="mreyze-project__body">
+                        <span class="mreyze-project__eyebrow">Software</span>
+                        <h3 class="mreyze-project__title">Plataforma digital</h3>
+                        <p class="mreyze-project__desc">Solución web para integración, gestión y mayor visibilidad de procesos operativos.</p>
+                        <div class="mreyze-project__meta"><span>Laravel</span><span>API</span></div>
+                        <span class="mreyze-project__link">Explorar proyecto →</span>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <section class="mreyze-section">
+        <div class="mreyze-shell">
+            <div class="mreyze-section__header">
+                <div>
+                    <span class="mreyze-kicker">Proceso</span>
+                    <h2 class="mreyze-heading">Cómo entregamos valor <span class="highlight">sin fricción</span></h2>
+                </div>
+            </div>
+
+            <div class="mreyze-process__grid">
+                <div class="mreyze-step">
+                    <div class="mreyze-step__index">01</div>
+                    <h3 class="mreyze-step__title">Diagnóstico</h3>
+                    <p>Analizamos objetivos, operación, limitaciones y oportunidades para crear la base correcta.</p>
+                </div>
+
+                <div class="mreyze-step">
+                    <div class="mreyze-step__index">02</div>
+                    <h3 class="mreyze-step__title">Diseño</h3>
+                    <p>Definimos arquitectura, flujo de información y solución técnica orientada a resultados medibles.</p>
+                </div>
+
+                <div class="mreyze-step">
+                    <div class="mreyze-step__index">03</div>
+                    <h3 class="mreyze-step__title">Desarrollo</h3>
+                    <p>Construimos sistemas con tecnologías modernas, pensando en escalabilidad y mantenimiento.</p>
+                </div>
+
+                <div class="mreyze-step">
+                    <div class="mreyze-step__index">04</div>
+                    <h3 class="mreyze-step__title">Implementación</h3>
+                    <p>Validamos, desplegamos y acompañamos la ejecución para asegurar una integración real y estable.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="mreyze-section">
+        <div class="mreyze-shell">
+            <div class="mreyze-section__header">
+                <div>
+                    <span class="mreyze-kicker">Nuestra diferencia</span>
+                    <h2 class="mreyze-heading">Más que tecnología: <span class="highlight">solución estratégica</span></h2>
+                </div>
+            </div>
+
+            <div class="mreyze-difference__grid">
+                <div class="mreyze-difference-card">
+                    <span class="mreyze-difference-card__number">01</span>
+                    <h3 class="mreyze-step__title">Enfoque en resultados</h3>
+                    <p>Cada decisión técnica se vincula a un objetivo empresarial claro, medible y relevante.</p>
+                </div>
+
+                <div class="mreyze-difference-card">
+                    <span class="mreyze-difference-card__number">02</span>
+                    <h3 class="mreyze-step__title">Integración completa</h3>
+                    <p>Unimos automatización, electrónica, software y datos para trabajar con un mismo sistema.</p>
+                </div>
+
+                <div class="mreyze-difference-card">
+                    <span class="mreyze-difference-card__number">03</span>
+                    <h3 class="mreyze-step__title">Ejecución real</h3>
+                    <p>Implementamos soluciones revisadas, probadas y diseñadas para sostenerse en la práctica diaria.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="mreyze-section mreyze-contact">
+        <div class="mreyze-shell">
+            <div class="mreyze-contact__wrap">
+                <div>
+                    <h3>¿Listo para transformar tu operación?</h3>
+                    <p>Hablemos sobre tu proceso, tus objetivos y la mejor forma de llevarlo a una solución tecnológica útil y escalable.</p>
+                </div>
+                <a href="{{ route('contacto') }}" class="mreyze-btn mreyze-btn--primary">Hablar con MREYZE</a>
+            </div>
+        </div>
+    </section>
+
+    <section class="mreyze-section" style="padding-top:0;">
+        <div class="mreyze-shell">
+            @include('sections.partials._productos-destacados')
+        </div>
+    </section>
+</main>
 
 <script>
-    // ── CANVAS: binario cayendo + red de nodos ──
-    const bgC   = document.getElementById('bgCanvas');
-    const bgCtx = bgC.getContext('2d');
+    const graphCanvas = document.getElementById('mreyze-graph-canvas');
 
-    function resizeBg() {
-        bgC.width  = window.innerWidth;
-        bgC.height = window.innerHeight;
-    }
-    resizeBg();
-    window.addEventListener('resize', resizeBg);
+    if (graphCanvas) {
+        const ctx = graphCanvas.getContext('2d');
 
-    // Nodos de red
-    const nodes = Array.from({length: 55}, () => ({
-        x: Math.random() * bgC.width,
-        y: Math.random() * bgC.height,
-        vx: (Math.random() - .5) * .3,
-        vy: (Math.random() - .5) * .3,
-        r: Math.random() * 2 + 1,
-    }));
+        function renderGraph() {
+            const rect = graphCanvas.getBoundingClientRect();
+            const ratio = window.devicePixelRatio || 1;
+            graphCanvas.width = rect.width * ratio;
+            graphCanvas.height = rect.height * ratio;
+            ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
 
-    // Columnas binarias
-    const COLS = 40;
-    const cols = Array.from({length: COLS}, (_, i) => ({
-        x: (i / COLS) * 1920,
-        y: Math.random() * -500,
-        speed: Math.random() * 1.5 + .5,
-        chars: Array.from({length: 20}, () => Math.random() < .5 ? '1' : '0'),
-        opacity: Math.random() * .5 + .1,
-    }));
+            const w = rect.width;
+            const h = rect.height;
 
-    function drawBg() {
-        bgCtx.clearRect(0, 0, bgC.width, bgC.height);
+            ctx.clearRect(0, 0, w, h);
 
-        // Binario cayendo
-        cols.forEach(col => {
-            col.y += col.speed;
-            if (col.y > bgC.height + 200) col.y = -300;
-            col.chars.forEach((c, i) => {
-                const alpha = Math.max(0, col.opacity - i * .025);
-                bgCtx.globalAlpha = alpha;
-                bgCtx.fillStyle = '#00d4ff';
-                bgCtx.font = '11px "Share Tech Mono", monospace';
-                bgCtx.fillText(c, col.x % bgC.width, col.y - i * 14);
-            });
-        });
+            const grad = ctx.createLinearGradient(0, 0, w, 0);
+            grad.addColorStop(0, 'rgba(91, 185, 255, 0.12)');
+            grad.addColorStop(1, 'rgba(123, 227, 255, 0.9)');
 
-        // Nodos + aristas
-        bgCtx.globalAlpha = 1;
-        nodes.forEach(n => {
-            n.x += n.vx; n.y += n.vy;
-            if (n.x < 0 || n.x > bgC.width)  n.vx *= -1;
-            if (n.y < 0 || n.y > bgC.height)  n.vy *= -1;
-        });
+            ctx.beginPath();
+            ctx.moveTo(8, h - 22);
+            ctx.lineTo(52, h - 46);
+            ctx.lineTo(108, h - 60);
+            ctx.lineTo(168, h - 36);
+            ctx.lineTo(220, h - 52);
+            ctx.lineTo(278, h - 24);
+            ctx.lineTo(w - 10, h - 18);
+            ctx.lineTo(w - 10, h - 8);
+            ctx.lineTo(8, h - 8);
+            ctx.closePath();
+            ctx.fillStyle = 'rgba(98, 210, 255, 0.1)';
+            ctx.fill();
 
-        for (let i = 0; i < nodes.length; i++) {
-            for (let j = i + 1; j < nodes.length; j++) {
-                const dx = nodes[i].x - nodes[j].x;
-                const dy = nodes[i].y - nodes[j].y;
-                const d  = Math.sqrt(dx*dx + dy*dy);
-                if (d < 140) {
-                    bgCtx.globalAlpha = (1 - d/140) * .12;
-                    bgCtx.strokeStyle = '#4a90d9';
-                    bgCtx.lineWidth   = .6;
-                    bgCtx.beginPath();
-                    bgCtx.moveTo(nodes[i].x, nodes[i].y);
-                    bgCtx.lineTo(nodes[j].x, nodes[j].y);
-                    bgCtx.stroke();
-                }
+            ctx.beginPath();
+            ctx.moveTo(8, h - 22);
+            ctx.lineTo(52, h - 46);
+            ctx.lineTo(108, h - 60);
+            ctx.lineTo(168, h - 36);
+            ctx.lineTo(220, h - 52);
+            ctx.lineTo(278, h - 24);
+            ctx.lineTo(w - 10, h - 18);
+            ctx.strokeStyle = grad;
+            ctx.lineWidth = 2.2;
+            ctx.stroke();
+
+            for (let x = 0; x < w; x += 20) {
+                ctx.beginPath();
+                ctx.moveTo(x, 0);
+                ctx.lineTo(x, h);
+                ctx.strokeStyle = 'rgba(136, 184, 255, 0.08)';
+                ctx.stroke();
             }
         }
 
-        nodes.forEach(n => {
-            bgCtx.globalAlpha = .35;
-            bgCtx.fillStyle   = '#00d4ff';
-            bgCtx.beginPath();
-            bgCtx.arc(n.x, n.y, n.r, 0, Math.PI * 2);
-            bgCtx.fill();
-        });
-
-        bgCtx.globalAlpha = 1;
-        requestAnimationFrame(drawBg);
+        renderGraph();
+        window.addEventListener('resize', renderGraph);
     }
-    drawBg();
-
-    // ── OSCILOSCOPIO ──
-    const osc  = document.getElementById('oscCanvas');
-    osc.width  = osc.offsetWidth * (window.devicePixelRatio || 1) || 380;
-    osc.height = 70 * (window.devicePixelRatio || 1);
-    const octx = osc.getContext('2d');
-    let t = 0;
-
-    function drawOsc() {
-        const W = osc.width, H = osc.height;
-        octx.fillStyle = 'rgba(0,10,5,.25)';
-        octx.fillRect(0, 0, W, H);
-        octx.strokeStyle = '#00d4ff';
-        octx.lineWidth   = 1.5;
-        octx.shadowColor = '#00d4ff';
-        octx.shadowBlur  = 6;
-        octx.beginPath();
-        for (let x = 0; x < W; x++) {
-            const y = H/2
-                + Math.sin((x + t) * .04)  * H * .22
-                + Math.sin((x + t * 1.3) * .08) * H * .1;
-            x === 0 ? octx.moveTo(x, y) : octx.lineTo(x, y);
-        }
-        octx.stroke();
-        octx.shadowBlur = 0;
-        t += .8;
-        requestAnimationFrame(drawOsc);
-    }
-    drawOsc();
-
-    // ── TYPEWRITER ──
-    const lines = [
-        'init_system --env=production',
-        'connect iot_nodes[14] --proto=MQTT',
-        'deploy firmware v2.4.1 → ESP32',
-        'monitor.start(interval=100ms)',
-        'status: ALL_SYSTEMS_NOMINAL ✓',
-    ];
-    let li = 0, ci = 0, erasing = false;
-    const el = document.getElementById('typeText');
-
-    function type() {
-        if (!erasing) {
-            if (ci <= lines[li].length) {
-                el.textContent = lines[li].slice(0, ci++);
-                setTimeout(type, ci > lines[li].length ? 1800 : 45);
-            } else { erasing = true; setTimeout(type, 200); }
-        } else {
-            if (ci > 0) {
-                el.textContent = lines[li].slice(0, --ci);
-                setTimeout(type, 22);
-            } else { erasing = false; li = (li + 1) % lines.length; setTimeout(type, 300); }
-        }
-    }
-    type();
-
-    /    // ── PROGRESS BARS ──
-    document.addEventListener('DOMContentLoaded', () => {
-        setTimeout(() => {
-            document.querySelectorAll('.prog-fill').forEach(b => b.classList.add('go'));
-        }, 700);
-    });
 </script>
-
-{{-- @include('components.tienda-section') --}}
-
-@include('sections.partials._productos-destacados')
 
 @endsection

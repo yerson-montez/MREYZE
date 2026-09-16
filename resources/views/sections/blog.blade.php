@@ -328,6 +328,43 @@
     @media (max-width: 640px)  { .blog-grid { grid-template-columns: 1fr; } }
 </style>
 
+<style>
+    /* Editorial layer: hierarchy for the existing article collection. */
+    .blog {
+        padding: clamp(4rem, 8vw, 7rem) clamp(1rem, 4vw, 2rem);
+        background:
+            radial-gradient(circle at 15% 0%, rgba(20, 216, 255, .08), transparent 28%),
+            linear-gradient(180deg, #071522 0%, #091d30 100%);
+    }
+    .blog-container { width: min(100%, 78rem); }
+    .blog-header { margin-bottom: 2.25rem; }
+    .blog-ver-mas { min-height: 44px; }
+    .blog-grid { grid-template-columns: minmax(0, 1.45fr) repeat(2, minmax(0, 1fr)); gap: 1rem; }
+    .blog-card { border-radius: 1rem; background: rgba(8, 25, 41, .82); border-color: rgba(130, 190, 240, .14); }
+    .blog-card:hover { transform: translateY(-3px); box-shadow: 0 20px 40px rgba(0, 0, 0, .2); }
+    .blog-preview { aspect-ratio: 16 / 9; height: auto; }
+    .blog-card.featured .blog-preview { aspect-ratio: 16 / 10; height: auto; }
+    .blog-body { padding: clamp(1rem, 2vw, 1.4rem); }
+    .blog-titulo { font-size: 1.05rem; }
+    .blog-card.featured .blog-titulo { font-size: clamp(1.25rem, 2.2vw, 1.8rem); line-height: 1.15; }
+    .blog-extracto { color: #afc4d7; }
+    .blog-leer { opacity: 1; transform: none; }
+    .blog-newsletter { padding: clamp(1.25rem, 4vw, 2.5rem); border-radius: 1rem; background: rgba(8, 25, 41, .78); }
+    .blog-newsletter-input, .blog-newsletter-btn { min-height: 44px; }
+
+    @media (max-width: 1024px) {
+        .blog-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+        .blog-card.featured { grid-column: 1 / -1; }
+    }
+    @media (max-width: 640px) {
+        .blog-header { align-items: stretch; }
+        .blog-ver-mas { justify-content: center; width: 100%; }
+        .blog-grid { grid-template-columns: 1fr; }
+        .blog-card.featured { grid-column: auto; }
+        .blog-newsletter-form, .blog-newsletter-input, .blog-newsletter-btn { width: 100%; }
+    }
+</style>
+
 <section class="blog" id="blog">
     <div class="blog-bg"></div>
     <div class="blog-container">

@@ -8,7 +8,7 @@
 
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@400;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@400;600;700&family=Share+Tech+Mono&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 
@@ -180,11 +180,36 @@
 
         /* ── RESPONSIVE ── */
         @media (max-width: 768px) {
-            .cyber-sidebar { display: none; }
+            .cyber-layout { display: block; }
+            .cyber-sidebar {
+                width: 100%;
+                min-width: 0;
+                height: auto;
+                position: static;
+                flex-direction: row;
+                align-items: center;
+                gap: .35rem;
+                padding: .5rem;
+                overflow-x: auto;
+                border-right: 0;
+                border-bottom: 1px solid rgba(0,212,255,.12);
+            }
+            .sidebar-logo { flex: 0 0 auto; padding: .45rem .6rem; border-bottom: 0; }
+            .logo-ver, .sys-status, .nav-section, .sidebar-bottom { display: none; }
+            .nav-item { flex: 0 0 auto; min-height: 44px; margin: 0; padding: .65rem .8rem; }
+            .cyber-main { min-width: 0; overflow: visible; }
+            .cyber-topbar { height: auto; min-height: 52px; padding: .55rem .75rem; }
+            .top-btn { width: 44px; height: 44px; }
+            .top-clock { display: none; }
+            .cyber-content { padding: 1rem .75rem; overflow: visible; }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .scan-line, .s-dot { animation: none !important; }
         }
     </style>
 </head>
-<body>
+<body class="mreyze-ui">
 
 <div class="scan-line"></div>
 

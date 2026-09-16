@@ -156,6 +156,39 @@
         .inv-uploads { grid-template-columns: 1fr; }
         .inv { padding: 5.5rem 1rem 4rem; }
     }
+
+    /* Formulario financiero: mobile-first y orientado a completar la operación. */
+    .inv {
+        width: min(100% - 2rem, 80rem);
+        padding: clamp(2rem, 6vw, 5rem) 0;
+    }
+
+    .inv-form-wrap {
+        max-width: 54rem;
+        padding: clamp(1.25rem, 4vw, 2.5rem);
+        border-radius: 1rem;
+        background: linear-gradient(145deg, rgba(8, 28, 46, .98), rgba(7, 20, 34, .98));
+        border-color: rgba(125, 226, 255, .2);
+        box-shadow: 0 24px 60px rgba(0, 0, 0, .2);
+    }
+
+    .inv-form-title { font-size: clamp(1.5rem, 3vw, 2.2rem); }
+    .inv-form-grid { gap: 1rem; }
+    .inv-campo input,
+    .inv-campo select { min-height: 48px; font-size: 1rem; }
+    .inv-frecuencia-caja { min-height: 5rem; justify-content: center; }
+    .inv-upload-label { min-height: 12rem; }
+    .inv-btn, .inv-qr-btn { min-height: 48px; }
+
+    @media (max-width: 600px) {
+        .inv { width: min(100% - 1.25rem, 54rem); padding-top: 2rem; }
+        .inv-form-wrap { padding: 1.15rem; }
+        .inv-frecuencia { grid-template-columns: 1fr; }
+        .inv-pago-fila { flex-direction: column; gap: .25rem; }
+        .inv-pago-fila strong { text-align: left; }
+        .inv-qr-caja img { width: min(190px, 100%); height: auto; aspect-ratio: 1; }
+        .inv-btn { width: 100%; }
+    }
 </style>
 
 <div class="inv">

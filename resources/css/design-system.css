@@ -1,0 +1,291 @@
+/* MREYZE · Visual foundations. Opt in with body.mreyze-ui.
+   Keep state, visibility, dimensions of functional widgets and JS hooks in their owners.
+   Specificity is intentional: legacy views still contain styles after the Vite entry. */
+:root,
+body.mreyze-ui {
+    --background: #050b14;
+    --background-secondary: #091525;
+    --surface: #0d1d31;
+    --surface-hover: #12263e;
+    --primary: #1597ff;
+    --primary-hover: #55b7ff;
+    --accent: #376dff;
+    --cyan: #14d8ff;
+    --text-primary: #f5f8fc;
+    --text-secondary: #a5b4c7;
+    --text-muted: #8294aa;
+    --text-on-primary: #050b14;
+    --border: rgba(120, 180, 255, .12);
+    --border-hover: rgba(120, 180, 255, .32);
+    --shadow: 0 12px 36px rgba(0, 0, 0, .18);
+    --shadow-raised: 0 20px 56px rgba(0, 0, 0, .3);
+    --radius-sm: .375rem;
+    --radius-md: .625rem;
+    --radius-lg: 1rem;
+    --radius-xl: 1.5rem;
+    --font-sans: 'Inter', 'Segoe UI', sans-serif;
+    --font-heading: var(--font-sans);
+    --font-mono: ui-monospace, 'Cascadia Code', Consolas, monospace;
+    --text-xs: .8125rem;
+    --text-sm: .875rem;
+    --text-base: clamp(1rem, .97rem + .15vw, 1.0625rem);
+    --heading-1: clamp(2rem, 1.35rem + 3.2vw, 4.5rem);
+    --heading-2: clamp(1.625rem, 1.2rem + 1.8vw, 3rem);
+    --heading-3: clamp(1.125rem, 1rem + .6vw, 1.5rem);
+    --space-1: .25rem;
+    --space-2: .5rem;
+    --space-3: .75rem;
+    --space-4: 1rem;
+    --space-6: 1.5rem;
+    --space-8: 2rem;
+    --space-12: 3rem;
+    --space-16: 4rem;
+    --container-width: 80rem;
+    --container-narrow: 48rem;
+    --page-gutter: clamp(1rem, 3vw, 2.5rem);
+    --section-space: clamp(3rem, 7vw, 6.5rem);
+    --grid-gap: clamp(1rem, 2.5vw, 2rem);
+    --card-padding: clamp(1.25rem, 2.5vw, 2rem);
+    --control-height: 2.75rem;
+    --touch-target: 2.75rem;
+    --motion-fast: 160ms;
+    --motion-normal: 240ms;
+    --focus-ring: 0 0 0 3px rgba(20, 216, 255, .22);
+    --color-success: #74dfb0;
+    --color-warning: #f3cb79;
+    --color-danger: #ffa4ae;
+}
+
+/* Bridge existing presentation tokens without renaming any existing selector. */
+body.mreyze-ui {
+    --ice-900: var(--background);
+    --ice-800: var(--background-secondary);
+    --ice-700: var(--surface-hover);
+    --ice-600: #234364;
+    --ice-500: #1763b3;
+    --ice-400: var(--primary);
+    --ice-300: var(--text-muted);
+    --ice-200: var(--text-secondary);
+    --ice-100: #d5e2f0;
+    --ice-50: var(--text-primary);
+    --bg: var(--background);
+    --bg-deep: var(--background);
+    --bg-nav: var(--background-secondary);
+    --bg-card: var(--surface);
+    --card: var(--surface);
+    --panel: var(--surface);
+    --text: var(--text-primary);
+    --muted: var(--text-muted);
+    --border-md: var(--border-hover);
+    --border-hot: var(--border-hover);
+    --glow: var(--primary);
+    background: var(--background);
+    color: var(--text-primary);
+    font-family: var(--font-sans);
+    font-size: var(--text-base);
+    line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+    color-scheme: dark;
+}
+
+body.mreyze-ui :where(h1, h2, h3, h4, h5, h6) {
+    font-family: var(--font-heading);
+    color: var(--text-primary);
+    font-weight: 650;
+    line-height: 1.2;
+    letter-spacing: -.025em;
+    overflow-wrap: break-word;
+}
+
+body.mreyze-ui :where(button, input, select, textarea) { font-family: var(--font-sans); }
+body.mreyze-ui ::selection { background: #164b77; color: var(--text-primary); }
+body.mreyze-ui :where(img, svg, video, canvas) { max-width: 100%; }
+body.mreyze-ui :where(img, video) { height: auto; }
+body.mreyze-ui :where(p, li, td, th, a, button, label, summary) { overflow-wrap: anywhere; }
+body.mreyze-ui :where(button, [role="button"], summary) { min-height: var(--touch-target); }
+
+/* Never use display here: Alpine, hidden inputs and backend states own visibility. */
+body.mreyze-ui :where(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
+    outline: 2px solid var(--cyan) !important;
+    outline-offset: 3px !important;
+}
+
+.mreyze-ui .mreyze-container {
+    width: min(100% - var(--page-gutter) * 2, var(--container-width));
+    margin-inline: auto;
+}
+.mreyze-ui .mreyze-container--narrow { max-width: var(--container-narrow); }
+.mreyze-ui .mreyze-section { padding-block: var(--section-space); }
+.mreyze-ui .mreyze-stack > * + * { margin-block-start: var(--stack-space, var(--space-6)); }
+.mreyze-ui .mreyze-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 17rem), 1fr));
+    gap: var(--grid-gap);
+}
+.mreyze-ui .mreyze-grid > * { min-width: 0; }
+.mreyze-ui .mreyze-heading-1 { font-size: var(--heading-1); }
+.mreyze-ui .mreyze-heading-2 { font-size: var(--heading-2); }
+.mreyze-ui .mreyze-heading-3 { font-size: var(--heading-3); }
+.mreyze-ui .mreyze-copy { max-width: 65ch; color: var(--text-secondary); line-height: 1.75; }
+.mreyze-ui .mreyze-eyebrow {
+    color: var(--cyan);
+    font-size: var(--text-xs);
+    font-weight: 600;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+}
+
+.mreyze-ui .mreyze-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-2);
+    min-height: var(--control-height);
+    max-width: 100%;
+    padding: .625rem 1.125rem;
+    border: 1px solid transparent;
+    border-radius: var(--radius-md);
+    background: var(--primary);
+    color: var(--text-on-primary);
+    font-family: var(--font-sans);
+    font-size: var(--text-sm);
+    font-weight: 650;
+    line-height: 1.4;
+    letter-spacing: 0;
+    text-transform: none;
+    text-decoration: none;
+    text-align: center;
+    white-space: normal;
+    cursor: pointer;
+    box-shadow: none;
+    transition: background-color var(--motion-fast), border-color var(--motion-fast), color var(--motion-fast);
+}
+.mreyze-ui .mreyze-btn:hover:not(:disabled) { background: var(--primary-hover); color: var(--text-on-primary); }
+.mreyze-ui .mreyze-btn:focus { background: var(--primary); color: var(--text-on-primary); box-shadow: none; }
+.mreyze-ui .mreyze-btn--secondary { background: var(--surface); color: var(--text-primary); border-color: var(--border-hover); }
+.mreyze-ui .mreyze-btn--secondary:focus { background: var(--surface); color: var(--text-primary); }
+.mreyze-ui .mreyze-btn--secondary:hover:not(:disabled) { background: var(--surface-hover); color: var(--text-primary); }
+.mreyze-ui .mreyze-btn--danger { background: #922d40; color: #fff; }
+.mreyze-ui .mreyze-btn--danger:focus { background: #922d40; color: #fff; }
+.mreyze-ui .mreyze-btn--danger:hover:not(:disabled) { background: #ac364c; color: #fff; }
+.mreyze-ui .mreyze-btn:disabled,
+.mreyze-ui .mreyze-btn[aria-disabled="true"] { opacity: .55; cursor: not-allowed; }
+
+.mreyze-ui .mreyze-card {
+    padding: var(--card-padding);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow);
+    min-width: 0;
+}
+.mreyze-ui .mreyze-card--interactive { transition: border-color var(--motion-fast), background-color var(--motion-fast); }
+.mreyze-ui .mreyze-card--interactive:hover { border-color: var(--border-hover); background: var(--surface-hover); }
+.mreyze-ui .mreyze-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: .375rem;
+    padding: .25rem .625rem;
+    border-radius: 999px;
+    background: rgba(21, 151, 255, .1);
+    color: #95ceff;
+    font-size: var(--text-xs);
+    font-weight: 600;
+    line-height: 1.5;
+    overflow-wrap: anywhere;
+}
+.mreyze-ui .mreyze-badge--success { background: rgba(116, 223, 176, .1); color: var(--color-success); }
+.mreyze-ui .mreyze-badge--warning { background: rgba(243, 203, 121, .1); color: var(--color-warning); }
+.mreyze-ui .mreyze-badge--danger { background: rgba(255, 164, 174, .1); color: var(--color-danger); }
+.mreyze-ui .mreyze-badge--neutral { background: var(--surface-hover); color: var(--text-secondary); }
+
+.mreyze-ui .mreyze-input {
+    min-height: var(--touch-target);
+    max-width: 100%;
+    padding: .6875rem .875rem;
+    background-color: var(--background-secondary);
+    color: var(--text-primary);
+    border: 1px solid var(--border-hover);
+    border-radius: var(--radius-md);
+    font-size: 1rem;
+    line-height: 1.5;
+    box-shadow: none;
+    transition: border-color var(--motion-fast), box-shadow var(--motion-fast);
+}
+.mreyze-ui select.mreyze-input { padding-inline-end: 2.5rem; }
+.mreyze-ui textarea.mreyze-input { min-height: 8rem; resize: vertical; }
+.mreyze-ui .mreyze-input::placeholder { color: var(--text-muted); opacity: 1; }
+.mreyze-ui .mreyze-input:focus { border-color: var(--primary); box-shadow: var(--focus-ring); }
+.mreyze-ui .mreyze-input:focus-visible { box-shadow: none; }
+.mreyze-ui .mreyze-input[aria-invalid="true"] { border-color: var(--color-danger); }
+.mreyze-ui .mreyze-input:disabled { opacity: .6; cursor: not-allowed; }
+.mreyze-ui .mreyze-label { color: var(--text-secondary); font-size: var(--text-sm); font-weight: 500; }
+.mreyze-ui .mreyze-error { color: var(--color-danger); font-size: var(--text-sm); }
+
+.mreyze-ui .mreyze-dropdown-panel,
+.mreyze-ui .mreyze-modal-panel {
+    color: var(--text-primary);
+    background: var(--surface);
+    border: 1px solid var(--border-hover);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-raised);
+}
+.mreyze-ui .mreyze-dropdown-panel { padding: var(--space-2); }
+.mreyze-ui .mreyze-dropdown-link {
+    min-height: var(--touch-target);
+    padding: .625rem .75rem;
+    border-radius: var(--radius-sm);
+    color: var(--text-secondary);
+}
+.mreyze-ui .mreyze-dropdown-link:hover,
+.mreyze-ui .mreyze-dropdown-link:focus { color: var(--text-primary); background: var(--surface-hover); }
+.mreyze-ui .mreyze-modal-backdrop { background: var(--background); opacity: .8; }
+.mreyze-ui .mreyze-icon { width: 1.25em; height: 1.25em; flex-shrink: 0; vertical-align: middle; }
+.mreyze-ui .mreyze-modal-panel,
+.mreyze-ui [role="dialog"] > :where(div, section) {
+    max-width: min(100% - 2rem, 48rem);
+    max-height: min(90dvh, 48rem);
+    overflow: auto;
+}
+.mreyze-ui :where(.table-responsive, .overflow-auto, [data-table-scroll]) {
+    max-width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+/* Light adoption in shared chrome; page grids and transactional widgets are untouched. */
+body.mreyze-ui .nav-wrapper { background: rgba(5, 11, 20, .96); border-color: var(--border); box-shadow: 0 4px 20px rgba(0, 0, 0, .12); }
+body.mreyze-ui .nav-links a { font-size: .8125rem; letter-spacing: 0; color: var(--text-secondary); }
+body.mreyze-ui .nav-links a:hover,
+body.mreyze-ui .nav-links a.active { color: var(--text-primary); background: var(--surface); }
+body.mreyze-ui .nav-mobile { max-height: calc(100dvh - 70px); overflow-y: auto; overscroll-behavior: contain; }
+body.mreyze-ui :where(.dropdown, .nav-user-dropdown) { background: var(--surface); border-color: var(--border-hover); box-shadow: var(--shadow-raised); }
+body.mreyze-ui :where(.btn-cta, .hero-btn-primary) { font-family: var(--font-sans); background: var(--primary); color: var(--text-on-primary); border-color: transparent; box-shadow: none; }
+body.mreyze-ui :where(.btn-cta, .hero-btn-primary):hover { background: var(--primary-hover); color: var(--text-on-primary); box-shadow: none; }
+body.mreyze-ui :where(.btn-login, .btn-google) { border-color: var(--border-hover); box-shadow: none; }
+body.mreyze-ui .site-footer { background: var(--background-secondary); border-color: var(--border); padding-top: var(--section-space); }
+body.mreyze-ui :where(.section-title) { font-family: var(--font-heading); font-size: var(--heading-2); }
+body.mreyze-ui :where(.section-desc, .footer-brand p) { color: var(--text-secondary); }
+body.mreyze-ui .mreyze-auth-shell { padding-block: var(--space-12); }
+body.mreyze-ui .mreyze-auth-brand { font-family: var(--font-heading); font-size: 1.75rem; letter-spacing: -.03em; }
+body.mreyze-ui .mreyze-auth-caption { font-size: var(--text-xs); color: var(--text-secondary); margin-top: var(--space-2); }
+body.mreyze-ui .mreyze-auth-glow { opacity: .2; }
+
+@media (prefers-reduced-motion: reduce) {
+    body.mreyze-ui *, body.mreyze-ui *::before, body.mreyze-ui *::after {
+        animation-duration: .01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: .01ms !important;
+        scroll-behavior: auto !important;
+    }
+    body.mreyze-ui .reveal { opacity: 1; transform: none; }
+}
+
+@media (max-width: 600px) {
+    body.mreyze-ui .mreyze-container {
+        width: min(100% - 2rem, var(--container-width));
+    }
+    body.mreyze-ui .mreyze-btn {
+        min-height: var(--touch-target);
+    }
+}

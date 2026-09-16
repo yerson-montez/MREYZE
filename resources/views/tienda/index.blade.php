@@ -79,6 +79,7 @@
     }
 
     .cat-btn {
+        min-height: 44px;
         padding: 0.4rem 1.1rem;
         border-radius: 30px;
         font-size: 0.8rem;
@@ -325,18 +326,15 @@
         .tienda-header .section-title { font-size: 1.35rem; }
         .tienda-ver-mas { padding: 0.45rem 0.9rem; font-size: 0.72rem; }
         .tienda-cats { gap: 0.35rem; margin-bottom: 1.5rem; flex-wrap: nowrap; overflow-x: auto; padding-bottom: 4px; }
-        .cat-btn { padding: 0.35rem 0.8rem; font-size: 0.72rem; flex-shrink: 0; }
+        .cat-btn { min-height: 44px; padding: 0.55rem 0.8rem; font-size: 0.72rem; flex-shrink: 0; }
         .search-input { padding: 0.55rem 2.4rem 0.55rem 2.2rem; font-size: 0.82rem; }
         .tienda-banner { padding: 1.4rem 1.2rem; gap: 1rem; }
 
-        .tienda-grid {
-            grid-template-columns: repeat(4, 1fr);
-            gap: 0.4rem;
-        }
+        .tienda-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.65rem; }
 
         .producto-card { border-radius: 10px; }
         .producto-card:hover { transform: none; box-shadow: 0 8px 20px rgba(0,30,90,0.4); }
-        .producto-img { height: 84px; }
+        .producto-img { height: auto; aspect-ratio: 4 / 3; }
         .producto-img-icon { width: 38px; height: 38px; border-radius: 10px; }
         .producto-img-icon svg { width: 18px; height: 18px; }
         .producto-stock { top: 5px; left: 5px; font-size: 0.52rem; padding: 2px 5px; }
@@ -356,13 +354,13 @@
         .producto-precio-actual { font-size: 0.82rem; }
         .producto-precio-actual span { font-size: 0.6rem; }
         .producto-precio-anterior { font-size: 0.6rem; }
-        .producto-btn { padding: 0.35rem 0.4rem; font-size: 0.62rem; justify-content: center; gap: 3px; }
+        .producto-btn { min-height: 44px; padding: 0.45rem 0.4rem; font-size: 0.62rem; justify-content: center; gap: 3px; }
         .producto-btn svg { width: 11px; height: 11px; }
         .producto-thumbs { display: none; }
     }
     @media (max-width: 360px) {
-        .tienda-grid { grid-template-columns: repeat(4, 1fr); gap: 0.3rem; }
-        .producto-img { height: 72px; }
+        .tienda-grid { grid-template-columns: 1fr; gap: 0.75rem; }
+        .producto-img { height: auto; aspect-ratio: 16 / 10; }
         .producto-nombre { font-size: 0.62rem; }
         .producto-precio-actual { font-size: 0.76rem; }
     }
@@ -480,6 +478,7 @@
     .tienda-grid.has-search .producto-precio-anterior { font-size: 0.62rem; }
 
     .tienda-grid.has-search .producto-btn {
+        min-height: 44px;
         padding: 0.42rem 0.6rem;
         font-size: 0.7rem;
         border-radius: 7px;
@@ -495,10 +494,10 @@
 
     /* Búsqueda — móvil */
     @media (max-width: 520px) {
-        .tienda-grid.has-search { grid-template-columns: repeat(4, 1fr); gap: 0.35rem; }
+        .tienda-grid.has-search { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.65rem; }
         .tienda-grid.has-search .producto-card { border-radius: 9px; }
         .tienda-grid.has-search .producto-card:hover { transform: none; }
-        .tienda-grid.has-search .producto-img { height: 70px; }
+        .tienda-grid.has-search .producto-img { height: auto; aspect-ratio: 4 / 3; }
         .tienda-grid.has-search .producto-img-icon { width: 34px; height: 34px; border-radius: 9px; }
         .tienda-grid.has-search .producto-img-icon svg { width: 17px; height: 17px; }
         .tienda-grid.has-search .producto-stock { top: 4px; left: 4px; font-size: 0.48rem; padding: 1px 5px; }
@@ -510,7 +509,7 @@
         .tienda-grid.has-search .producto-precio-actual { font-size: 0.76rem; }
         .tienda-grid.has-search .producto-precio-actual span { font-size: 0.55rem; }
         .tienda-grid.has-search .producto-precio-anterior { font-size: 0.56rem; }
-        .tienda-grid.has-search .producto-btn { padding: 0.32rem 0.3rem; font-size: 0.56rem; justify-content: center; gap: 3px; }
+        .tienda-grid.has-search .producto-btn { min-height: 44px; padding: 0.32rem 0.3rem; font-size: 0.62rem; justify-content: center; gap: 3px; }
         .tienda-grid.has-search .producto-btn svg { width: 10px; height: 10px; }
     }
 
@@ -520,6 +519,65 @@
         .tienda-grid.has-search .producto-img { height: 60px; }
         .tienda-grid.has-search .producto-nombre { font-size: 0.56rem; }
         .tienda-grid.has-search .producto-precio-actual { font-size: 0.7rem; }
+    }
+</style>
+
+<style>
+    /* Ecommerce layer: keeps the existing product and cart markup intact. */
+    .tienda {
+        padding: clamp(4rem, 8vw, 7rem) clamp(1rem, 4vw, 2rem);
+        background: linear-gradient(180deg, #071522 0%, #091d30 100%);
+    }
+    .tienda-container { width: min(100%, 78rem); }
+    .tienda-header {
+        position: relative;
+        isolation: isolate;
+        padding: clamp(1.5rem, 4vw, 2.5rem);
+        border: 1px solid rgba(130, 190, 240, .12);
+        border-radius: 1rem;
+        overflow: hidden;
+        background-image: linear-gradient(90deg, rgba(7, 21, 34, .94), rgba(7, 21, 34, .72)), url('/img/fondo3.png');
+        background-size: cover;
+        background-position: 62% bottom;
+    }
+    .tienda-header { margin-bottom: 2rem; }
+    .tienda-ver-mas, .cat-btn, .producto-btn { min-height: 44px; }
+    .tienda-cats { gap: .55rem; margin-bottom: 2rem; }
+    .tienda-grid { grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr)); gap: 1rem; }
+    .producto-card { border-radius: 1rem; background: rgba(8, 25, 41, .84); border-color: rgba(130, 190, 240, .14); }
+    .producto-card:hover { transform: translateY(-3px); box-shadow: 0 20px 40px rgba(0, 0, 0, .2); }
+    .producto-img { height: auto; aspect-ratio: 4 / 3; }
+    .producto-img-real { object-fit: cover; }
+    .producto-body { display: flex; flex-direction: column; min-height: 10rem; }
+    .producto-nombre { font-size: 1rem; letter-spacing: -.02em; }
+    .producto-desc { color: #a9bfd3; }
+    .producto-footer { margin-top: auto; align-items: flex-end; }
+    .producto-btn { justify-content: center; padding: .55rem .8rem; }
+
+    @media (max-width: 680px) {
+        .tienda-header {
+            position: relative;
+            isolation: isolate;
+            padding: 1.5rem 1rem;
+            border: 1px solid rgba(130, 190, 240, .12);
+            border-radius: 1rem;
+            overflow: hidden;
+            background-image: linear-gradient(180deg, rgba(7, 21, 34, .9), rgba(7, 21, 34, .78)), url('/img/fondo3.png');
+            background-size: cover;
+            background-position: 62% bottom;
+        }
+        .tienda-header { align-items: stretch; }
+        .tienda-ver-mas { justify-content: center; width: 100%; }
+        .tienda-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .7rem; }
+        .producto-body { padding: .8rem; min-height: 9rem; }
+        .producto-desc { display: none; }
+        .producto-footer { flex-direction: column; align-items: stretch; }
+        .producto-btn { width: 100%; }
+    }
+
+    @media (max-width: 390px) {
+        .tienda-grid { grid-template-columns: 1fr; }
+        .producto-img { aspect-ratio: 16 / 10; }
     }
 </style>
 

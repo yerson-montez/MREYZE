@@ -10,7 +10,7 @@
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@300;400;600;700&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@300;400;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
     <style>
         :root {
@@ -56,7 +56,7 @@
             position: fixed;
             top: -120px; left: 50%;
             transform: translateX(-50%);
-            width: 600px; height: 320px;
+            width: min(600px, calc(100vw - 2rem)); height: clamp(220px, 42vw, 320px);
             background: radial-gradient(ellipse, rgba(0,212,255,0.055) 0%, transparent 70%);
             pointer-events: none;
             z-index: 0;
@@ -247,9 +247,13 @@
             .nav-user-name { display: none; }
             .footer { flex-direction: column; gap: 0.6rem; text-align: center; }
         }
+
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after { animation: none !important; transition: none !important; }
+        }
     </style>
 </head>
-<body>
+<body class="mreyze-ui">
 
     {{-- ══ BARRA DECORATIVA ══ --}}
     <div class="accent-bar"></div>
