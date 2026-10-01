@@ -1,9 +1,9 @@
-@extends('layouts.app')
+@extends('layouts.profile')
 
-@section('content')
+@section('private-content')
 <style>
 :root{--warning:#f59e0b;--success:#00d4aa;--danger:#ff6b6b;}
-.mis-pedidos{max-width:860px;margin:0 auto;padding:48px 1rem 80px;}
+.mis-pedidos{max-width:860px;margin:0 auto;padding:0;}
 .mis-pedidos h1{font-family:'Exo 2',sans-serif;font-size:1.8rem;font-weight:700;color:#fff;margin-bottom:24px;}
 .mis-pedidos h1 span{background:linear-gradient(135deg,var(--accent),var(--ice-200));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
 .pedido-card{

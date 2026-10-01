@@ -439,6 +439,75 @@
         .nosotros-story { grid-template-columns: 1fr; }
         .nosotros .section-title { max-width: none; }
     }
+
+    /* Innovation Box */
+    .innovation-box {
+        position: relative;
+        width: 100%;
+        max-width: 400px;
+        height: 250px;
+        border-radius: 1.5rem;
+        background: linear-gradient(145deg, rgba(13,31,60,0.6), rgba(8,25,41,0.8));
+        border: 1px solid rgba(0,212,255,0.2);
+        box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+    }
+    .innovation-box::before {
+        content: ''; position: absolute; inset: 0;
+        background: radial-gradient(circle at top right, rgba(0,212,255,0.15), transparent 70%);
+    }
+    .node-container {
+        display: flex;
+        align-items: center;
+        gap: 2rem;
+        position: relative;
+        z-index: 10;
+    }
+    .tech-node {
+        width: 64px; height: 64px;
+        border-radius: 1rem;
+        background: rgba(13,31,60,0.8);
+        border: 1px solid rgba(74,144,217,0.3);
+        display: flex; align-items: center; justify-content: center;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    }
+    .tech-node.hardware { border-color: rgba(0,212,255,0.5); box-shadow: 0 0 20px rgba(0,212,255,0.2); }
+    .tech-node.software { border-color: rgba(59,130,246,0.5); box-shadow: 0 0 20px rgba(59,130,246,0.2); }
+    .tech-node svg { width: 32px; height: 32px; color: #fff; }
+    
+    .data-flow {
+        flex-grow: 1; height: 2px;
+        background: rgba(74,144,217,0.2);
+        position: relative;
+        min-width: 60px;
+    }
+    .data-flow::after {
+        content: '';
+        position: absolute; top: -1px; left: 0;
+        width: 12px; height: 4px;
+        background: #00d4ff;
+        border-radius: 2px;
+        box-shadow: 0 0 10px #00d4ff;
+        animation: flowAnim 2s infinite linear;
+    }
+    @keyframes flowAnim {
+        0% { left: 0; opacity: 0; }
+        10% { opacity: 1; }
+        90% { opacity: 1; }
+        100% { left: 100%; opacity: 0; }
+    }
+    .nosotros-header-grid {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 4rem;
+        align-items: center;
+    }
+    @media (max-width: 900px) {
+        .nosotros-header-grid { grid-template-columns: 1fr; gap: 2rem; }
+    }
 </style>
 
 <section class="nosotros" id="nosotros">
@@ -446,9 +515,22 @@
     <div class="nosotros-container">
 
         {{-- Header --}}
-        <div class="reveal">
-            <div class="section-label">Quiénes somos</div>
-            <h2 class="section-title">Ingeniería que <span>transforma</span><br>industrias</h2>
+        <div class="nosotros-header-grid reveal">
+            <div>
+                <div class="section-label">Quiénes somos</div>
+                <h2 class="section-title">Ingeniería que <span>transforma</span><br>industrias</h2>
+            </div>
+            <div class="innovation-box">
+                <div class="node-container">
+                    <div class="tech-node hardware">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m14-6h2m-2 6h2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9z"/></svg>
+                    </div>
+                    <div class="data-flow"></div>
+                    <div class="tech-node software">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"/></svg>
+                    </div>
+                </div>
+            </div>
         </div>
 
         <div class="nosotros-grid">

@@ -19,7 +19,7 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                     </svg>
                 </div>
-                <input id="name" class="mreyze-input pl-10" type="text" name="name" value="{{ old('name') }}" required autofocus autocomplete="name" placeholder="Tu nombre" />
+                <input id="name" class="mreyze-input" style="width: 100%; padding-left: 2.75rem;" type="text" name="name" value="{{ old('name') }}" required autofocus autocomplete="name" placeholder="Tu nombre" />
             </div>
             <x-input-error :messages="$errors->get('name')" class="mt-2" />
         </div>
@@ -33,7 +33,7 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207" />
                     </svg>
                 </div>
-                <input id="email" class="mreyze-input pl-10" type="email" name="email" value="{{ old('email') }}" required autocomplete="username" placeholder="tu@empresa.com" />
+                <input id="email" class="mreyze-input" style="width: 100%; padding-left: 2.75rem;" type="email" name="email" value="{{ old('email') }}" required autocomplete="username" placeholder="tu@empresa.com" />
             </div>
             <x-input-error :messages="$errors->get('email')" class="mt-2" />
         </div>
@@ -47,7 +47,7 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                     </svg>
                 </div>
-                <input id="password" class="mreyze-input pl-10 pr-10" type="password" name="password" required autocomplete="new-password" placeholder="Mínimo 8 caracteres" oninput="document.getElementById('password_confirmation').value = this.value; validatePassword(this.value);" />
+                <input id="password" class="mreyze-input" style="width: 100%; padding-left: 2.75rem; padding-right: 2.75rem;" type="password" name="password" required autocomplete="new-password" placeholder="Mínimo 8 caracteres" oninput="document.getElementById('password_confirmation').value = this.value; validatePassword(this.value);" />
                 
                 <button type="button" class="absolute inset-y-0 right-3 flex items-center text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors" onclick="togglePassword('password', 'eye-icon-reg')">
                     <svg id="eye-icon-reg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -106,13 +106,13 @@
         </div>
 
         <div class="relative flex py-4 items-center mb-6">
-            <div class="flex-grow border-t border-[var(--border-default)]"></div>
+            <div class="flex-grow border-t border-[var(--border)]"></div>
             <span class="flex-shrink-0 mx-4 text-xs font-semibold uppercase text-[var(--text-muted)]">O regístrate con</span>
-            <div class="flex-grow border-t border-[var(--border-default)]"></div>
+            <div class="flex-grow border-t border-[var(--border)]"></div>
         </div>
 
         <div>
-            <a href="{{ route('auth.google') }}" class="flex items-center justify-center gap-4 w-full rounded-lg font-medium transition-all" style="background-color: var(--surface-3); border: 1px solid var(--border-default); color: var(--text-primary); padding: 0.85rem 1rem;">
+            <a href="{{ route('auth.google') }}" class="flex items-center justify-center gap-4 w-full rounded-lg font-medium transition-all" style="background-color: rgba(255,255,255,0.03); border: 1px solid var(--border); color: var(--text-primary); padding: 0.85rem 1rem;">
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
                     <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>

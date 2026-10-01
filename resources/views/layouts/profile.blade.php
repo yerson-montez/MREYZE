@@ -1,318 +1,245 @@
-<!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>{{ config('app.name', 'MreyZE') }} — {{ $title ?? 'Panel' }}</title>
+@extends('layouts.app')
 
-    
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@400;600;700&family=Share+Tech+Mono&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+@push('styles')
+<style>
+    /* ═════════════════════════════════════════════════════════════
+       MREYZE PRIVATE AREA LAYOUT (Dashboard & Profile)
+    ═════════════════════════════════════════════════════════════ */
+    .private-layout {
+        display: flex;
+        flex-direction: column;
+        min-height: calc(100vh - 70px); /* Discounting navbar height */
+        padding: var(--section-space) 0;
+    }
 
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
-
-    <style>
-        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-        :root {
-            --bg:   #050d1a;
-            --bg2:  #0a1628;
-            --blue: #1e4d99;
-            --cyan: #00d4ff;
-            --ice1: #e0eeff;
-            --ice2: #b3cff5;
-            --ice3: #7aabec;
-            --green: #4ade80;
-            --panel: rgba(8,20,45,.92);
+    @media (min-width: 769px) {
+        .private-layout {
+            flex-direction: row;
+            gap: 2rem;
+            align-items: flex-start;
         }
+    }
 
-        html, body {
-            background: var(--bg);
-            color: var(--ice1);
-            font-family: 'Exo 2', sans-serif;
-            min-height: 100vh;
-        }
+    /* ── SIDEBAR ── */
+    .private-sidebar {
+        width: 100%;
+        margin-bottom: 2rem;
+    }
 
-        /* ── LAYOUT ── */
-        .cyber-layout { display: flex; min-height: 100vh; }
-
-        /* ── SIDEBAR ── */
-        .cyber-sidebar {
-            width: 220px;
-            min-width: 220px;
-            background: rgba(5,13,26,.98);
-            border-right: 1px solid rgba(0,212,255,.12);
-            display: flex;
-            flex-direction: column;
+    @media (min-width: 769px) {
+        .private-sidebar {
+            width: 250px;
+            flex-shrink: 0;
             position: sticky;
-            top: 0;
-            height: 100vh;
-            z-index: 50;
+            top: 100px;
+            margin-bottom: 0;
         }
+    }
 
-        .sidebar-logo {
-            padding: 1.2rem 1.2rem 1rem;
-            border-bottom: 1px solid rgba(0,212,255,.1);
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            text-decoration: none;
-        }
-        .logo-hex {
-            width: 32px; height: 32px;
-            background: linear-gradient(135deg, #1e4d99, #00d4ff);
-            clip-path: polygon(50% 0%,100% 25%,100% 75%,50% 100%,0% 75%,0% 25%);
-            display: flex; align-items: center; justify-content: center;
-            font-family: 'Share Tech Mono', monospace;
-            font-size: .65rem; color: #fff; font-weight: 700;
-        }
-        .logo-text  { font-family: 'Share Tech Mono', monospace; font-size: .8rem; color: var(--cyan); letter-spacing: .08em; }
-        .logo-ver   { font-size: .6rem; color: var(--ice3); font-family: 'Share Tech Mono', monospace; }
+    .sidebar-user {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding-bottom: 1.2rem;
+        margin-bottom: 1.2rem;
+        border-bottom: 1px solid var(--border-hover);
+    }
 
-        .sys-status {
-            margin: 1rem 1rem .8rem;
-            background: rgba(0,212,255,.05);
-            border: 1px solid rgba(0,212,255,.15);
-            border-radius: 8px; padding: .5rem .7rem;
-            display: flex; align-items: center; gap: 7px;
-            font-family: 'Share Tech Mono', monospace;
-            font-size: .62rem; color: var(--green);
-        }
-        .s-dot {
-            width: 6px; height: 6px; border-radius: 50%;
-            background: var(--green); box-shadow: 0 0 6px var(--green);
-            animation: pulse 2s infinite;
-        }
-        @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
+    .sidebar-avatar {
+        width: 42px;
+        height: 42px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, var(--ice-500), var(--accent));
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1rem;
+        font-weight: 700;
+        color: #fff;
+        flex-shrink: 0;
+    }
 
-        .nav-section {
-            padding: .5rem 1rem .3rem;
-            font-family: 'Share Tech Mono', monospace;
-            font-size: .58rem; color: rgba(123,171,236,.45);
-            letter-spacing: .12em; text-transform: uppercase;
-        }
-        .nav-item {
-            display: flex; align-items: center; gap: 10px;
-            padding: .55rem 1rem; margin: 1px .5rem;
-            border-radius: 8px; cursor: pointer;
-            font-size: .82rem; color: var(--ice2);
-            transition: all .2s; border: 1px solid transparent;
-            font-family: 'Exo 2', sans-serif; text-decoration: none;
-        }
-        .nav-item:hover { background: rgba(30,77,153,.25); border-color: rgba(0,212,255,.2); color: #fff; }
-        .nav-item.active { background: rgba(30,77,153,.4); border-color: rgba(0,212,255,.35); color: var(--cyan); }
-        .nav-ico { font-family: 'Share Tech Mono', monospace; font-size: .8rem; width: 18px; text-align: center; color: var(--cyan); }
-        .nav-badge {
-            margin-left: auto;
-            background: rgba(0,212,255,.15); border: 1px solid rgba(0,212,255,.3);
-            color: var(--cyan); font-size: .58rem; padding: 1px 6px;
-            border-radius: 10px; font-family: 'Share Tech Mono', monospace;
-        }
-        .nav-badge.warn { background: rgba(249,115,22,.15); border-color: rgba(249,115,22,.3); color: #f97316; }
+    .sidebar-user-info {
+        min-width: 0;
+    }
 
-        .sidebar-bottom {
-            margin-top: auto;
-            border-top: 1px solid rgba(0,212,255,.1);
-            padding: 1rem;
-        }
-        .user-chip {
-            display: flex; align-items: center; gap: 9px;
-            padding: .5rem; border-radius: 8px;
-            border: 1px solid rgba(0,212,255,.12);
-            transition: all .2s; cursor: pointer; text-decoration: none;
-        }
-        .user-chip:hover { background: rgba(30,77,153,.2); }
-        .user-avatar {
-            width: 32px; height: 32px; border-radius: 50%;
-            background: linear-gradient(135deg, #1e4d99, #00d4ff);
-            display: flex; align-items: center; justify-content: center;
-            font-size: .72rem; font-weight: 700; color: #fff;
-            font-family: 'Share Tech Mono', monospace;
-        }
-        .user-name  { font-size: .78rem; font-weight: 600; color: var(--ice1); }
-        .user-role  { font-size: .62rem; color: var(--ice3); font-family: 'Share Tech Mono', monospace; }
+    .sidebar-user-name {
+        font-weight: 600;
+        font-size: 0.95rem;
+        color: var(--text-primary);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
 
-        /* ── MAIN ── */
-        .cyber-main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+    .sidebar-user-role {
+        font-size: 0.75rem;
+        color: var(--text-secondary);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
 
-        .cyber-topbar {
-            height: 52px;
-            background: rgba(5,13,26,.95);
-            border-bottom: 1px solid rgba(0,212,255,.1);
-            display: flex; align-items: center;
-            padding: 0 1.5rem; gap: 1rem;
-            position: sticky; top: 0; z-index: 40;
-            backdrop-filter: blur(10px);
+    /* Navegación del Sidebar */
+    .sidebar-nav {
+        display: flex;
+        flex-direction: row;
+        overflow-x: auto;
+        gap: 0.5rem;
+        padding-bottom: 0.5rem;
+        scrollbar-width: none; /* Firefox */
+    }
+    .sidebar-nav::-webkit-scrollbar { display: none; } /* Chrome */
+
+    @media (min-width: 769px) {
+        .sidebar-nav {
+            flex-direction: column;
+            overflow-x: visible;
+            padding-bottom: 0;
         }
-        .breadcrumb {
-            display: flex; align-items: center; gap: 6px;
-            font-family: 'Share Tech Mono', monospace;
-            font-size: .7rem; color: var(--ice3);
-        }
-        .bread-sep    { color: rgba(0,212,255,.4); }
-        .bread-active { color: var(--cyan); }
-        .topbar-right { margin-left: auto; display: flex; align-items: center; gap: .8rem; }
-        .top-clock    { font-family: 'Share Tech Mono', monospace; font-size: .68rem; color: var(--ice3); }
-        .top-btn {
-            width: 30px; height: 30px; border-radius: 8px;
-            background: rgba(0,212,255,.07); border: 1px solid rgba(0,212,255,.2);
-            display: flex; align-items: center; justify-content: center;
-            cursor: pointer; transition: all .2s; position: relative;
-            color: var(--ice2); font-size: .8rem; text-decoration: none;
-        }
-        .top-btn:hover { background: rgba(0,212,255,.15); color: #fff; }
-        .notif-pip {
-            position: absolute; top: 4px; right: 4px;
-            width: 6px; height: 6px; border-radius: 50%;
-            background: #f97316; box-shadow: 0 0 6px #f97316;
-        }
+    }
 
-        .cyber-content { flex: 1; padding: 1.5rem; overflow: auto; }
+    .sidebar-link {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 0.65rem 1rem;
+        border-radius: var(--radius-md);
+        font-size: 0.9rem;
+        font-weight: 500;
+        color: var(--text-secondary);
+        text-decoration: none;
+        transition: all var(--motion-fast);
+        white-space: nowrap;
+        background: transparent;
+        border: 1px solid transparent;
+        cursor: pointer;
+        width: 100%;
+        text-align: left;
+    }
 
-        /* ── SCAN LINE ── */
-        .scan-line {
-            position: fixed; top: 0; left: 0; right: 0; height: 2px;
-            background: linear-gradient(90deg, transparent, rgba(0,212,255,.08), transparent);
-            animation: scan 8s linear infinite; pointer-events: none; z-index: 9999;
-        }
-        @keyframes scan { from{transform:translateY(-100%)} to{transform:translateY(100vh)} }
+    .sidebar-link svg {
+        width: 18px;
+        height: 18px;
+        opacity: 0.7;
+        transition: opacity var(--motion-fast);
+    }
 
-        /* ── RESPONSIVE ── */
-        @media (max-width: 768px) {
-            .cyber-layout { display: block; }
-            .cyber-sidebar {
-                width: 100%;
-                min-width: 0;
-                height: auto;
-                position: static;
-                flex-direction: row;
-                align-items: center;
-                gap: .35rem;
-                padding: .5rem;
-                overflow-x: auto;
-                border-right: 0;
-                border-bottom: 1px solid rgba(0,212,255,.12);
-            }
-            .sidebar-logo { flex: 0 0 auto; padding: .45rem .6rem; border-bottom: 0; }
-            .logo-ver, .sys-status, .nav-section, .sidebar-bottom { display: none; }
-            .nav-item { flex: 0 0 auto; min-height: 44px; margin: 0; padding: .65rem .8rem; }
-            .cyber-main { min-width: 0; overflow: visible; }
-            .cyber-topbar { height: auto; min-height: 52px; padding: .55rem .75rem; }
-            .top-btn { width: 44px; height: 44px; }
-            .top-clock { display: none; }
-            .cyber-content { padding: 1rem .75rem; overflow: visible; }
-        }
+    .sidebar-link:hover {
+        background: rgba(255, 255, 255, 0.03);
+        color: var(--text-primary);
+    }
 
-        @media (prefers-reduced-motion: reduce) {
-            .scan-line, .s-dot { animation: none !important; }
-        }
-    </style>
-</head>
-<body class="mreyze-ui">
+    .sidebar-link.active {
+        background: rgba(37, 99, 199, 0.15);
+        color: #fff;
+        border-color: rgba(74, 144, 217, 0.2);
+    }
+    
+    .sidebar-link.active svg {
+        color: var(--cyan);
+        opacity: 1;
+    }
 
-<div class="scan-line"></div>
+    /* ── MAIN CONTENT ── */
+    .private-content {
+        flex: 1;
+        min-width: 0; /* Prevenir desbordamiento de grid/flex hijos */
+    }
 
-<div class="cyber-layout">
+    .private-header {
+        margin-bottom: 2rem;
+    }
 
-    {{-- ── SIDEBAR ── --}}
-    <aside class="cyber-sidebar">
+    .private-title {
+        font-family: var(--font-heading);
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: #fff;
+        letter-spacing: -0.02em;
+        margin-bottom: 0.4rem;
+    }
 
-        <a href="{{ url('/') }}" class="sidebar-logo">
-            <div class="logo-hex">
-                <img src="{{ asset('img/LOGOMREYZE1.png') }}">
+    .private-subtitle {
+        color: var(--text-secondary);
+        font-size: 0.9rem;
+        max-width: 600px;
+    }
+
+</style>
+@endpush
+
+@section('content')
+<div class="mreyze-container private-layout">
+    
+    <aside class="private-sidebar">
+        <div class="sidebar-user">
+            <div class="sidebar-avatar">
+                {{ strtoupper(substr(Auth::user()->name ?? 'U', 0, 2)) }}
             </div>
-            <div>
-                <div class="logo-text">MREYZE</div>
-                <div class="logo-ver">v2.4.1 — INDUSTRIA 4.0</div>
+            <div class="sidebar-user-info">
+                <div class="sidebar-user-name">{{ Auth::user()->name ?? 'Usuario' }}</div>
+                <div class="sidebar-user-role">{{ Auth::user()->email ?? 'Sesión activa' }}</div>
             </div>
-        </a>
-
-        <div class="sys-status">
-            <span class="s-dot"></span>
-            SYS_STATUS: ONLINE
         </div>
 
-        <div class="nav-section">MAIN</div>
-
-        <a href="{{ url('/') }}"
-           class="nav-item {{ request()->is('inicio') ? 'active' : '' }}">
-            <span class="nav-ico">◈</span> Inicio
-        </a>
-
-        <a href="{{ url('/profile') }}"
-           class="nav-item {{ request()->is('profile') ? 'active' : '' }}">
-            <span class="nav-ico">◉</span> Mi Perfil
-        </a>
-
-        {{-- Agrega aquí tus rutas personalizadas --}}
-        {{-- Ejemplo:
-        <a href="{{ url('/iot/nodes') }}"
-           class="nav-item {{ request()->is('iot/nodes*') ? 'active' : '' }}">
-            <span class="nav-ico">⬡</span> Nodos IoT
-            <span class="nav-badge">14</span>
-        </a>
-        --}}
-
-        <div class="nav-section">SISTEMA</div>
-
-       
-
-        <div class="sidebar-bottom">
-            <a href="{{ url('/profile') }}" class="user-chip">
-                <div class="user-avatar">
-                    {{ strtoupper(substr(Auth::user()->name ?? 'U', 0, 2)) }}
-                </div>
-                <div>
-                    <div class="user-name">{{ Auth::user()->name ?? 'Usuario' }}</div>
-                    <div class="user-role">USER_SESSION</div>
-                </div>
+        <nav class="sidebar-nav">
+            <a href="{{ route('dashboard') }}" class="sidebar-link {{ request()->routeIs('dashboard') ? 'active' : '' }}">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="3" y="3" width="7" height="9"></rect>
+                    <rect x="14" y="3" width="7" height="5"></rect>
+                    <rect x="14" y="12" width="7" height="9"></rect>
+                    <rect x="3" y="16" width="7" height="5"></rect>
+                </svg>
+                Resumen
             </a>
-        </div>
+            
+            <a href="{{ route('profile.edit') }}" class="sidebar-link {{ request()->routeIs('profile.edit') ? 'active' : '' }}">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                    <circle cx="12" cy="7" r="4"></circle>
+                </svg>
+                Mi perfil
+            </a>
 
+            @if(Route::has('pedidos.mis'))
+            <a href="{{ route('pedidos.mis') }}" class="sidebar-link {{ request()->routeIs('pedidos.*') ? 'active' : '' }}">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="9" cy="21" r="1"></circle>
+                    <circle cx="20" cy="21" r="1"></circle>
+                    <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+                </svg>
+                Mis pedidos
+            </a>
+            @endif
+
+            @if(Route::has('inversiones.mis'))
+            <a href="{{ route('inversiones.mis') }}" class="sidebar-link {{ request()->routeIs('inversiones.mis') ? 'active' : '' }}">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="12" y1="1" x2="12" y2="23"></line>
+                    <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+                </svg>
+                Mis inversiones
+            </a>
+            @endif
+
+            <form method="POST" action="{{ route('logout') }}" style="margin-top: auto; padding-top: 1rem; min-width: max-content;">
+                @csrf
+                <button type="submit" class="sidebar-link">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                        <polyline points="16 17 21 12 16 7"></polyline>
+                        <line x1="21" y1="12" x2="9" y2="12"></line>
+                    </svg>
+                    Cerrar sesión
+                </button>
+            </form>
+        </nav>
     </aside>
 
-    {{-- ── MAIN ── --}}
-    <div class="cyber-main">
-
-        {{-- TOPBAR --}}
-        <div class="cyber-topbar">
-            <div class="breadcrumb">
-                <span>~/</span>
-                <span class="bread-sep">›</span>
-                <span class="bread-active">{{ $breadcrumb ?? 'panel' }}</span>
-            </div>
-            <div class="topbar-right">
-                <span class="top-clock" id="cyber-clock">--:--:--</span>
-                <span class="top-btn">⚑</span>
-
-                {{-- Logout --}}
-                <form method="POST" action="{{ route('logout') }}" style="display:inline">
-                    @csrf
-                    <button type="submit" class="top-btn" title="Cerrar sesión">⏻</button>
-                </form>
-            </div>
-        </div>
-
-        {{-- CONTENIDO --}}
-        <main class="cyber-content">
-            @yield('content')
-        </main>
-
+    <div class="private-content">
+        @yield('private-content')
     </div>
+
 </div>
-
-<script>
-    function updateClock() {
-        const now = new Date();
-        const t = now.toTimeString().slice(0,8);
-        const d = now.toLocaleDateString('es-PE',{day:'2-digit',month:'2-digit',year:'numeric'});
-        const el = document.getElementById('cyber-clock');
-        if (el) el.textContent = t + ' · ' + d;
-    }
-    updateClock();
-    setInterval(updateClock, 1000);
-</script>
-
-</body>
-</html>
+@endsection

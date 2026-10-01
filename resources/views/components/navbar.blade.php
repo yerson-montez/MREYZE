@@ -47,13 +47,13 @@
                     </li>
                     <li><x-navigation.link :href="route('proyectos')" :active="request()->routeIs('proyectos*', 'inversiones.*')" title="Proyectos y oportunidades de inversión">Proyectos</x-navigation.link></li>
                     <li><x-navigation.link :href="route('nosotros')" :active="request()->routeIs('nosotros')">Nosotros</x-navigation.link></li>
+                    <li><x-navigation.link :href="route('tienda.index')" :active="request()->routeIs('tienda.*')" title="Hardware e IoT">Tienda</x-navigation.link></li>
                     <li>
-                        <details @class(['mreyze-header-group', 'is-active' => request()->routeIs('blog', 'tienda.*', 'tarjeta.*', 'perfil.corporativo')]) data-header-group>
+                        <details @class(['mreyze-header-group', 'is-active' => request()->routeIs('blog', 'tarjeta.*', 'perfil.corporativo')]) data-header-group>
                             <summary aria-controls="mreyze-recursos">Recursos <x-navigation.chevron /></summary>
                             <div class="mreyze-header-dropdown" id="mreyze-recursos">
                                 <p class="mreyze-header-label">Conoce y conecta</p>
                                 <x-navigation.link :href="route('blog')" :active="request()->routeIs('blog')">Blog</x-navigation.link>
-                                <x-navigation.link :href="route('tienda.index')" :active="request()->routeIs('tienda.*')">Tienda tecnológica</x-navigation.link>
                                 <x-navigation.link :href="route('tarjeta.debito')" :active="request()->routeIs('tarjeta.*')">Tarjeta de débito</x-navigation.link>
                                 <x-navigation.link :href="route('perfil.corporativo')" :active="request()->routeIs('perfil.corporativo')">Perfil corporativo</x-navigation.link>
                             </div>
@@ -78,14 +78,6 @@
                             @if($showDashboard)
                                 <x-navigation.link :href="route('dashboard')" :active="request()->routeIs('dashboard')">Mi Dashboard</x-navigation.link>
                             @endif
-                            @php
-                                $colaborador = auth()->user()->colaborador;
-                            @endphp
-                            @if($colaborador)
-                                <x-navigation.link :href="route('colaborador.link')" :active="request()->routeIs('colaborador.link')">Mi link de colaborador</x-navigation.link>
-                            @else
-                                <x-navigation.link :href="route('colaboradores.solicitud')" :active="request()->routeIs('colaboradores.*')">Quiero ser colaborador</x-navigation.link>
-                            @endif
                             <form method="POST" action="{{ route('logout') }}" class="mreyze-header-logout">
                                 @csrf
                                 <button type="submit"><x-ui.icon><path d="M9 5H5v14h4m5-12 5 5-5 5m-5-5h10" /></x-ui.icon>Cerrar sesión</button>
@@ -93,21 +85,21 @@
                         </div>
                     </details>
                 @else
-                    <details class="mreyze-header-group mreyze-header-signin" data-header-group>
-                        <summary aria-controls="mreyze-access">Iniciar sesión <x-navigation.chevron /></summary>
-                        <div class="mreyze-header-dropdown" id="mreyze-access">
-                            <p class="mreyze-header-label">Accede a tu cuenta</p>
-                            @if (Route::has('login'))
-                                <x-navigation.link :href="route('login')">Con correo y contraseña</x-navigation.link>
-                            @endif
-                            <x-navigation.link :href="route('auth.google')">
-                                <svg class="mreyze-icon" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M21.6 12.2c0-.7-.1-1.4-.2-2.1H12v4h5.4a4.6 4.6 0 0 1-2 3 6 6 0 1 1 .1-10l3-3A10 10 0 1 0 22 12c0 .1-.4.2-.4.2Z"/></svg>
-                                Continuar con Google
-                            </x-navigation.link>
-                        </div>
-                    </details>
-                    @if (Route::has('register'))
-                        <a href="{{ route('register') }}" class="mreyze-header-register">Registrarse</a>
+                    @if (Route::has('login'))
+                        <a href="{{ route('login') }}" class="mreyze-header-register" style="background: transparent; border-color: var(--border-default); color: var(--text-primary);">Iniciar sesión</a>
+                    @endif
+                @endauth
+                @auth
+                    @if(auth()->user()->colaborador)
+                        <a href="{{ route('colaborador.link') }}" class="mreyze-header-register" style="background: rgba(37, 99, 199, 0.15); border-color: rgba(74, 144, 217, 0.2); color: var(--text-primary); margin-right: 0.5rem; display: flex; align-items: center; gap: 0.4rem;">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>
+                            Mi Link
+                        </a>
+                    @else
+                        <a href="{{ route('colaboradores.solicitud') }}" class="mreyze-header-register" style="background: rgba(37, 99, 199, 0.15); border-color: rgba(74, 144, 217, 0.2); color: var(--text-primary); margin-right: 0.5rem; display: flex; align-items: center; gap: 0.4rem;">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;"><path d="M16 21v-2a4 4 0 0 0-4-4H5.5a4 4 0 0 0-4 4v2"></path><circle cx="8.5" cy="7" r="4"></circle><line x1="20" y1="8" x2="20" y2="14"></line><line x1="23" y1="11" x2="17" y2="11"></line></svg>
+                            Ser colaborador
+                        </a>
                     @endif
                 @endauth
                 <a href="{{ route('contacto') }}" @class(['mreyze-header-cta', 'is-active' => request()->routeIs('contacto')]) @if(request()->routeIs('contacto')) aria-current="page" @endif>Hablemos <x-ui.icon><path d="M5 12h14m-6-6 6 6-6 6" /></x-ui.icon></a>

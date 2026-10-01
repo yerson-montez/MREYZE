@@ -1041,8 +1041,8 @@
         .proyectos-container { z-index: 1; }
         .proyectos-header { align-items: stretch; }
         .proyectos-header .proyectos-ver-todos { width: 100%; }
-        .proyectos-filtros { display: grid; grid-template-columns: 1fr; width: 100%; }
-        .filtro-btn { width: 100%; }
+        .proyectos-filtros { display: grid; grid-template-columns: 1fr 1fr; width: 100%; gap: 0.5rem; }
+        .filtro-btn { width: 100%; padding: 0.6rem 0.2rem; font-size: 0.75rem; letter-spacing: -0.02em; }
         .seccion-divisor-line { display: none; }
         .seccion-divisor { justify-content: flex-start; }
         .inversion-card-desc { min-height: 0; }
@@ -1110,24 +1110,12 @@
     <div class="proyectos-bg"></div>
     <div class="proyectos-container">
 
-        <div class="proyectos-header reveal" style="justify-content:flex-end; margin-bottom:1.5rem;">
-            @auth
-                <a href="{{ route('inversiones.mis') }}" class="proyectos-ver-todos">
-                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 13h2v-2H3v2zm0 4h2v-2H3v2zm0-8h2V7H3v2zm4 4h14v-2H7v2zm0 4h14v-2H7v2zM7 7v2h14V7H7z"/></svg>
-                    Mis inversiones
-                </a>
-            @endauth
-            <a href="{{ url('/proyectos') }}" class="proyectos-ver-todos">
-                Ver todos los proyectos
-                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6z"/></svg>
-            </a>
-        </div>
+
 
         {{-- ══════════════════════════════════
              DIVISOR
         ══════════════════════════════════ --}}
-        @if($disponibles->count())
-        <div class="seccion-divisor reveal">
+        <div class="seccion-divisor reveal" style="margin-top: 2rem;">
             <div class="seccion-divisor-line"></div>
             <div class="seccion-divisor-badge">
                 <svg viewBox="0 0 24 24" fill="currentColor" style="width:14px;height:14px">
@@ -1143,9 +1131,21 @@
              PARTE 2: PROYECTOS PARA INVERTIR
         ══════════════════════════════════ --}}
 
-        <div class="invertir-header reveal">
+        <div class="invertir-header reveal" style="display: flex; flex-direction: column; align-items: center; position: relative;">
             <div class="section-label" style="justify-content:center;">Invierte con MREYZE</div>
             <h2 class="section-title" style="text-align:center;">Proyectos para <span>invertir</span></h2>
+            
+            <div style="position: absolute; right: 0; top: 50%; transform: translateY(-50%); display: flex; gap: 1rem;" class="hidden lg:flex">
+                @auth
+                    <a href="{{ route('inversiones.mis') }}" class="proyectos-ver-todos">
+                        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 13h2v-2H3v2zm0 4h2v-2H3v2zm0-8h2V7H3v2zm4 4h14v-2H7v2zm0 4h14v-2H7v2zM7 7v2h14V7H7z"/></svg>
+                        Mis inversiones
+                    </a>
+                @endauth
+                <a href="{{ url('/proyectos') }}" class="proyectos-ver-todos" style="display: none;">
+                    Ver todos los proyectos
+                </a>
+            </div>
         </div>
         <p class="invertir-subtitulo reveal">
             Invierte tu dinero y obtén un retorno estimado del
@@ -1156,13 +1156,18 @@
         {{-- Selector de estado de inversión --}}
         <div class="proyectos-filtros reveal" id="invEstadoTabs" style="justify-content:center;">
             <button class="filtro-btn active" onclick="filtrarInversion('disponibles', this)">Proyectos disponibles</button>
-            @if($enEjecucion->count())
             <button class="filtro-btn" onclick="filtrarInversion('en_ejecucion', this)">Proyectos en ejecución</button>
-            @endif
         </div>
 
         {{-- Tarjetas de proyectos de inversión --}}
         <div class="inversion-grid" id="inversionGridDisponibles">
+            @if($disponibles->isEmpty())
+                <div style="grid-column: 1 / -1; text-align: center; padding: 4rem 2rem; background: rgba(13,31,60,0.4); border-radius: 18px; border: 1px dashed rgba(74,144,217,0.3);">
+                    <div style="font-size: 3rem; margin-bottom: 1rem; opacity: 0.7;">🚀</div>
+                    <h4 style="font-family: 'Exo 2', sans-serif; font-size: 1.2rem; color: #fff; margin-bottom: 0.5rem;">Nuevos proyectos muy pronto</h4>
+                    <p style="color: var(--ice-200); font-size: 0.9rem; max-width: 400px; margin: 0 auto;">Actualmente no tenemos oportunidades de inversión disponibles. Únete a nuestro canal de Telegram para ser el primero en enterarte.</p>
+                </div>
+            @else
 
             @foreach($disponibles as $idx => $inv)
                 @php
@@ -1255,11 +1260,19 @@
                     </div>
                 </div>
             @endforeach
+            @endif
 
         </div>{{-- /inversion-grid --}}
 
         {{-- Proyectos en ejecución (misma tarjeta que disponibles) --}}
         <div class="inversion-grid" id="inversionGridEnEjecucion">
+            @if($enEjecucion->isEmpty())
+                <div style="grid-column: 1 / -1; text-align: center; padding: 4rem 2rem; background: rgba(13,31,60,0.4); border-radius: 18px; border: 1px dashed rgba(74,144,217,0.3);">
+                    <div style="font-size: 3rem; margin-bottom: 1rem; opacity: 0.7;">⚙️</div>
+                    <h4 style="font-family: 'Exo 2', sans-serif; font-size: 1.2rem; color: #fff; margin-bottom: 0.5rem;">Sin proyectos en ejecución</h4>
+                    <p style="color: var(--ice-200); font-size: 0.9rem; max-width: 400px; margin: 0 auto;">No hay proyectos en fase de desarrollo en este momento.</p>
+                </div>
+            @else
 
             @foreach($enEjecucion as $idx => $inv)
                 @php
@@ -1352,10 +1365,12 @@
                     </div>
                 </div>
             @endforeach
+            @endif
 
         </div>{{-- /inversion-grid en_ejecucion --}}
 
         {{-- SIMULADOR DE INVERSIÓN --}}
+        @if($disponibles->count())
         <section class="simulador reveal">
             <div class="section-label" style="justify-content:center;">Simulador de inversión</div>
             <h3 class="sim-titulo" style="text-align:center;">Calcula tu <span>retorno</span></h3>
@@ -1412,7 +1427,6 @@
         {{-- ══════════════════════════════════
              PARTE FINAL: PROYECTOS COMPLETADOS
         ══════════════════════════════════ --}}
-        @if($completados->count())
         <div class="seccion-divisor reveal" style="margin-top:5rem;">
             <div class="seccion-divisor-line"></div>
             <div class="seccion-divisor-badge">
@@ -1431,6 +1445,13 @@
         </p>
 
         <div class="inversion-grid">
+            @if($completados->isEmpty())
+                <div style="grid-column: 1 / -1; text-align: center; padding: 4rem 2rem; background: rgba(13,31,60,0.4); border-radius: 18px; border: 1px dashed rgba(74,144,217,0.3);">
+                    <div style="font-size: 3rem; margin-bottom: 1rem; opacity: 0.7;">✅</div>
+                    <h4 style="font-family: 'Exo 2', sans-serif; font-size: 1.2rem; color: #fff; margin-bottom: 0.5rem;">Pronto verás nuestros resultados</h4>
+                    <p style="color: var(--ice-200); font-size: 0.9rem; max-width: 400px; margin: 0 auto;">Estamos trabajando en nuestros primeros proyectos de inversión. Muy pronto publicaremos los casos de éxito aquí.</p>
+                </div>
+            @else
             @foreach($completados as $idx => $inv)
                 @php
                     $cat = $inv->categoria;
@@ -1515,8 +1536,8 @@
                     </div>
                 </div>
             @endforeach
+            @endif
         </div>
-        @endif
 
         {{-- CTA final Telegram --}}
         <div class="invertir-cta reveal">
