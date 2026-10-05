@@ -96,7 +96,7 @@
     /* Grid de productos */
     .tienda-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        grid-template-columns: repeat(4, minmax(0, 1fr));
         gap: 1.25rem;
     }
 
@@ -314,9 +314,9 @@
     .tienda-banner-desc { font-size: 0.85rem; color: var(--ice-200); }
     .tienda-banner-desc strong { color: var(--accent); }
 
-    @media (max-width: 1100px) { .tienda-grid { grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); } }
-    @media (max-width: 768px)  { .tienda-grid { grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); } }
-    @media (max-width: 480px)  { .tienda-grid { grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); } }
+    @media (max-width: 1100px) { .tienda-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+    @media (max-width: 768px)  { .tienda-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+    @media (max-width: 480px)  { .tienda-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
 
     /* ── Celulares: catálogo compacto estilo AliExpress (4 productos por fila) ── */
     @media (max-width: 520px) {
@@ -330,7 +330,7 @@
         .search-input { padding: 0.55rem 2.4rem 0.55rem 2.2rem; font-size: 0.82rem; }
         .tienda-banner { padding: 1.4rem 1.2rem; gap: 1rem; }
 
-        .tienda-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.65rem; }
+        .tienda-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0.65rem; }
 
         .producto-card { border-radius: 10px; }
         .producto-card:hover { transform: none; box-shadow: 0 8px 20px rgba(0,30,90,0.4); }
@@ -359,7 +359,7 @@
         .producto-thumbs { display: none; }
     }
     @media (max-width: 360px) {
-        .tienda-grid { grid-template-columns: 1fr; gap: 0.75rem; }
+        .tienda-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0.75rem; }
         .producto-img { height: auto; aspect-ratio: 16 / 10; }
         .producto-nombre { font-size: 0.62rem; }
         .producto-precio-actual { font-size: 0.76rem; }
@@ -441,7 +441,7 @@
        El catálogo normal de /tienda mantiene su diseño actual.
     ═══════════════════════════════════════ */
     .tienda-grid.has-search {
-        grid-template-columns: repeat(auto-fill, minmax(158px, 1fr));
+        grid-template-columns: repeat(4, minmax(0, 1fr));
         gap: 0.85rem;
     }
 
@@ -489,12 +489,12 @@
 
     /* Búsqueda — tablet pequeña */
     @media (max-width: 768px) {
-        .tienda-grid.has-search { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 0.6rem; }
+        .tienda-grid.has-search { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0.6rem; }
     }
 
     /* Búsqueda — móvil */
     @media (max-width: 520px) {
-        .tienda-grid.has-search { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.65rem; }
+        .tienda-grid.has-search { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0.65rem; }
         .tienda-grid.has-search .producto-card { border-radius: 9px; }
         .tienda-grid.has-search .producto-card:hover { transform: none; }
         .tienda-grid.has-search .producto-img { height: auto; aspect-ratio: 4 / 3; }
@@ -543,7 +543,7 @@
     .tienda-header { margin-bottom: 2rem; }
     .tienda-ver-mas, .cat-btn, .producto-btn { min-height: 44px; }
     .tienda-cats { gap: .55rem; margin-bottom: 2rem; }
-    .tienda-grid { grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr)); gap: 1rem; }
+    .tienda-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1rem; }
     .producto-card { border-radius: 1rem; background: rgba(8, 25, 41, .84); border-color: rgba(130, 190, 240, .14); }
     .producto-card:hover { transform: translateY(-3px); box-shadow: 0 20px 40px rgba(0, 0, 0, .2); }
     .producto-img { height: auto; aspect-ratio: 4 / 3; }
@@ -568,7 +568,7 @@
         }
         .tienda-header { align-items: stretch; }
         .tienda-ver-mas { justify-content: center; width: 100%; }
-        .tienda-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .7rem; }
+        .tienda-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: .7rem; }
         .producto-body { padding: .8rem; min-height: 9rem; }
         .producto-desc { display: none; }
         .producto-footer { flex-direction: column; align-items: stretch; }
@@ -576,8 +576,19 @@
     }
 
     @media (max-width: 390px) {
-        .tienda-grid { grid-template-columns: 1fr; }
+        .tienda-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
         .producto-img { aspect-ratio: 16 / 10; }
+    }
+    .tienda-payment-note {
+        margin: .45rem 0 0;
+        color: #a9bfd3;
+        font-size: .78rem;
+        line-height: 1.45;
+    }
+    .tienda-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: clamp(.3rem, .9vw, .9rem); }
+    .producto-card { min-width: 0; }
+    @media (max-width: 520px) {
+        .tienda-payment-note { font-size: .68rem; }
     }
 </style>
 
@@ -595,6 +606,7 @@
             <div>
                 <div class="section-label">Productos</div>
                 <h2 class="section-title">Nuestra <span>Tienda</span></h2>
+                <p class="tienda-payment-note">Paga 50% para confirmar tu pedido · 50% al recibirlo</p>
             </div>
             <div style="display:flex;align-items:center;gap:1rem">
 
