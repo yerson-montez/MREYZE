@@ -77,6 +77,21 @@
         .inicio-project-bg--second { opacity: 0; }
         .inicio-btn:hover, .inicio-project:hover { transform: none; }
     }
+    @media (max-width: 700px) {
+        .inicio-store .destacados { padding: 3.5rem .6rem; }
+        .inicio-store .destacados-header { gap: .75rem; margin-bottom: 1.2rem; }
+        .inicio-store .destacados-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .5rem; }
+        .inicio-store .destacado-card { min-width: 0; }
+        .inicio-store .destacado-body { padding: .4rem; gap: .25rem; }
+        .inicio-store .destacado-cat { font-size: .48rem; letter-spacing: .025em; overflow-wrap: anywhere; }
+        .inicio-store .destacado-nombre { min-height: 0; font-size: clamp(.56rem, 2vw, .68rem); line-height: 1.2; overflow-wrap: anywhere; }
+        .inicio-store .destacado-precio { gap: 3px; flex-wrap: wrap; }
+        .inicio-store .destacado-precio-actual { font-size: clamp(.66rem, 2.2vw, .78rem); }
+        .inicio-store .destacado-precio-actual span { font-size: .54rem; }
+        .inicio-store .destacado-precio-anterior { font-size: .52rem; }
+        .inicio-store .destacado-btn { min-height: 38px; padding: .32rem .12rem; gap: 2px; font-size: .55rem; white-space: normal; }
+        .inicio-store .destacado-btn svg { width: 10px; height: 10px; }
+    }
 </style>
 
 <main class="inicio-mreyze">

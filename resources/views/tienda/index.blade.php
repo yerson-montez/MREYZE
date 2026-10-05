@@ -590,6 +590,21 @@
     @media (max-width: 520px) {
         .tienda-payment-note { font-size: .68rem; }
     }
+    @media (max-width: 767px) {
+        #tiendaGrid, #tiendaGrid.has-search {
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: .5rem;
+        }
+        #tiendaGrid .producto-card { min-width: 0; }
+        #tiendaGrid .producto-body { padding: .42rem; }
+        #tiendaGrid .producto-cat { font-size: .5rem; overflow-wrap: anywhere; }
+        #tiendaGrid .producto-nombre { font-size: .66rem; line-height: 1.2; overflow-wrap: anywhere; }
+        #tiendaGrid .producto-footer { flex-direction: column; align-items: stretch; gap: .3rem; }
+        #tiendaGrid .producto-precio-actual { font-size: .76rem; }
+        #tiendaGrid .producto-precio-actual span { font-size: .56rem; }
+        #tiendaGrid .producto-precio-anterior { font-size: .54rem; }
+        #tiendaGrid .producto-btn { width: 100%; min-height: 38px; padding: .32rem .15rem; font-size: .58rem; justify-content: center; gap: 2px; }
+    }
 </style>
 
 {{--
