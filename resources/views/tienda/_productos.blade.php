@@ -63,6 +63,10 @@
                 @if($p->precio_anterior)
                 <div class="producto-precio-anterior">S/ {{ number_format($p->precio_anterior, 2) }}</div>
                 @endif
+                <div class="producto-pago-info">
+                    <strong>💳 Paga solo el 50% ahora</strong>
+                    <span>50% al confirmar · 50% al recibir</span>
+                </div>
             </div>
 
             @if($p->estado !== 'agotado')
@@ -85,6 +89,25 @@
 @once
 @push('styles')
 <style>
+.producto-pago-info {
+    display: grid;
+    gap: .12rem;
+    margin-top: .38rem;
+    line-height: 1.3;
+}
+.producto-pago-info strong {
+    color: #8deaff;
+    font-size: .68rem;
+    font-weight: 650;
+}
+.producto-pago-info span {
+    color: #a9bfd3;
+    font-size: .61rem;
+}
+@media (max-width: 520px) {
+    .producto-pago-info strong { font-size: .6rem; }
+    .producto-pago-info span { font-size: .54rem; }
+}
 .producto-thumbs {
     display: flex;
     gap: 4px;

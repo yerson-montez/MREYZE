@@ -277,6 +277,21 @@
         display: block;
    }
 
+    .tienda-confianza {
+        display: flex;
+        align-items: center;
+        gap: .85rem;
+        margin: 0 0 1.15rem;
+        padding: .8rem 1rem;
+        border: 1px solid rgba(0, 212, 255, .2);
+        border-radius: 12px;
+        background: linear-gradient(105deg, rgba(30, 77, 153, .22), rgba(0, 212, 255, .055));
+    }
+    .tienda-confianza-icon { flex: 0 0 auto; font-size: 1.35rem; }
+    .tienda-confianza-copy { display: grid; gap: .18rem; }
+    .tienda-confianza-title { color: #f3f9ff; font-size: .88rem; font-weight: 700; letter-spacing: .035em; }
+    .tienda-confianza-main { margin: 0; color: #d8e9f7; font-size: .82rem; }
+    .tienda-confianza-details { color: #9bb5ca; font-size: .68rem; line-height: 1.4; }
     /* Banner promo */
     .tienda-banner {
         margin-top: 3rem;
@@ -321,6 +336,10 @@
     /* ── Celulares: catálogo compacto estilo AliExpress (4 productos por fila) ── */
     @media (max-width: 520px) {
         .tienda { padding: 4rem 0.5rem; }
+        .tienda-confianza { align-items: flex-start; gap: .6rem; padding: .7rem .75rem; }
+        .tienda-confianza-title { font-size: .8rem; }
+        .tienda-confianza-main { font-size: .75rem; }
+        .tienda-confianza-details { font-size: .62rem; }
         .tienda-header { flex-direction: column; align-items: flex-start; gap: 0.75rem; margin-bottom: 1.5rem; }
         .tienda-header > div { flex-wrap: wrap; }
         .tienda-header .section-title { font-size: 1.35rem; }
@@ -638,6 +657,14 @@
             </div>
         </div>
 
+        <aside class="tienda-confianza reveal" aria-label="Información de compra">
+            <span class="tienda-confianza-icon" aria-hidden="true">🛡️</span>
+            <div class="tienda-confianza-copy">
+                <strong class="tienda-confianza-title">COMPRA CON CONFIANZA</strong>
+                <p class="tienda-confianza-main">Paga 50% para confirmar tu pedido · 50% al recibirlo</p>
+                <small class="tienda-confianza-details">🔒 Compra segura · 📦 Seguimiento de pedido · 💳 50% de adelanto</small>
+            </div>
+        </aside>
         {{-- Buscador --}}
         <div class="tienda-search reveal">
             <div class="search-wrapper">
